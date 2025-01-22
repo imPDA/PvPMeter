@@ -1,0 +1,28 @@
+{
+    "Lua.diagnostics.globals": [
+        "BATTLEGROUND_SCOREBOARD_FRAGMENT",
+        "PvPMeterBattlegroundsData",
+        "ZO_ScrollList_MouseClick",
+        "ZO_Tooltips_ShowTextTooltip",
+        "ZO_Tooltips_HideTextTooltip",
+        "ZO_GetClassIcon",
+        "FRAGMENT_GROUP",
+        "RIGHT_BG_FRAGMENT",
+        "TITLE_FRAGMENT",
+        "ZO_SetTitleFragment",
+        "ZO_CreateStringId",
+        "LAMCreateControl",
+        "IGNORE_CALLBACKS",
+        "LIBCOMBAT_EVENT_FIGHTSUMMARY",
+        "LibCombat",
+        "CAMPAIGN_BROWSER",
+        "CAMPAIGN_BROWSER_MANAGER",
+        "ZO_CAMPAIGN_DATA_TYPE_CAMPAIGN",
+        "LibDebugLogger",
+        "LINK_HANDLER",
+        "CAMPAIGN_BROWSER_SCENE",
+        "TREE_UNDERLAY_FRAGMENT",
+        "LibAsync",
+        "LibAddonMenu2"
+    ]
+}

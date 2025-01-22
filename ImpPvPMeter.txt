@@ -1,0 +1,33 @@
+## Title: |cAFD3FFimp|ceeeeee's PvP Meter|r
+## AddOnVersion: 1001
+## APIVersion: 101044
+## Author: |cAFD3FF@impda|r [EU]
+## DependsOn: LibMainMenu-2.0 LibCombat ImpTools LibAsync LibAddonMenu-2.0
+## OptionalDependsOn LibDebugLogger
+## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData PvPMeterBattlegroundsSV PvPMeterDuelsData PvPMeterDuelsSV PvPMeterTOTData
+
+logger.lua
+shared.lua
+
+battlegrounds/template.xml
+battlegrounds/ui.lua
+battlegrounds/saver.lua
+
+duels/template.xml
+duels/ui.lua
+duels/saver.lua
+
+tot/template.xml
+tot/ui.lua
+tot/manager.lua
+
+controls.xml
+
+bindings.xml
+bindings.lua
+
+menu.lua
+
+settings.lua
+
+main.lua
