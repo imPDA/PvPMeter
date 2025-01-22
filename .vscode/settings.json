@@ -23,6 +23,11 @@
         "CAMPAIGN_BROWSER_SCENE",
         "TREE_UNDERLAY_FRAGMENT",
         "LibAsync",
-        "LibAddonMenu2"
+        "LibAddonMenu2",
+        "ZO_SORT_ORDER_UP",
+        "ZO_SORT_ORDER_DOWN"
+    ],
+    "Lua.diagnostics.disable": [
+        "unused-function"
     ]
 }

@@ -77,6 +77,61 @@ end
 --#endregion IPM BATTLEGROUNDS STAT
 
 --#region IPM BATTLEGROUNDS ADDON
+local SORTABLE_HEADERS = {
+    ['Index'] = 'index',
+    ['Score'] = 'score',
+    ['Kills'] = 'kills',
+    ['Deaths'] = 'deaths',
+    ['Assists'] = 'assists',
+    ['DamageDone'] = 'damageDone',
+    ['HealingDone'] = 'healingDone',
+    ['DamageTaken'] = 'damageTaken',
+}
+
+local IS_LESS_THAN = -1
+local IS_EQUAL_TO = 0
+local IS_GREATER_THAN = 1
+
+local function SortingFunction(entry1, entry2, sortingKey, sortingOrder)
+    local value1, value2 = entry1.data[sortingKey], entry2.data[sortingKey]
+
+    -- Log(value1, value2)
+
+    local compareResult
+    if value1 < value2 then
+        compareResult = IS_LESS_THAN
+    elseif value1 > value2 then
+        compareResult = IS_GREATER_THAN
+    else
+        compareResult = IS_EQUAL_TO
+    end
+
+    if compareResult == IS_EQUAL_TO then
+        return SortingFunction(entry1, entry2, 'index')
+    else
+        if sortingOrder == ZO_SORT_ORDER_UP then
+            return compareResult == IS_LESS_THAN
+        end
+
+        return compareResult == IS_GREATER_THAN
+    end
+end
+
+function addon:ApplySorting()
+    if not self.currentSortingKey then return end
+
+    Log('[B] Sorting requested by %s (%s)', self.currentSortingKey, tostring(self.currentSortOrder))
+
+    local scrollData = ZO_ScrollList_GetDataList(self.listControl)
+    assert(scrollData ~= nil, 'Scroll data is nil')
+
+    table.sort(scrollData, function(entry1, entry2)
+        return SortingFunction(entry1, entry2, self.currentSortingKey, self.currentSortOrder)
+    end)
+
+    ZO_ScrollList_Commit(self.listControl)
+end
+
 function addon:SetShit(value)
     local shit = IPM_BGsStatsBlockShit
     local r, g, b = IPM_Shared.Blend({1, 0, 0}, {0, 1, 0}, value)
@@ -133,6 +188,30 @@ function addon:CreateControls()
     self.statsControl = statsControl
 
     Log('Controls created')
+end
+
+function addon:InitializeSortingHeaders()
+    local headersControl = self.battlegroundsControl:GetNamedChild('Listing'):GetNamedChild('Headers')
+
+    local function InitializeSortableHeader(headerName)
+        local header = headersControl:GetNamedChild(headerName)
+        header:SetMouseEnabled(true)
+        header:SetHandler('OnMouseDown', function()
+            local sortingKey = SORTABLE_HEADERS[headerName]
+            if self.currentSortingKey == sortingKey then
+                self.currentSortOrder = not self.currentSortOrder
+                -- Log('Changing sort order')
+            else
+                self.currentSortOrder = ZO_SORT_ORDER_UP
+                self.currentSortingKey = sortingKey
+            end
+            self:ApplySorting()
+        end)
+    end
+
+    for headerName, _ in pairs(SORTABLE_HEADERS) do
+        InitializeSortableHeader(headerName)
+    end
 end
 
 local GAME_TYPE_ABBREVIATION = {
@@ -332,6 +411,9 @@ function addon:UpdateUI()
     Log('[B] Updating UI')
     local SOME_ID = 1
     UpdateScrollList(self.listControl, self.dataRows, SOME_ID)
+
+    self:ApplySorting()
+
     self:UpdateStatsControl()
 end
 
@@ -471,6 +553,7 @@ function addon:Initialize(naming, selectedCharacters)
     self.stats = IPM_BattlegroundsStats:New()
 
     self:CreateControls()
+    self:InitializeSortingHeaders()
     self:CreateScrollListDataType()
 
     local function GoodDataFilter(matchData)
