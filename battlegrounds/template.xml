@@ -99,8 +99,12 @@
 							<Anchor point="TOPLEFT" />
 						</Control>
 
-						<Label name="$(parent)TotalMatches" inherits="IPM_StatName" text="Matches recorded:">
+						<Control name="$(parent)TopLeftCorner" hidden="true">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)" offsetX="110" offsetY="6" />
+						</Control>
+
+						<Label name="$(parent)TotalMatches" inherits="IPM_StatName" text="Matches recorded:">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" />
 						</Label>
 						<Label name="$(parent)TotalMatchesValue" inherits="IPM_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalMatches" relativePoint="TOPRIGHT" offsetX="5" />
@@ -113,26 +117,80 @@
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)TotalKDA" inherits="IPM_StatName" text="K/D/A (total):">
+						<Label name="$(parent)KD" inherits="IPM_StatName" text="Kills/Deaths:">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
+						</Label>
+						<Label name="$(parent)KDValue" inherits="IPM_StatValue">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)KD" relativePoint="TOPRIGHT" offsetX="5" />
+						</Label>
+
+						<Control name="$(parent)KDAStats">
+							<Dimensions x="100" y="100" />
+							<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" offsetX="270" />
+							<Controls>
+								<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="00FF00" /> -->
+								<Label name="$(parent)InvisibleLabel" inherits="IPM_StatName" text="-" hidden="true">
+									<Anchor point="TOPLEFT" />
+								</Label>
+								<Label name="$(parent)SumLabel" inherits="IPM_StatName" text="Sum">
+									<Anchor point="TOPRIGHT" relativeTo="$(parent)InvisibleLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
+								</Label>
+								<Label name="$(parent)AvgLabel" inherits="IPM_StatName" text="Avg">
+									<Anchor point="TOPRIGHT" relativeTo="$(parent)SumLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
+								</Label>
+
+								<Label name="$(parent)K" inherits="IPM_StatName" text="Kills">
+									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="18" />
+								</Label>
+								<Label name="$(parent)KSum" inherits="IPM_StatValue">
+									<Anchor point="CENTER" relativeTo="$(parent)K" relativePoint="CENTER" offsetY="32" />
+								</Label>
+								<Label name="$(parent)KAvg" inherits="IPM_StatValue">
+									<Anchor point="CENTER" relativeTo="$(parent)KSum" relativePoint="CENTER" offsetY="32" />
+								</Label>
+
+								<Label name="$(parent)D" inherits="IPM_StatName" text="Deaths">
+									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="68" />
+								</Label>
+								<Label name="$(parent)DSum" inherits="IPM_StatValue">
+									<Anchor point="CENTER" relativeTo="$(parent)D" relativePoint="CENTER" offsetY="32" />
+								</Label>
+								<Label name="$(parent)DAvg" inherits="IPM_StatValue">
+									<Anchor point="CENTER" relativeTo="$(parent)DSum" relativePoint="CENTER" offsetY="32" />
+								</Label>
+
+								<Label name="$(parent)A" inherits="IPM_StatName" text="Assists">
+									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="128" />
+								</Label>
+								<Label name="$(parent)ASum" inherits="IPM_StatValue">
+									<Anchor point="CENTER" relativeTo="$(parent)A" relativePoint="CENTER" offsetY="32" />
+								</Label>
+								<Label name="$(parent)AAvg" inherits="IPM_StatValue">
+									<Anchor point="CENTER" relativeTo="$(parent)ASum" relativePoint="CENTER" offsetY="32" />
+								</Label>
+							</Controls>
+						</Control>
+
+						<!-- <Label name="$(parent)TotalKDA" inherits="IPM_StatName" text="K/D/A (total):">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
 						<Label name="$(parent)TotalKDAValue" inherits="IPM_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalKDA" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label>
+						</Label> -->
 						
-						<Label name="$(parent)KDA" inherits="IPM_StatName" text="K/D/A:">
+						<!-- <Label name="$(parent)KDA" inherits="IPM_StatName" text="K/D/A:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalKDA" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
 						<Label name="$(parent)KDAValue" inherits="IPM_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)KDA" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label>
+						</Label> -->
 
-						<Label name="$(parent)Totals" inherits="IPM_StatName" text="Total damage/healing/damage taken:">
+						<!-- <Label name="$(parent)Totals" inherits="IPM_StatName" text="Total damage/healing/damage taken:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)KDA" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
 						<Label name="$(parent)TotalsValue" inherits="IPM_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Totals" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label>
+						</Label> -->
 					</Controls>
 				</Control>
 				

@@ -150,27 +150,40 @@ function addon:UpdateStatsControl()
         string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r / |c555555%d|r)', winrate * 100, self.stats.totalWon, self.stats.totalLost, self.stats.totalTied)
     )
 
-    -- TODO: total left
-    self.statsControl:GetNamedChild('TotalKDAValue'):SetText(
-        string.format('%d / %d / %d', self.stats.totalKills, self.stats.totalDeaths, self.stats.totalAssists)
+    self.statsControl:GetNamedChild('KDValue'):SetText(
+        string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalDeaths))
     )
 
-    self.statsControl:GetNamedChild('KDAValue'):SetText(
-        string.format(
-            '%.1f / %.1f / %.1f',
-            IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalMatches),
-            IPM_Shared.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches),
-            IPM_Shared.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)
-        )
-    )
-    self.statsControl:GetNamedChild('TotalsValue'):SetText(
-        string.format(
-            '%s / %s / %s',
-            IPM_Shared.FormatNumber(self.stats.totalDamageDone),
-            IPM_Shared.FormatNumber(self.stats.totalHealingDone),
-            IPM_Shared.FormatNumber(self.stats.totalDamageTaken)
-        )
-    )
+    -- TODO: total left
+    -- self.statsControl:GetNamedChild('TotalKDAValue'):SetText(
+    --     string.format('%d / %d / %d', self.stats.totalKills, self.stats.totalDeaths, self.stats.totalAssists)
+    -- )
+
+    -- self.statsControl:GetNamedChild('KDAValue'):SetText(
+    --     string.format(
+    --         '%.1f / %.1f / %.1f',
+    --         IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalMatches),
+    --         IPM_Shared.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches),
+    --         IPM_Shared.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)
+    --     )
+    -- )
+    -- self.statsControl:GetNamedChild('TotalsValue'):SetText(
+    --     string.format(
+    --         '%s / %s / %s',
+    --         IPM_Shared.FormatNumber(self.stats.totalDamageDone),
+    --         IPM_Shared.FormatNumber(self.stats.totalHealingDone),
+    --         IPM_Shared.FormatNumber(self.stats.totalDamageTaken)
+    --     )
+    -- )
+
+    local KDAStatsControl = self.statsControl:GetNamedChild('KDAStats')
+    KDAStatsControl:GetNamedChild('KSum'):SetText(self.stats.totalKills)
+    KDAStatsControl:GetNamedChild('DSum'):SetText(self.stats.totalDeaths)
+    KDAStatsControl:GetNamedChild('ASum'):SetText(self.stats.totalAssists)
+
+    KDAStatsControl:GetNamedChild('KAvg'):SetText(string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('DAvg'):SetText(string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('AAvg'):SetText(string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)))
 
     self:SetShit(winrate)
 end
