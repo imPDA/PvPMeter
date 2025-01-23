@@ -559,28 +559,33 @@ function addon:InitializePlayerCharactersFilter()
         end
     end
 
-    local function EveryoneSelected()
+    local function GetTextIf(everyoneSelected)
+        return everyoneSelected and 'Deselect All' or 'Select All'
+    end
+
+    local function IsEveryoneSelected()
         return filter:GetNumSelectedEntries() == numCharacters
     end
 
     local function SelectUnselect(button)
-        if EveryoneSelected() then
+        local everyoneSelected = IsEveryoneSelected()
+        if everyoneSelected then
             filter:ClearAllSelections()
-            button:SetText('Select All')
             for i, item in ipairs(filter.m_sortedItems) do
                 self.filters.playerCharacters[item.filterType] = false
             end
         else
-            button:SetText('Unselect All')
             for i, item in ipairs(filter.m_sortedItems) do
                 self.filters.playerCharacters[item.filterType] = true
                 filter:SelectItem(item, true)
             end
         end
+        button:SetText(GetTextIf(everyoneSelected))
         self:Update()
     end
 
     local selectButton = GetControl(filterControl, 'SelectButton')
+    selectButton:SetText(GetTextIf(IsEveryoneSelected()))
     selectButton:SetHandler('OnMouseDown', SelectUnselect)
 end
 
