@@ -16,8 +16,8 @@ local function GetOpponentData(opponentName)
 end
 
 --#region IGameManager
-local READY = 1
-local PENDING = 2
+local PENDING = 1
+local READY = 2
 
 local GameManager = {}
 
@@ -58,14 +58,20 @@ end
 
 function GameManager:UpdatePlayerRank(skipRequest)
     local type = self.gameOver and 'final' or 'starting'
-    -- Log('[T] Updating player\'s %s rank', type)
+    -- Log('[GameManager] Updating player\'s %s rank', type)
     local tbl = self.gameOver and self.player.atEnd or self.player.atStart
 
     if not tbl.rankStatus then
         tbl.rankStatus = PENDING
-        EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_RANK_RECEIVED, function() self:UpdatePlayerRank(true) end)
-        Log('[T] Listening for player\'s %s rank update', type)
+        EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_RANK_RECEIVED, function()
+            self:UpdatePlayerRank(true)
+            Log('MMR status: %d', tbl.mmrStatus)
+            if not tbl.mmrStatus == READY then self:UpdatePlayerMMR() end
+        end)
+        Log('[GameManager] Waiting for player\'s %s rank update', type)
     end
+
+    if not skipRequest then Log('[GameManager] Sending request for rank') end
 
     if skipRequest or RequestTributeLeaderboardRank() == LEADERBOARD_DATA_READY then
         local playerLeaderboardRank, totalLeaderboardPlayers = GetTributeLeaderboardRankInfo()
@@ -74,27 +80,37 @@ function GameManager:UpdatePlayerRank(skipRequest)
         tbl.rank = math.abs(playerLeaderboardRank)
         tbl.topP = math.abs(topPercent)
 
-        Log('[T] Player\'s %s rank updated', type)
+        tbl.rankStatus = READY
+        Log('[GameManager] Player\'s %s rank updated', type)
+        EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_RANK_RECEIVED)
     end
 end
 
 function GameManager:UpdatePlayerMMR(skipRequest)
     local type = self.gameOver and 'final' or 'starting'
-    -- Log('[T] Updating player\'s %s MMR', type)
+    -- Log('[GameManager] Updating player\'s %s MMR', type)
     local tbl = self.gameOver and self.player.atEnd or self.player.atStart
 
     if not tbl.mmrStatus then
         tbl.mmrStatus = PENDING
-        EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED, function() self:UpdatePlayerMMR(true) end)
-        Log('[T] Listening for player\'s %s MMR updates', type)
+        EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED, function()
+            self:UpdatePlayerMMR(true)
+            Log('[GameManager] Rank status: %d', tbl.rankStatus)
+            if tbl.rankStatus ~= READY then self:UpdatePlayerRank() end
+        end)
+        Log('[GameManager] Waiting for player\'s %s MMR updates', type)
     end
+
+    if not skipRequest then Log('[GameManager] Sending request for MMR') end
 
     if skipRequest or QueryTributeLeaderboardData(TRIBUTE_LEADERBOARD_TYPE_RANKED) == LEADERBOARD_DATA_READY then
         local _, score = GetTributeLeaderboardLocalPlayerInfo(TRIBUTE_LEADERBOARD_TYPE_RANKED)
 
         tbl.mmr = math.abs(score)
 
-        Log('[T] Player\'s %s MMR updated', type)
+        tbl.mmrStatus = READY
+        Log('[GameManager] Player\'s %s MMR updated', type)
+        EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
     end
 end
 
