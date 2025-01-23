@@ -144,7 +144,7 @@ function addon:CreateScrollListDataType()
                     local diff = after - before
 
                     local icon = diff >= 0 and upIcon or downIcon
-                    local sign = diff >= 0 and '+' or '-'
+                    local sign = diff >= 0 and '+' or ''
                     local color = diff >= 0 and COLOR_OF_RESULT[WIN] or COLOR_OF_RESULT[LOSS]
 
                     return color:Colorize(string.format('%s%d (%s%d)', icon, after, sign, diff))
