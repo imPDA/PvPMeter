@@ -46,7 +46,16 @@
 		<Label name="IPM_StatName" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT" text="TEXT" virtual="true"></Label>
 		<Label name="IPM_StatValue" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED" horizontalAlignment="LEFT" text="-" virtual="true"></Label>
 		<Label name="IPM_Listing_Cell" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="-" virtual="true" />
-		<Label name="IPM_Listing_Header" font="ZoFontGameLargeBold" color="CFDCBD" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="TEXT" virtual="true" />
+		<Label name="IPM_Listing_Header" font="ZoFontGameLargeBold" color="CFDCBD" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="TEXT" virtual="true">
+			<Controls>
+				<!-- TODO sorting icons-->
+				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="000000" /> -->
+				<!-- <Texture name="$(parent)SortingIcon" textureFile="EsoUI/Art/Miscellaneous/list_sortHeader_icon_neutral.dds">
+					<Dimensions x="16" y="28" />
+					<Anchor point="RIGHT" relativeTo="$(parent)" relativePoint="LEFT" />
+				</Texture> -->
+			</Controls>
+		</Label>
 
 		<TopLevelControl name="IPM_BGs_Container" inherits="ZO_RightPanelFootPrint" hidden="true" />
 		<TopLevelControl name="IPM_Duels_Container" inherits="ZO_RightPanelFootPrint" hidden="true" />

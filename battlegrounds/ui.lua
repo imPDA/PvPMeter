@@ -539,12 +539,36 @@ function addon:InitializePlayerCharactersFilter()
     filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
 
     for i, item in ipairs(filter.m_sortedItems) do
-        Log('%d - %s', i, item.name)
+        -- Log('%d - %s', i, item.name)
         if self.filters.playerCharacters[item.filterType] then
             filter:SelectItem(item, true)
-            Log('[B] Selecting %s', item.text)
+            -- Log('[B] Selecting %s', item.text)
         end
     end
+
+    local function EveryoneSelected()
+        return filter:GetNumSelectedEntries() == numCharacters
+    end
+
+    local function SelectUnselect(button)
+        if EveryoneSelected() then
+            filter:ClearAllSelections()
+            button:SetText('Select All')
+            for i, item in ipairs(filter.m_sortedItems) do
+                self.filters.playerCharacters[item.filterType] = false
+            end
+        else
+            button:SetText('Unselect All')
+            for i, item in ipairs(filter.m_sortedItems) do
+                self.filters.playerCharacters[item.filterType] = true
+                filter:SelectItem(item, true)
+            end
+        end
+        self:Update()
+    end
+
+    local selectButton = GetControl(filterControl, 'SelectButton')
+    selectButton:SetHandler('OnMouseDown', SelectUnselect)
 end
 
 function addon:Initialize(naming, selectedCharacters)
