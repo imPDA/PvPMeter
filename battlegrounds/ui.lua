@@ -92,7 +92,8 @@ local IS_LESS_THAN = -1
 local IS_EQUAL_TO = 0
 local IS_GREATER_THAN = 1
 
-local function SortingFunction(entry1, entry2, sortingKey, sortingOrder)
+local function SortingFunction(entry1, entry2, sortingKey, sortingOrder, tiebreaker)
+    -- if entry1 == entry2 then return end
     local value1, value2 = entry1.data[sortingKey], entry2.data[sortingKey]
 
     -- Log(value1, value2)
@@ -107,7 +108,9 @@ local function SortingFunction(entry1, entry2, sortingKey, sortingOrder)
     end
 
     if compareResult == IS_EQUAL_TO then
-        return SortingFunction(entry1, entry2, 'index')
+        if tiebreaker then
+            return SortingFunction(entry1, entry2, tiebreaker)
+        end
     else
         if sortingOrder == ZO_SORT_ORDER_UP then
             return compareResult == IS_LESS_THAN
@@ -126,7 +129,7 @@ function addon:ApplySorting()
     assert(scrollData ~= nil, 'Scroll data is nil')
 
     table.sort(scrollData, function(entry1, entry2)
-        return SortingFunction(entry1, entry2, self.currentSortingKey, self.currentSortOrder)
+        return SortingFunction(entry1, entry2, self.currentSortingKey, self.currentSortOrder, 'index')
     end)
 
     ZO_ScrollList_Commit(self.listControl)

@@ -96,7 +96,8 @@ function GameManager:UpdatePlayerMMR(skipRequest)
         EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED, function()
             self:UpdatePlayerMMR(true)
             Log('[GameManager] Rank status: %d', tbl.rankStatus)
-            if tbl.rankStatus ~= READY then self:UpdatePlayerRank() end
+            -- if tbl.rankStatus ~= READY then self:UpdatePlayerRank() end
+            self:UpdatePlayerRank()
         end)
         Log('[GameManager] Waiting for player\'s %s MMR updates', type)
     end
@@ -114,11 +115,11 @@ function GameManager:UpdatePlayerMMR(skipRequest)
     end
 end
 
-function GameManager:UpdateScore(name)
-    local found, rank, displayName, characterName, score = GetOpponentData(name)
-    Log('[T] Updated rank: %d (#%d)', score, rank)
-    EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
-end
+-- function GameManager:UpdateScore(name)
+--     local found, rank, displayName, characterName, score = GetOpponentData(name)
+--     Log('[T] Updated rank: %d (#%d)', score, rank)
+--     EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
+-- end
 
 --[[
 function IPM_TOTGame:InitializeOpponent()

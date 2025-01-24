@@ -116,7 +116,6 @@ end
 
 function addon:CreateScrollListDataType()
     local function LayoutRow(rowControl, data, scrollList)
-        Log('[T] Special')
         local game = IPM_TOT_MANAGER.games[data.gameIndex]
 
         local upIcon = zo_iconFormatInheritColor('/esoui/art/tooltips/arrow_up.dds', 12, 12)
@@ -159,7 +158,7 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'PlayerMMR'):SetText(IconSighColor(game.player.atStart.mmr, game.player.atEnd.mmr))
         GetControl(rowControl, 'Rank'):SetText(IconSighColor(game.player.atStart.rank, game.player.atEnd.rank))
 
-        GetControl(rowControl, 'TopPercent'):SetText(string.format('%.1f%%', game.player.atEnd.topP * 100))
+        GetControl(rowControl, 'TopPercent'):SetText(string.format('%.1f%%', (game.player.atEnd.topP or 0) * 100))
 
         -- rowControl:SetHandler('OnMouseUp', function()
         --     d('click')
