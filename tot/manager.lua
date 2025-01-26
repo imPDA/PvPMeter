@@ -202,14 +202,16 @@ function addon:UpdateOpponentPreview()
     local function UpdateControl()
         local opponent = self.currentGame.opponent
 
-        GetControl(self.previewControl, 'OpponentNameValue'):SetText(opponent.name)
-        GetControl(self.previewControl, 'TotalGamesValue'):SetText(statsVsCurrentOpponent.totalGames)
+        -- GetControl(self.previewControl, 'OpponentNameValue'):SetText(opponent.name)
+        if statsVsCurrentOpponent.totalGames > 0 then
+            GetControl(self.previewControl, 'PlayedBefore'):SetText(string.format('Played %d games', statsVsCurrentOpponent.totalGames))
+            local winrate = IPM_Shared.PossibleNan((statsVsCurrentOpponent.totalWonFP + statsVsCurrentOpponent.totalWonSP) / statsVsCurrentOpponent.totalGames)
+            GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', winrate * 100))
+        end
 
-        local winrate = IPM_Shared.PossibleNan((statsVsCurrentOpponent.totalWonFP + statsVsCurrentOpponent.totalWonSP) / statsVsCurrentOpponent.totalGames)
-        GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', winrate * 100))
-
-        if opponent.atStart then
-            GetControl(self.previewControl, 'OpponentMMRValue'):SetText(string.format('%d (#%d)', opponent.atStart.mmr, opponent.atStart.rank))
+        if opponent.atStart and opponent.atStart.rank then
+            -- GetControl(self.previewControl, 'OpponentRank'):SetText('Ladder #57 (754 MMR)')
+            GetControl(self.previewControl, 'OpponentRank'):SetText(string.format('Ladder #%d (%d MMR)', opponent.atStart.rank, opponent.atStart.mmr))
         end
     end
 
