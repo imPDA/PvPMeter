@@ -212,8 +212,6 @@ function addon:CreateScrollListDataType()
         tooltip = tooltip .. '\n'
         tooltip = tooltip .. 'Result: ' .. DUEL_RESULT_TO_STRING[result]
 
-        -- TODO: make undefined default result 
-
         rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
         rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
     end
@@ -354,6 +352,7 @@ local function SelectAllElements(filter)
     end
 end
 
+--[[
 function addon:InitializePlayerCharactersFilter()
     -- TODO: basically copied from bgs and replaced highlighter fucntions, so can make universal function
     local function InitializeFilter(contorl, entriesData, setFiltersCallback)
@@ -424,6 +423,9 @@ function addon:InitializePlayerCharactersFilter()
         end
     end
 end
+]]
+
+addon.InitializePlayerCharactersFilter = IPM_Shared.InitializePlayerCharactersFilter
 
 function addon:Initialize(naming, selectedCharacters)
     self.duels = IPM_DUEL_SAVER.duels
@@ -476,7 +478,7 @@ function addon:Initialize(naming, selectedCharacters)
     if IPM_Shared.TableLength(self.filters.playerCharacters) < 1 then
         self.filters.playerCharacters[GetCurrentCharacterId()] = true
     end
-    self:InitializePlayerCharactersFilter()
+    self:InitializePlayerCharactersFilter(GetControl(self.duelsControl, 'FilterPlayerCharacters'))
 
     Log('[D] UI initialized')
 end

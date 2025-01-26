@@ -6,12 +6,14 @@
 ## OptionalDependsOn LibDebugLogger
 ## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData PvPMeterBattlegroundsSV PvPMeterDuelsData PvPMeterDuelsSV PvPMeterTOTData
 
+strings.lua
 logger.lua
 shared.lua
 
 battlegrounds/template.xml
 battlegrounds/ui.lua
-battlegrounds/saver.lua
+battlegrounds/match.lua
+battlegrounds/manager.lua
 
 duels/template.xml
 duels/ui.lua

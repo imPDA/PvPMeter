@@ -10,7 +10,7 @@ LMM:Init()
 
 local CATEGORIES = {
 	{
-		name = 'Battlegrounds',
+		name = SI_IMP_PVP_METER_BATTLEGROUNS_TAB_TITLE,
 		container = IPM_BGs_Container,
 		icons = {
 			normal = 'EsoUI/Art/Battlegrounds/battlegrounds_tabIcon_battlegrounds_up.dds',
@@ -19,7 +19,7 @@ local CATEGORIES = {
 		},
 	},
 	{
-		name = 'Duels',
+		name = SI_IMP_PVP_METER_DUELS_TAB_TITLE,
 		container = IPM_Duels_Container,
 		icons = {
 			normal = "EsoUI/Art/Journal/journal_tabIcon_leaderboard_up.dds",
@@ -28,7 +28,7 @@ local CATEGORIES = {
 		},
 	},
 	{
-		name = 'TOT',
+		name = SI_IMP_PVP_METER_TOT_TAB_TITLE,
 		container = IPM_TOT_Container,
 		icons = {
 			normal = 'EsoUI/Art/Tribute/tribute_tabicon_tribute_up.dds',
@@ -39,8 +39,6 @@ local CATEGORIES = {
 }
 
 function addon:Initialize(initBGs, initDuels, initTOT)
-	ZO_CreateStringId('SI_IMP_PVP_METER_MAIN_MENU_TITLE', addon.display_name)
-
 	local IPM_TITLE_FRAGMENT = ZO_SetTitleFragment:New(SI_IMP_PVP_METER_MAIN_MENU_TITLE)
 	-- TODO: subtitle
 

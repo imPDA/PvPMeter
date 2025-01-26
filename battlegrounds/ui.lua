@@ -92,9 +92,8 @@ local IS_LESS_THAN = -1
 local IS_EQUAL_TO = 0
 local IS_GREATER_THAN = 1
 
-local function SortingFunction(entry1, entry2, sortingKey, sortingOrder, tiebreaker)
-    -- if entry1 == entry2 then return end
-    local value1, value2 = entry1.data[sortingKey], entry2.data[sortingKey]
+local function SortingFunction(left, right, sortingKey, sortingOrder, tiebreaker)
+    local value1, value2 = left[sortingKey], right[sortingKey]
 
     -- Log(value1, value2)
 
@@ -109,7 +108,7 @@ local function SortingFunction(entry1, entry2, sortingKey, sortingOrder, tiebrea
 
     if compareResult == IS_EQUAL_TO then
         if tiebreaker then
-            return SortingFunction(entry1, entry2, tiebreaker)
+            return SortingFunction(left, right, tiebreaker)
         end
     else
         if sortingOrder == ZO_SORT_ORDER_UP then
@@ -120,7 +119,7 @@ local function SortingFunction(entry1, entry2, sortingKey, sortingOrder, tiebrea
     end
 end
 
-function addon:ApplySorting()
+function addon:ApplySorting(preventCommit)
     if not self.currentSortingKey then return end
 
     Log('[B] Sorting requested by %s (%s)', self.currentSortingKey, tostring(self.currentSortOrder))
@@ -129,10 +128,13 @@ function addon:ApplySorting()
     assert(scrollData ~= nil, 'Scroll data is nil')
 
     table.sort(scrollData, function(entry1, entry2)
-        return SortingFunction(entry1, entry2, self.currentSortingKey, self.currentSortOrder, 'index')
+        local left, right = self.matchSummaries[entry1.data.matchIndex], self.matchSummaries[entry2.data.matchIndex]
+        return SortingFunction(left, right, self.currentSortingKey, self.currentSortOrder, 'index')
     end)
 
-    ZO_ScrollList_Commit(self.listControl)
+    if not preventCommit then
+        ZO_ScrollList_Commit(self.listControl)
+    end
 end
 
 function addon:SetShit(value)
@@ -146,11 +148,17 @@ function addon:SetShit(value)
 end
 
 function addon:UpdateStatsControl()
-    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(self.stats.totalMatches)
+    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IPM_Shared.FormatNumber(self.stats.totalMatches))
 
     local winrate = IPM_Shared.PossibleNan(self.stats.totalWon / self.stats.totalMatches)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
-        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r / |c555555%d|r)', winrate * 100, self.stats.totalWon, self.stats.totalLost, self.stats.totalTied)
+        string.format(
+            '%.1f %% (|c00FF00%d|r / |cFF0000%d|r / |c555555%d|r)',
+            winrate * 100,
+            IPM_Shared.FormatNumber(self.stats.totalWon),
+            IPM_Shared.FormatNumber(self.stats.totalLost),
+            IPM_Shared.FormatNumber(self.stats.totalTied)
+        )
     )
 
     self.statsControl:GetNamedChild('KDValue'):SetText(
@@ -249,25 +257,28 @@ function addon:CreateScrollListDataType()
     }
 
     local function LayoutRow(rowControl, data, scrollList)
-        if COLOR_OF_RESULT[data.result] then
-            GetControl(rowControl, 'BG'):SetHidden(false)
-            GetControl(rowControl, 'BG'):SetColor(unpack(COLOR_OF_RESULT[data.result]))
-        end
+        local summary = self.matchSummaries[data.matchIndex]
+
         GetControl(rowControl, 'Index'):SetText(data.index)
-        GetControl(rowControl, 'Type'):SetText(GAME_TYPE_ABBREVIATION[data.type])
-        GetControl(rowControl, 'Map'):SetText(data.zone)
+
+        if COLOR_OF_RESULT[summary.result] then
+            GetControl(rowControl, 'BG'):SetHidden(false)
+            GetControl(rowControl, 'BG'):SetColor(unpack(COLOR_OF_RESULT[summary.result]))
+        end
+        GetControl(rowControl, 'Type'):SetText(GAME_TYPE_ABBREVIATION[summary.type])
+        GetControl(rowControl, 'Map'):SetText(summary.zone)
         -- GetControl(rowControl, 'Team'):SetText(data.team)
-        local classIcon = data.class and ZO_GetClassIcon(data.class) or 'EsoUI/Art/Icons/icon_missing.dds'
+        local classIcon = summary.playerClass and ZO_GetClassIcon(summary.playerClass) or 'EsoUI/Art/Icons/icon_missing.dds'
         GetControl(rowControl, 'Class'):GetNamedChild('ClassIcon'):SetTexture(classIcon)
-        GetControl(rowControl, 'Score'):SetText(data.score)
+        GetControl(rowControl, 'Score'):SetText(summary.score)
 
-        GetControl(rowControl, 'Kills'):SetText(data.kills)
-        GetControl(rowControl, 'Deaths'):SetText(data.deaths)
-        GetControl(rowControl, 'Assists'):SetText(data.assists)
+        GetControl(rowControl, 'Kills'):SetText(summary.kills)
+        GetControl(rowControl, 'Deaths'):SetText(summary.deaths)
+        GetControl(rowControl, 'Assists'):SetText(summary.assists)
 
-        GetControl(rowControl, 'DamageDone'):SetText(IPM_Shared.FormatNumber(data.damageDone))
-        GetControl(rowControl, 'HealingDone'):SetText(IPM_Shared.FormatNumber(data.healingDone))
-        GetControl(rowControl, 'DamageTaken'):SetText(IPM_Shared.FormatNumber(data.damageTaken))
+        GetControl(rowControl, 'DamageDone'):SetText(IPM_Shared.FormatNumber(summary.damageDone))
+        GetControl(rowControl, 'HealingDone'):SetText(IPM_Shared.FormatNumber(summary.healingDone))
+        GetControl(rowControl, 'DamageTaken'):SetText(IPM_Shared.FormatNumber(summary.damageTaken))
 
         -- TODO is it ok to have selectCallback with EnableSelection or I need to merge them?
         rowControl:SetHandler('OnMouseUp', function(control, button)
@@ -277,16 +288,16 @@ function addon:CreateScrollListDataType()
 
         local tooltip = ''
 
-        if data.startTimestamp then
-            local formattedTime = os.date('%d.%m.%Y %H:%M', data.startTimestamp)
+        if summary.entryTimestamp then
+            local formattedTime = os.date('%d.%m.%Y %H:%M', summary.entryTimestamp)
             tooltip = tooltip .. formattedTime
         else
             tooltip = tooltip .. '-'
         end
         tooltip = tooltip .. '\n'
-        tooltip = tooltip .. zo_strformat('<<1>> (<<2>>)', data.displayName, data.characterName)
+        tooltip = tooltip .. zo_strformat('<<1>> (<<2>>)', summary.displayName, summary.characterName)
         tooltip = tooltip .. '\n'
-        tooltip = tooltip .. GetRaceName(0, data.race) .. ' / ' .. GetClassName(0, data.class)
+        tooltip = tooltip .. GetRaceName(0, summary.playerRace) .. ' / ' .. GetClassName(0, summary.playerClass)
 
         rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
         rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
@@ -309,9 +320,10 @@ function addon:CreateScrollListDataType()
     Log('Scroll list data type created')
 end
 
-local function CreateMatchSummary(matchData)
+local function CreateMatchSummary(matchIndex, matchData)
     local matchSummary = {
-        battlegroundType = matchData.type,
+        index = matchIndex,
+        type = matchData.type,
         result = matchData.result,
         playerRace = matchData.playerRace,
         playerClass =  matchData.playerClass,
@@ -348,6 +360,20 @@ local function CreateMatchSummary(matchData)
     return matchSummary
 end
 
+function addon:UpdateMatchSummary(matchIndex)
+    if self.matchSummaries[matchIndex] then return end
+
+    self.matchSummaries[matchIndex] = CreateMatchSummary(matchIndex, self.matches[matchIndex])
+end
+
+function addon:GetMatchSummary(matchIndex)
+    if not self.matchSummaries[matchIndex] then
+        self.matchSummaries[matchIndex] = CreateMatchSummary(matchIndex, self.matches[matchIndex])
+    end
+
+    return self.matchSummaries[matchIndex]
+end
+
 function addon:AddFilter(filterCallback)
     table.insert(self.filters, filterCallback)
 end
@@ -360,105 +386,87 @@ function addon:PassFilters(data)
     return true
 end
 
-function addon:Update()
-    Log('[B] Updating')
-
-    self.dataRows = {}
+function addon:CalculateStats(task)
     self.stats:Clear()
 
-    -- TODO: renaming
-    -- TODO: move Formatting to RowLayout
-
-    local function HandleMatchData(matchIndex, matchData)
-        -- Log('Handling %d match', matchIndex)
-        if not self:PassFilters(matchData) then return end
-
-        local matchSummary = CreateMatchSummary(matchData)
-
-        table.insert(self.dataRows, {
-            index = #self.dataRows + 1,
-            type = matchSummary.battlegroundType,
-            result = matchSummary.result,
-            score = matchSummary.score,
-            race = matchSummary.playerRace,
-            class =  matchSummary.playerClass,
-            zone = matchSummary.zone,
-            kills = matchSummary.kills,
-            deaths = matchSummary.deaths,
-            assists = matchSummary.assists,
-            damageDone = matchSummary.damageDone,
-            healingDone = matchSummary.healingDone,
-            damageTaken = matchSummary.damageTaken,
-            startTimestamp = matchSummary.entryTimestamp,
-            displayName = matchSummary.displayName,
-            characterName = matchSummary.characterName,
-            -- TODO: rename startTimestamp to entry timestamp or make it really start (per round)
-            -- TODO: battlegroundTeam = playerData.battlegroundTeam,
-        })
-
-        self.stats:AddMatch(matchIndex, matchSummary) -- TODO: move out here
+    local function AddMatch(index, matchIndex)
+        self.stats:AddMatch(matchIndex, self:GetMatchSummary(matchIndex))
     end
 
-    for matchIndex, matchData in ipairs(self.matches) do
-        HandleMatchData(matchIndex, matchData)
+    return task:Call(function() task:For(ipairs(self.dataRows)):Do(AddMatch) end)
+end
+
+function addon:Update()
+    -- TODO ShowWarning
+
+    self.dataRows = {}
+
+    local function UpdateSummaries(task)
+        return task:For(ipairs(self.dataRows)):Do(function(index, matchIndex) self:UpdateMatchSummary(matchIndex) end)
     end
 
-    self:UpdateUI()
+    local task = LibAsync:Create('UpdateBattlegroundsDataRows')
+    IPM_BATTLEGROUNDS_MANAGER
+    :GetMatches(task, self.filters, self.dataRows)
+    -- :Then(function() UpdateSummaries(task) end)
+    :Then(function()
+        self:UpdateScrollListControl(task)
+        self:CalculateStats(task):Then(function() self:UpdateStatsControl() end)
+    end)
+    :Then(function() self:ApplySorting(true) end)
+    :Then(function() ZO_ScrollList_Commit(self.listControl) end)
 end
 
-local function UpdateScrollList(control, data, rowType)
-	local dataCopy = data
-	local dataList = ZO_ScrollList_GetDataList(control)
+function addon:UpdateScrollListControl(task)
+    local control = self.listControl
+    local data = self.dataRows
 
-	ZO_ScrollList_Clear(control)
+    local dataList = ZO_ScrollList_GetDataList(control)
 
-	for i = #dataCopy, 1, -1 do
-        local value = dataCopy[i]
-		local entry = ZO_ScrollList_CreateDataEntry(rowType, value)
-		table.insert(dataList, entry)
-	end
+    ZO_ScrollList_Clear(control)
 
-	-- table.sort(dataList, function(a, b) return a.data.index > b.data.index end)
+    local function CreateAndAddDataEntry(index)
+        local matchIndex = data[index]
 
-	ZO_ScrollList_Commit(control)
-end
+        local value = {index = index, matchIndex = matchIndex}
+        local entry = ZO_ScrollList_CreateDataEntry(1, value)
 
-function addon:UpdateUI()
-    Log('[B] Updating UI')
-    local SOME_ID = 1
-    UpdateScrollList(self.listControl, self.dataRows, SOME_ID)
-
-    self:ApplySorting()
-
-    self:UpdateStatsControl()
-end
-
-local function InitializeFilter(contorl, entriesData, setFiltersCallback)
-    local comboBox = ZO_ComboBox_ObjectFromContainer(contorl)
-
-    comboBox:SetSortsItems(false)
-    comboBox:SetFont('ZoFontWinT1')
-    comboBox:SetSpacing(4)
-
-    local function OnFilterChanged(comboBox, entryText, entry)
-        local newFilters = {}
-
-        for i, itemData in ipairs(comboBox.m_selectedItemData) do
-            table.insert(newFilters, itemData.filterType)
-        end
-
-        setFiltersCallback(newFilters)
+        table.insert(dataList, entry)
     end
+    -- table.sort(dataList, function(a, b) return a.data.index > b.data.index end)
 
-    for i, entry in ipairs(entriesData) do
-        local item = comboBox:CreateItemEntry(entry.text, OnFilterChanged)
-        item.filterType = entry.type
-
-        comboBox:AddItem(item)
-    end
-
-    return comboBox
+    return task:For(#data, 1, -1):Do(CreateAndAddDataEntry)
+    -- ZO_ScrollList_Commit(control)
 end
+
+-- local function InitializeFilter(contorl, entriesData, setFiltersCallback)
+--     local comboBox = ZO_ComboBox_ObjectFromContainer(contorl)
+
+--     comboBox:SetSortsItems(false)
+--     comboBox:SetFont('ZoFontWinT1')
+--     comboBox:SetSpacing(4)
+
+--     local function OnFilterChanged(comboBox, entryText, entry)
+--         local newFilters = {}
+
+--         for i, itemData in ipairs(comboBox.m_selectedItemData) do
+--             table.insert(newFilters, itemData.filterType)
+--         end
+
+--         setFiltersCallback(newFilters)
+--     end
+
+--     for i, entry in ipairs(entriesData) do
+--         local item = comboBox:CreateItemEntry(entry.text, OnFilterChanged)
+--         item.filterType = entry.type
+
+--         comboBox:AddItem(item)
+--     end
+
+--     return comboBox
+-- end
+
+InitializeFilter = IPM_Shared.InitializeFilter
 
 local function SelectAllElements(filter)
     for i, item in ipairs(filter.m_sortedItems) do
@@ -500,8 +508,8 @@ function addon:InitializeMatchTypeFilter()
     for i = 1, 6 do
         table.insert(entriesData, {
             text = string.format(
-                '%s (%s)', 
-                GetString("SI_BATTLEGROUNDGAMETYPE", i), 
+                '%s (%s)',
+                GetString("SI_BATTLEGROUNDGAMETYPE", i),
                 GAME_TYPE_ABBREVIATION[i]
             ),
             type = i,
@@ -523,13 +531,15 @@ function addon:InitializeMatchTypeFilter()
     return filter
 end
 
+--[[
 function addon:InitializePlayerCharactersFilter()
     local numCharacters = GetNumCharacters()
     local entriesData = {}
 
     for i = 1, numCharacters do
-        local name, _, _, _, _, _, characterId, _ = GetCharacterInfo(i)
-        local formattedName = zo_strformat('<<1>>', name)
+        local name, _, _, classId, _, _, characterId, _ = GetCharacterInfo(i)
+        local classIcon = zo_iconFormatInheritColor(ZO_GetClassIcon(classId), 24, 24)
+        local formattedName = zo_strformat('<<1>> <<2>>', classIcon, name)
 
         entriesData[i] = {
             text = formattedName,
@@ -551,6 +561,7 @@ function addon:InitializePlayerCharactersFilter()
 
     local filterControl = GetControl(self.battlegroundsControl, 'FilterPlayerCharacters')
     local filter = InitializeFilter(filterControl, entriesData, callback)
+
     filter:SetNoSelectionText('|cFF0000Select Character|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
 
@@ -572,6 +583,7 @@ function addon:InitializePlayerCharactersFilter()
 
     local function SelectUnselect(button)
         local everyoneSelected = IsEveryoneSelected()
+
         if everyoneSelected then
             filter:ClearAllSelections()
             for i, item in ipairs(filter.m_sortedItems) do
@@ -583,6 +595,7 @@ function addon:InitializePlayerCharactersFilter()
                 filter:SelectItem(item, true)
             end
         end
+
         button:SetText(GetTextIf(everyoneSelected))
         self:Update()
     end
@@ -591,10 +604,14 @@ function addon:InitializePlayerCharactersFilter()
     selectButton:SetText(GetTextIf(IsEveryoneSelected()))
     selectButton:SetHandler('OnMouseDown', SelectUnselect)
 end
+]]
+
+addon.InitializePlayerCharactersFilter = IPM_Shared.InitializePlayerCharactersFilter
 
 function addon:Initialize(naming, selectedCharacters)
     local server = string.sub(GetWorldName(), 1, 2)
     self.matches = PvPMeterBattlegroundsData[server]
+    self.matchSummaries = {}
     self.stats = IPM_BattlegroundsStats:New()
 
     self:CreateControls()
@@ -663,7 +680,7 @@ function addon:Initialize(naming, selectedCharacters)
     if IPM_Shared.TableLength(self.filters.playerCharacters) < 1 then
         self.filters.playerCharacters[GetCurrentCharacterId()] = true
     end
-    self:InitializePlayerCharactersFilter()
+    self:InitializePlayerCharactersFilter(GetControl(self.battlegroundsControl, 'FilterPlayerCharacters'))
 end
 --#endregion IPM BATTLEGROUNDS ADDON
 

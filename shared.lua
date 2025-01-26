@@ -87,4 +87,124 @@ function addon.TableLength(T)
     return count
 end
 
+function addon.Get(self, task, filters, tbl)
+    local function PassFilters(data)
+        for _, filter in ipairs(filters) do
+            if not filter(data) then return end
+        end
+
+        return true
+    end
+
+    local function Filter(index, data)
+        if PassFilters(data) then table.insert(tbl, index) end
+    end
+
+    return task:For(ipairs(self:GetDataRows())):Do(Filter)
+end
+
+local function InitializeFilter(contorl, entriesData, setFiltersCallback)
+    local comboBox = ZO_ComboBox_ObjectFromContainer(contorl)
+
+    comboBox:SetSortsItems(false)
+    comboBox:SetFont('ZoFontWinT1')
+    comboBox:SetSpacing(4)
+
+    local function OnFilterChanged(comboBox, entryText, entry)
+        local newFilters = {}
+
+        for i, itemData in ipairs(comboBox.m_selectedItemData) do
+            table.insert(newFilters, itemData.filterType)
+        end
+
+        setFiltersCallback(newFilters)
+    end
+
+    for i, entry in ipairs(entriesData) do
+        local item = comboBox:CreateItemEntry(entry.text, OnFilterChanged)
+        item.filterType = entry.type
+
+        comboBox:AddItem(item)
+    end
+
+    return comboBox
+end
+
+addon.InitializeFilter = InitializeFilter
+
+function addon.InitializePlayerCharactersFilter(self, filterControl)
+    local numCharacters = GetNumCharacters()
+    local entriesData = {}
+
+    for i = 1, numCharacters do
+        local name, _, _, classId, _, _, characterId, _ = GetCharacterInfo(i)
+        local classIcon = zo_iconFormatInheritColor(ZO_GetClassIcon(classId), 24, 24)
+        local formattedName = zo_strformat('<<1>> <<2>>', classIcon, name)
+
+        entriesData[i] = {
+            text = formattedName,
+            type = characterId,
+        }
+    end
+
+    local function callback(newFilters)
+        for characterId, _ in pairs(self.filters.playerCharacters) do
+            self.filters.playerCharacters[characterId] = false
+        end
+
+        for _, characterId in ipairs(newFilters) do
+            self.filters.playerCharacters[characterId] = true
+        end
+
+        self:Update()
+    end
+
+    -- local filterControl = GetControl(self.battlegroundsControl, 'FilterPlayerCharacters')
+    local filter = InitializeFilter(filterControl, entriesData, callback)
+
+    filter:SetNoSelectionText('|cFF0000Select Character|r')
+    filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
+
+    for i, item in ipairs(filter.m_sortedItems) do
+        -- Log('%d - %s', i, item.name)
+        if self.filters.playerCharacters[item.filterType] then
+            filter:SelectItem(item, true)
+            -- Log('[B] Selecting %s', item.text)
+        end
+    end
+
+    local function GetTextIf(everyoneSelected)
+        return everyoneSelected and 'Deselect All' or 'Select All'
+    end
+
+    local function IsEveryoneSelected()
+        return filter:GetNumSelectedEntries() == numCharacters
+    end
+
+    local function SelectUnselect(button)
+        local everyoneSelected = IsEveryoneSelected()
+
+        if everyoneSelected then
+            filter:ClearAllSelections()
+            for i, item in ipairs(filter.m_sortedItems) do
+                self.filters.playerCharacters[item.filterType] = false
+            end
+        else
+            for i, item in ipairs(filter.m_sortedItems) do
+                self.filters.playerCharacters[item.filterType] = true
+                filter:SelectItem(item, true)
+            end
+        end
+
+        button:SetText(GetTextIf(everyoneSelected))
+        self:Update()
+    end
+
+    local selectButton = GetControl(filterControl, 'SelectButton')
+    if selectButton then
+        selectButton:SetHandler('OnMouseDown', SelectUnselect)
+        selectButton:SetText(GetTextIf(IsEveryoneSelected()))
+    end
+end
+
 IPM_Shared = addon

@@ -196,6 +196,35 @@ function addon:AddFilter(filterCallback)
     table.insert(self.filters, filterCallback)
 end
 
+function addon:UpdateScrollListControl(task)
+    local control = self.listControl
+    local data = self.dataRows
+
+	local dataList = ZO_ScrollList_GetDataList(control)
+
+	ZO_ScrollList_Clear(control)
+
+    local function CreateAndAddDataEntry(index)
+        local value = {index = index, gameIndex = data[index]}
+        local entry = ZO_ScrollList_CreateDataEntry(1, value)
+		table.insert(dataList, entry)
+    end
+
+	-- table.sort(dataList, function(a,b) return a.data.index > b.data.index end)
+
+    return task:Call(function() task:For(#data, 1, -1):Do(CreateAndAddDataEntry):Then(function() ZO_ScrollList_Commit(control) end) end)
+end
+
+function addon:CalculateStats(task)
+    self.stats:Clear()
+
+    local function AddGame(index, gameIndex)
+        self.stats:AddGame(gameIndex, self.games[gameIndex])
+    end
+
+    return task:Call(function() task:For(ipairs(self.dataRows)):Do(AddGame) end)
+end
+
 local function HideWarning(hidden)
     hidden = hidden == nil or hidden
     GetControl(IPM_TOT, 'Warning'):SetHidden(hidden)
@@ -205,51 +234,17 @@ local function ShowWarning()
     return HideWarning(false)
 end
 
-function addon:UpdateScrollListControl(rowType)
-    local control = self.listControl
-    local data = self.dataRows
-
-	local dataList = ZO_ScrollList_GetDataList(control)
-
-	ZO_ScrollList_Clear(control)
-
-    local task = LibAsync:Create('UpdateTOTScrollList')
-
-    local function CreateAndAddDataEntry(index)
-        local value = {index = index, gameIndex = data[index]}
-        local entry = ZO_ScrollList_CreateDataEntry(rowType, value)
-		table.insert(dataList, entry)
-    end
-
-	-- table.sort(dataList, function(a,b) return a.data.index > b.data.index end)
-
-    task:For(#data, 1, -1):Do(CreateAndAddDataEntry):Then(function() ZO_ScrollList_Commit(control) end):Then(HideWarning)
-end
-
-function addon:UpdateUI(task)
-    local function UpdateList()
-        local SOME_ID = 1
-        self:UpdateScrollListControl(SOME_ID)
-    end
-
-    -- self:UpdateStatsControl()
-    local function AddGame(index, gameIndex)
-        self.stats:AddGame(gameIndex, self.games[gameIndex])
-    end
-
-    task:Call(UpdateList)
-    task:For(ipairs(self.dataRows)):Do(AddGame):Then(function() self:UpdateStatsControl() end)
-end
-
 function addon:Update()
     if #self.games > 60000 then ShowWarning() end
 
     self.dataRows = {}
-    self.stats:Clear()
 
-    local task = LibAsync:Create('UpdateTOTDataRows')
+    local task = LibAsync:Create('UpdateToTDataRows')
 
-    IPM_TOT_MANAGER:GetGames(task, self.filters, self.dataRows):Then(function() self:UpdateUI(task) end)
+    IPM_TOT_MANAGER:GetGames(task, self.filters, self.dataRows):Then(function()
+        self:UpdateScrollListControl(task)
+        self:CalculateStats(task):Then(function() self:UpdateStatsControl() end)
+    end):Then(HideWarning)
 end
 
 function addon:CreateControls()

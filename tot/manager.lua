@@ -64,6 +64,7 @@ function GameManager:UpdatePlayerRank(skipRequest)
     if not tbl.rankStatus then
         tbl.rankStatus = PENDING
         EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_RANK_RECEIVED, function()
+            Log('!!!!!!!!!! Rank received')
             self:UpdatePlayerRank(true)
             Log('MMR status: %d', tbl.mmrStatus)
             if not tbl.mmrStatus == READY then self:UpdatePlayerMMR() end
