@@ -3,7 +3,7 @@
 ## APIVersion: 101044
 ## Author: |cAFD3FF@impda|r [EU]
 ## DependsOn: LibMainMenu-2.0 LibCombat ImpTools LibAsync LibAddonMenu-2.0
-## OptionalDependsOn LibDebugLogger
+## OptionalDependsOn LibDebugLogger PerfectPixel
 ## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData PvPMeterBattlegroundsSV PvPMeterDuelsData PvPMeterDuelsSV PvPMeterTOTData
 
 strings.lua

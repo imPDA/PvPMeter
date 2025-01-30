@@ -1,6 +1,6 @@
 local addon = {}
 
-Log = IPM_Log
+local Log = IPM_Log
 
 function addon:New(o)
     o = o or {}

@@ -12,6 +12,13 @@ local BG_STATE = {
     [BATTLEGROUND_STATE_FINISHED] = 'finished',   -- 5
 }
 
+local function IsBattlegroundFinished(battlegroundId)
+    return
+    not DoesBattlegroundHaveRounds(battlegroundId) or
+    GetCurrentBattlegroundRoundIndex() == GetBattlegroundNumRounds(battlegroundId) or
+    HasTeamWonBattlegroundEarly()
+end
+
 function addon:MatchStateChanged(previousState, currentState)
     Log('bg state: %s -> %s', tostring(BG_STATE[previousState]), tostring(BG_STATE[currentState]))
 
@@ -19,11 +26,20 @@ function addon:MatchStateChanged(previousState, currentState)
         self.sv.currentMatch = IPM_MATCH:New(IPM_MATCH.GetCurrentMatch())
     elseif currentState == BATTLEGROUND_STATE_POSTROUND then
         self.sv.currentMatch:UpdateCurrentRound()
+
+        if IsBattlegroundFinished() then
+            self.sv.currentMatch:FinalizeMatch()
+            self.matches[#self.matches+1] = self.sv.currentMatch
+            self.sv.currentMatch = nil
+            IPM_BATTLEGROUNDS_UI:Update()
+        end
     elseif currentState == BATTLEGROUND_STATE_FINISHED then
-        self.sv.currentMatch:FinalizeMatch()
-        self.matches[#self.matches+1] = self.sv.currentMatch
-        self.sv.currentMatch = nil
-        IPM_BATTLEGROUNDS_UI:Update()
+        if self.sv.currentMatch then
+            self.sv.currentMatch:FinalizeMatch()
+            self.matches[#self.matches+1] = self.sv.currentMatch
+            self.sv.currentMatch = nil
+            IPM_BATTLEGROUNDS_UI:Update()
+        end
     end
 end
 
