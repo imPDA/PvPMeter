@@ -137,10 +137,12 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'FirstPick'):SetText(fp)
         GetControl(rowControl, 'Score'):SetText(string.format('%d/%d', game.player.score or 0, game.opponent.score or 0))
 
-        local function IconSighColor(before, after)
+        local THE_LESS_THE_BETTER = -1
+        local function IconSighColor(before, after, direction)
+            direction = direction or 1
             if after then
                 if before then
-                    local diff = after - before
+                    local diff = (after - before) * direction
 
                     local icon = diff >= 0 and upIcon or downIcon
                     local sign = diff >= 0 and '+' or ''
@@ -156,7 +158,7 @@ function addon:CreateScrollListDataType()
         end
 
         GetControl(rowControl, 'PlayerMMR'):SetText(IconSighColor(game.player.atStart.mmr, game.player.atEnd.mmr))
-        GetControl(rowControl, 'Rank'):SetText(IconSighColor(game.player.atStart.rank, game.player.atEnd.rank))
+        GetControl(rowControl, 'Rank'):SetText(IconSighColor(game.player.atStart.rank, game.player.atEnd.rank, THE_LESS_THE_BETTER))
 
         GetControl(rowControl, 'TopPercent'):SetText(string.format('%.1f%%', (game.player.atEnd.topP or 0) * 100))
 
@@ -420,31 +422,3 @@ function IPM_OpponentPreview_OnMoveStop(control)
     IPM_TOT_MANAGER.settings.opponentPreview = IPM_TOT_MANAGER.settings.opponentPreview or {}
     IPM_TOT_MANAGER.settings.opponentPreview.anchor = {point, nil, relativePoint, offsetX, offsetY}
 end
-
--- function ProcessSlashCommand(cmd)
---     Log('Command %s received', cmd)
-
--- 	if cmd == 'update' or cmd == 'u' then
--- 		addon:Update()
---     elseif cmd == 'x2' then
---         local len = #PvPMeterDuelsData['EU']
---         local duels = PvPMeterDuelsData['EU']
---         for i = 1, len do
---             duels[#duels+1] = duels[i]
---         end
---         Log('New lenght: %d', #duels)
---         addon:Update()
---     elseif cmd == 'one' then
---         local firstDuel = ZO_DeepTableCopy(PvPMeterDuelsData['EU'][1])
---         PvPMeterDuelsData['EU'] = {firstDuel}
---         addon:Update()
---     elseif cmd == ':2' then
---         local duels = PvPMeterDuelsData['EU']
---         for i = #duels, zo_round(#duels/2), -1 do
---             PvPMeterDuelsData['EU'][i] = nil
---         end
---         addon:Update()
---     end
--- end
-
--- SLASH_COMMANDS['/ipmd'] = ProcessSlashCommand

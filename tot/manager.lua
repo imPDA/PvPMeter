@@ -294,13 +294,14 @@ function addon:GetGamesWith(task, opponentName, tbl)
     local function ContainsName(searchedName)
         searchedName = string.lower(searchedName)
         local function inner(data)
-            return string.find(searchedName, string.lower(data.opponent.name))
+            return string.find(string.lower(data.opponent.name), searchedName)
         end
 
         return inner
     end
 
-    local nameFilter = ContainsName(opponentName)
+    local escapedOpponentName = opponentName:gsub('%-', '%%-')
+    local nameFilter = ContainsName(escapedOpponentName)
 
     return self:GetGames(task, {nameFilter}, tbl)
 end
@@ -355,3 +356,15 @@ function IPM_InitializeTOTManager(settings, characterSettings)
         end
     end
 end
+
+function FindGamesByName(name)
+    Log('Searching for %s', name)
+    local games = {}
+
+    local task = LibAsync:Create('TestOpponentSearch')
+    IPM_TOT_MANAGER:GetGamesWith(task, name, games):Then(function()
+        Log('%d found', #games)
+    end)
+end
+
+SLASH_COMMANDS['/ipmtotf'] = FindGamesByName
