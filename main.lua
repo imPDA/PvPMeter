@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpPvPMeter'
 addon.displayName = 'Imp\'s PvP Meter'
-addon.version = '0.1.0b14'
+addon.version = '0.1.0b15'
 
 local Log = IPM_Log
 

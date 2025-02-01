@@ -1,3 +1,5 @@
+local Log = IPM_Log
+
 local addon = {}
 
 function addon.FormatNumber(number)
@@ -132,9 +134,46 @@ end
 
 addon.InitializeFilter = InitializeFilter
 
+local CHARACTER_SELECTION_TYPE_ALL = 1
+local CHARACTER_SELECTION_TYPE_CURRENT = 2
+local CHARACTER_SELECTION_TYPE_NONE = 3
+local CHARACTER_SELECTION_TYPE_CUSTOM = 4
+
+local CHARACTER_SELECTION_MESSAGE = {
+    [CHARACTER_SELECTION_TYPE_ALL] = 'Deselect All',
+    [CHARACTER_SELECTION_TYPE_CURRENT] = 'Select All',
+    [CHARACTER_SELECTION_TYPE_NONE] = 'Select Current',
+    [CHARACTER_SELECTION_TYPE_CUSTOM] = 'Select All',
+}
+
+local function GetTextIf(selectionType)
+    return CHARACTER_SELECTION_MESSAGE[selectionType]
+end
+
 function addon.InitializePlayerCharactersFilter(self, filterControl)
+    local filter
+
     local numCharacters = GetNumCharacters()
     local entriesData = {}
+
+    local function GetSelectionType()
+        local numCharactersSelected = filter:GetNumSelectedEntries()
+        -- Log('Characters selected: %d', numCharactersSelected)
+
+        if numCharactersSelected == numCharacters then
+            return CHARACTER_SELECTION_TYPE_ALL
+        end
+
+        if numCharactersSelected == 1 and self.filters.playerCharacters[GetCurrentCharacterId()] then
+            return CHARACTER_SELECTION_TYPE_CURRENT
+        end
+
+        if numCharactersSelected == 0 then
+            return CHARACTER_SELECTION_TYPE_NONE
+        end
+
+        return CHARACTER_SELECTION_TYPE_CUSTOM
+    end
 
     for i = 1, numCharacters do
         local name, _, _, classId, _, _, characterId, _ = GetCharacterInfo(i)
@@ -146,7 +185,7 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
             type = characterId,
         }
     end
-
+    
     local function callback(newFilters)
         for characterId, _ in pairs(self.filters.playerCharacters) do
             self.filters.playerCharacters[characterId] = false
@@ -157,10 +196,15 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
         end
 
         self:Update()
+
+        local selectButton = GetControl(filterControl, 'SelectButton')
+        if selectButton then
+            selectButton:SetText(GetTextIf(GetSelectionType()))
+        end
     end
 
     -- local filterControl = GetControl(self.battlegroundsControl, 'FilterPlayerCharacters')
-    local filter = InitializeFilter(filterControl, entriesData, callback)
+    filter = InitializeFilter(filterControl, entriesData, callback)
 
     filter:SetNoSelectionText('|cFF0000Select Character|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
@@ -173,37 +217,47 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
         end
     end
 
-    local function GetTextIf(everyoneSelected)
-        return everyoneSelected and 'Deselect All' or 'Select All'
-    end
-
-    local function IsEveryoneSelected()
-        return filter:GetNumSelectedEntries() == numCharacters
+    local function SelectCharacter(characterId)
+        for i, item in ipairs(filter.m_sortedItems) do
+            if item.filterType == characterId then
+                filter:SelectItem(item, true)
+                return
+            end
+        end
     end
 
     local function SelectUnselect(button)
-        local everyoneSelected = IsEveryoneSelected()
+        local selectionType = GetSelectionType()
 
-        if everyoneSelected then
-            filter:ClearAllSelections()
+        filter:ClearAllSelections()  -- seems it reverse selection if SelectItem called on selected item
+        if selectionType == CHARACTER_SELECTION_TYPE_ALL then
+            -- filter:ClearAllSelections()
             for i, item in ipairs(filter.m_sortedItems) do
                 self.filters.playerCharacters[item.filterType] = false
             end
-        else
+        elseif selectionType == CHARACTER_SELECTION_TYPE_CURRENT or selectionType == CHARACTER_SELECTION_TYPE_CUSTOM then
+            -- filter:ClearAllSelections() 
             for i, item in ipairs(filter.m_sortedItems) do
                 self.filters.playerCharacters[item.filterType] = true
                 filter:SelectItem(item, true)
             end
+        elseif selectionType == CHARACTER_SELECTION_TYPE_NONE then
+            local currentCharacterId = GetCurrentCharacterId()
+            self.filters.playerCharacters[currentCharacterId] = true
+            SelectCharacter(currentCharacterId)
         end
 
-        button:SetText(GetTextIf(everyoneSelected))
+        selectionType = GetSelectionType() -- TODO: optimize?
+        -- Log('Selection type: %d, text to set: %s', selectionType, GetTextIf(selectionType))
+        button:SetText(GetTextIf(selectionType))
+
         self:Update()
     end
 
     local selectButton = GetControl(filterControl, 'SelectButton')
     if selectButton then
         selectButton:SetHandler('OnMouseDown', SelectUnselect)
-        selectButton:SetText(GetTextIf(IsEveryoneSelected()))
+        selectButton:SetText(GetTextIf(GetSelectionType()))
     end
 end
 
