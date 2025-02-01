@@ -620,23 +620,23 @@ function addon:Initialize(naming, selectedCharacters)
 
     local function GoodDataFilter(matchData)
         if not matchData.rounds then
-            Log('matchData.rounds is not present')
+            -- Log('matchData.rounds is not present')
             return
         end
 
         if #matchData.rounds < 1 then
-            Log('Less than 1 round: %s', tostring(#matchData.rounds))
+            -- Log('Less than 1 round: %s', tostring(#matchData.rounds))
             return
         end
 
         if #matchData.rounds[1].players < 1 then
-            Log('No players recorded')
+            -- Log('No players recorded')
             -- TODO: add players on BG start
             return
         end
 
         if not matchData.result then  -- shit to fix some errors
-            Log('No match result')
+            -- Log('No match result')
             return
         end
 

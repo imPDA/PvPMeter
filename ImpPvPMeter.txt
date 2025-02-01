@@ -4,7 +4,7 @@
 ## Author: |cAFD3FF@impda|r [EU]
 ## DependsOn: LibMainMenu-2.0 LibCombat ImpTools LibAsync LibAddonMenu-2.0
 ## OptionalDependsOn LibDebugLogger PerfectPixel
-## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData PvPMeterBattlegroundsSV PvPMeterDuelsData PvPMeterDuelsSV PvPMeterTOTData
+## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData ImpPvPMeterMatchBackup PvPMeterDuelsData PvPMeterDuelsSV PvPMeterTOTData
 
 strings.lua
 logger.lua
@@ -12,7 +12,6 @@ shared.lua
 
 battlegrounds/template.xml
 battlegrounds/ui.lua
-battlegrounds/match.lua
 battlegrounds/manager.lua
 
 duels/template.xml

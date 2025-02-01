@@ -54,6 +54,8 @@ function GameManager.Initialize(game)
 
     game:UpdatePlayerRank()
     game:UpdatePlayerMMR()
+
+    -- TODO: opp rank
 end
 
 function GameManager:UpdatePlayerRank(skipRequest)

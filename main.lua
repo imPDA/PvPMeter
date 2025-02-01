@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpPvPMeter'
 addon.displayName = 'Imp\'s PvP Meter'
-addon.version = '0.1.0b13'
+addon.version = '0.1.0b14'
 
 local Log = IPM_Log
 
@@ -70,8 +70,6 @@ function addon:OnLoad()
 end
 
 local function OnAddonLoaded(_, addonName)
-	Log(addonName)
-
 	if addonName ~= addon.name then return end
 	EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_ADD_ON_LOADED)
 
