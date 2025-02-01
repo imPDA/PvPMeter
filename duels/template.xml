@@ -147,6 +147,13 @@
 				<Control name="$(parent)FilterPlayerCharacters" inherits="ZO_MultiselectComboBox">
                     <Anchor point="TOPRIGHT" relativeTo="$(parent)OpponentSearch" relativePoint="BOTTOMRIGHT" offsetX="2" offsetY="8" />
 					<Dimensions x="270" y="32" />
+					<Controls>
+						<!-- TODO: virtualize filter -->
+						<Button name="$(parent)SelectButton" inherits="ZO_DefaultButton" text="Select All">
+							<Dimensions x="200" />
+							<Anchor point="TOP" relativeTo="$(parent)" relativePoint="BOTTOM" />
+						</Button>
+					</Controls>
 				</Control>
 
 				<Control name="$(parent)StatsBlock">
