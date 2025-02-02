@@ -16,7 +16,7 @@ battlegrounds/manager.lua
 
 duels/template.xml
 duels/ui.lua
-duels/saver.lua
+duels/manager.lua
 
 tot/template.xml
 tot/ui.lua

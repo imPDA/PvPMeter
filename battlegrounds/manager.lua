@@ -5,6 +5,8 @@ local Log = IPM_Log
 
 --#region MATCH
 local function GetNewMatchFromCurrentMatch()
+    Log('[MATCH MANAGER] Creating new match')
+
     local bgId = GetCurrentBattlegroundId()
     local unitZoneIndex = GetUnitZoneIndex('player')
 
@@ -137,21 +139,6 @@ local function IsCurrentMatch(match)
     (GetTimeStamp() - started) <= 60 * 30
 end
 
-function addon:RestoreCurrentMatch()
-    local battlegroundState = GetCurrentBattlegroundState()
-    local currentRoundIndex = GetCurrentBattlegroundRoundIndex()
-
-    for i = 1, GetBattlegroundNumRounds(self.currentMatch.bgId) do
-        if battlegroundState ~= BATTLEGROUND_STATE_FINISHED and i == currentRoundIndex then return end
-        self:UpdateCurrentMatchRound(i)
-    end
-
-    if battlegroundState == BATTLEGROUND_STATE_FINISHED then
-        self:FinalizeCurrentMatch()
-    end
-end
---#endregion MATCH
-
 local MATCH_STATE = {
     [BATTLEGROUND_STATE_NONE]       = 'none',       -- 0
     [BATTLEGROUND_STATE_PREROUND]   = 'preround',   -- 1
@@ -165,11 +152,39 @@ local function GetMatchStateName(matchState)
     return MATCH_STATE[matchState] or 'unknown'
 end
 
+function addon:RestoreCurrentMatch()
+    local battlegroundState = GetCurrentBattlegroundState()
+    local currentRoundIndex = GetCurrentBattlegroundRoundIndex()
+
+    if battlegroundState and battlegroundState == BATTLEGROUND_STATE_NONE then return end
+
+    Log('[MATCH MANAGER] Restoring BG, round: %d, state: %s', currentRoundIndex, GetMatchStateName(battlegroundState))
+    -- self.currentMatch = ImpPvPMeterMatchBackup or GetNewMatchFromCurrentMatch()
+
+    for i = 1, GetBattlegroundNumRounds(self.currentMatch.battlegroundId) do
+        if battlegroundState ~= BATTLEGROUND_STATE_FINISHED and i == currentRoundIndex then return end
+        self:UpdateCurrentMatchRound(i)
+    end
+
+    if battlegroundState == BATTLEGROUND_STATE_FINISHED then
+        self:FinalizeCurrentMatch()
+        self:SaveCurrentMatch()
+        IPM_BATTLEGROUNDS_UI:Update()
+    end
+end
+--#endregion MATCH
+
 function addon:IsCurrentMatchFinished()
-    local battlegroundId = self.currentMatch.bgId
+    -- Log('[MATCH MANAGER] Lets decide if current match finished')
+    local battlegroundId = self.currentMatch.battlegroundId
+
+    -- Log('[MATCH MANAGER] BG is: %d (%d)', self.currentMatch.battlegroundId, GetCurrentBattlegroundId())
+    -- Log('[MATCH MANAGER] Has rounds: %s', tostring(not DoesBattlegroundHaveRounds(battlegroundId)))
+    -- Log('[MATCH MANAGER] Was the last round: %s', tostring(GetCurrentBattlegroundRoundIndex() == GetBattlegroundNumRounds(battlegroundId)))
+    -- Log('[MATCH MANAGER] Won early: %s', tostring(HasTeamWonBattlegroundEarly()))
 
     return
-    not DoesBattlegroundHaveRounds(battlegroundId) or
+    -- not DoesBattlegroundHaveRounds(battlegroundId) or
     GetCurrentBattlegroundRoundIndex() == GetBattlegroundNumRounds(battlegroundId) or
     HasTeamWonBattlegroundEarly()
 end
@@ -183,56 +198,72 @@ end
 function addon:MatchStateChanged(previousState, currentState)
     Log('[MATCH MANAGER] State: %s -> %s', GetMatchStateName(previousState), GetMatchStateName(currentState))
 
-    if currentState == BATTLEGROUND_STATE_STARTING then
-        self.currentMatch = GetNewMatchFromCurrentMatch()
-        ImpPvPMeterMatchBackup = self.currentMatch
-    elseif currentState == BATTLEGROUND_STATE_POSTROUND then
+    -- if currentState == BATTLEGROUND_STATE_STARTING then
+    --     self.currentMatch = GetNewMatchFromCurrentMatch()
+    --     ImpPvPMeterMatchBackup = self.currentMatch
+    if currentState == BATTLEGROUND_STATE_POSTROUND then
+        if not self.currentMatch then
+            Log('[MATCH MANAGER] !There is no data about current match!')  -- TODO: throw error/can try to restore
+            return
+        end
         self:UpdateCurrentRound()
 
         if self:IsCurrentMatchFinished() then
+            Log('[MATCH MANAGER] Current match finished')
             self:FinalizeCurrentMatch()
             self:SaveCurrentMatch()
             IPM_BATTLEGROUNDS_UI:Update()
         end
-    elseif currentState == BATTLEGROUND_STATE_FINISHED then
-        if self.currentMatch then
-            self:FinalizeCurrentMatch()
-            self:SaveCurrentMatch()
-            IPM_BATTLEGROUNDS_UI:Update()
-        end
+    -- elseif currentState == BATTLEGROUND_STATE_FINISHED then
+    --     if self.currentMatch then
+    --         Log('[MATCH MANAGER] There is match to save, saving')
+    --         self:FinalizeCurrentMatch()
+    --         self:SaveCurrentMatch()
+    --         IPM_BATTLEGROUNDS_UI:Update()
+    --     end
     end
 end
 
 function addon:PlayerActivated(initial)
-    if initial then
-        if IsActiveWorldBattleground() then
-            -- TODO: mark if it is backed up data or not, check if it is good
-            self.currentMatch = ImpPvPMeterMatchBackup or GetNewMatchFromCurrentMatch()
-            self:RestoreCurrentMatch()
+    Log('[MATCH MANAGER] Initial: %s', tostring(initial))
+    -- local battlegroundState = GetCurrentBattlegroundState()
 
-            local battlegroundState = GetCurrentBattlegroundState()
-            if battlegroundState == BATTLEGROUND_STATE_FINISHED then
-                self:SaveCurrentMatch()
+    if IsActiveWorldBattleground() then
+        if ImpPvPMeterMatchBackup then
+            Log('[MATCH MANAGER] There is a backup, same BG: %s', tostring(IsCurrentMatch(ImpPvPMeterMatchBackup)))
+            if IsCurrentMatch(ImpPvPMeterMatchBackup) then
+                self.currentMatch = ImpPvPMeterMatchBackup
+                -- TODO: mark if it is backed up data or not, check if it is good
+                self:RestoreCurrentMatch()
+            else
+                self.currentMatch = GetNewMatchFromCurrentMatch()
+                self:RestoreCurrentMatch()
+
+                self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
+                ImpPvPMeterMatchBackup = self.currentMatch
             end
+        else
+            self.currentMatch = GetNewMatchFromCurrentMatch()
+            ImpPvPMeterMatchBackup = self.currentMatch
         end
-
-        local function OnBattlegroundStateChanged(_, previousState, currentState)
-            self:MatchStateChanged(previousState, currentState)
-        end
-
-        -- EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_PLAYER_ACTIVATED)
-        EVENT_MANAGER:RegisterForEvent(self.name, EVENT_BATTLEGROUND_STATE_CHANGED, OnBattlegroundStateChanged)
-    end
-
-    if not IsActiveWorldBattleground() then
+    else
         -- TODO: check if it is already saved match
         -- TODO: check if it is a good match
         if ImpPvPMeterMatchBackup then
-            Log('[MATCH MANAGER] There is unsaved backup, saving it')
+            Log('[MATCH MANAGER] There is a backup outside of BG')
             self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
             ImpPvPMeterMatchBackup = nil
         end
     end
+
+-- if initial then
+    local function OnBattlegroundStateChanged(_, previousState, currentState)
+        self:MatchStateChanged(previousState, currentState)
+    end
+
+    -- EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_PLAYER_ACTIVATED)
+    EVENT_MANAGER:RegisterForEvent(self.name, EVENT_BATTLEGROUND_STATE_CHANGED, OnBattlegroundStateChanged)
+-- end
 end
 
 function addon:GetDataRows()

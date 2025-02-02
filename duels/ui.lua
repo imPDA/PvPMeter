@@ -428,7 +428,7 @@ end
 addon.InitializePlayerCharactersFilter = IPM_Shared.InitializePlayerCharactersFilter
 
 function addon:Initialize(naming, selectedCharacters)
-    self.duels = IPM_DUEL_SAVER.duels
+    self.duels = IPM_DUELS_MANAGER.duels
     self.stats = IPM_DuelsStats:New()
 
     local buffer = {}

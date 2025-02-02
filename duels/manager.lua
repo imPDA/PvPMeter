@@ -1,5 +1,5 @@
 local addon = {}
-addon.name = 'IPM_DUEL_SAVER'
+addon.name = 'IPM_DUELS_MANAGER'
 
 addon.playerData = nil
 
@@ -111,92 +111,6 @@ function addon:OnDuelFinished(duelResult, wasLocalPlayersResult, opponentCharact
     self:TryToSaveCurrentDuel()
 end
 
-local function UpdateDataVersion()
-    PvPMeterDuelsSV = PvPMeterDuelsSV or {}
-
-    if not PvPMeterDuelsSV.dataVersion then
-        PvPMeterDuelsSV.dataVersion = 0
-    end
-
-    -- Log('Data version: %d', PvPMeterDuelsSV.dataVersion)
-
-    if PvPMeterDuelsSV.dataVersion == 0 then
-        local function AddCharacterId()
-            for i, duelData in ipairs(PvPMeterDuelsData) do
-                -- Log('Match id#%d, %d rounds', i, tostring(matchData.rounds and #matchData.rounds))
-                if not duelData.player.characterId then
-                    if duelData.player.characterName == GetRawUnitName('player') then
-                        duelData.player.characterId = GetCurrentCharacterId()
-                    end
-                end
-            end
-        end
-
-        AddCharacterId()
-        -- Log('Data version: 0 -> 1')
-        PvPMeterDuelsSV.dataVersion = 1
-    end
-
-    if PvPMeterDuelsSV.dataVersion == 1 then
-        local total = 0
-
-        local function SplitByMegaservers()
-            local newDuels = {}
-
-            local characterNameToId = {}
-            for i = 1, GetNumCharacters() do
-                local name, _, _, _, _, _, characterId, _ = GetCharacterInfo(i)
-                characterNameToId[name] = characterId
-            end
-
-            for i, duelData in pairs(PvPMeterDuelsData) do
-                if i ~= 'NA' and i ~= 'EU' then
-                    local duel = duelData
-                    if duel then
-                        local player = duel.player
-                        if player then
-                            -- Log('Match id#%d, character id: %s, character name: %s', i, tostring(player.characterId), player.characterName)
-
-                            if characterNameToId[player.characterName] then
-                                player.characterId = characterNameToId[player.characterName]
-                                newDuels[#newDuels+1] = ZO_DeepTableCopy(duelData)
-                            end
-
-                            total = total + 1
-                        else
-                            PvPMeterDuelsData[i] = nil
-                        end
-                    else
-                        PvPMeterDuelsData[i] = nil
-                    end
-                end
-            end
-
-            PvPMeterDuelsData[server] = newDuels
-        end
-
-        SplitByMegaservers()
-
-        local onNA = PvPMeterDuelsData['NA'] and #PvPMeterDuelsData['NA'] or 0
-        local onEU = PvPMeterDuelsData['EU'] and #PvPMeterDuelsData['EU'] or 0
-
-        -- Log('Total: %d, on NA: %d, on EU: %d', total, onNA, onEU)
-
-        if total == onNA + onEU then
-            for i, _ in pairs(PvPMeterDuelsData) do
-                if i ~= 'NA' and i ~= 'EU' then
-                    PvPMeterDuelsData[i] = nil
-                end
-            end
-            -- Log('Data version: 1 -> 2')
-            PvPMeterDuelsSV.dataVersion = 2
-        end
-
-        -- Log('Data version: 1 -> 2')
-        -- PvPMeterDuelsSV.dataVersion = 2
-    end
-end
-
 function addon:PlayerActivated(initial)
     local function OnDuelStarted(_)
         self:OnDuelStarted()
@@ -218,10 +132,10 @@ local function OnPlayerActivated(_, initial)
 end
 
 function IPM_InitializeDuelSaver(settings, characterSettings)
-    IPM_DUEL_SAVER = addon
+    IPM_DUELS_MANAGER = addon
 
     local server = string.sub(GetWorldName(), 1, 2)
-    IPM_DUEL_SAVER.playerData = {
+    IPM_DUELS_MANAGER.playerData = {
         characterName = GetRawUnitName('player'),
         displayName = GetDisplayName(),
         characterId = GetCurrentCharacterId(),
@@ -234,12 +148,10 @@ function IPM_InitializeDuelSaver(settings, characterSettings)
     PvPMeterDuelsData = PvPMeterDuelsData or {}
     PvPMeterDuelsData[server] = PvPMeterDuelsData[server] or {}
 
-    -- UpdateDataVersion()
-
-    IPM_DUEL_SAVER.duels = PvPMeterDuelsData[server]
+    IPM_DUELS_MANAGER.duels = PvPMeterDuelsData[server]
     Log('[D] There are %d duels saved', #addon.duels)
 
-    EVENT_MANAGER:RegisterForEvent(IPM_DUEL_SAVER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
+    EVENT_MANAGER:RegisterForEvent(IPM_DUELS_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 
     IPM_DUELS_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
 end
