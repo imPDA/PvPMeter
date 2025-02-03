@@ -3,7 +3,7 @@ local addon = {}
 addon.name = 'IPM_TOT_MANAGER'
 addon.playerData = nil
 
-local Log = IPM_Log
+local Log = IPM_Logger('TOT_MANAGER')
 
 local function GetOpponentData(opponentName)
     local numEntries = GetNumTributeLeaderboardEntries(TRIBUTE_LEADERBOARD_TYPE_RANKED)

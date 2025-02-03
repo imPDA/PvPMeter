@@ -25,11 +25,15 @@
 				<Label name="$(parent)Index" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column1" horizontalAlignment="RIGHT">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 				</Label>
-				<Label name="$(parent)Type" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column2">
+				<Texture name="$(parent)Warning" tier="HIGH" textureFile="EsoUI/Art/Miscellaneous/eso_icon_warning.dds" color="FF0000" hidden="true">
+					<Dimensions x="16" y="16" />
+					<Anchor point="TOPRIGHT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="10" />
+				</Texture>
+				<Label name="$(parent)Mode" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column2">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20"/>
 				</Label>
 				<Label name="$(parent)Map" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column4">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)Type" relativePoint="TOPRIGHT" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Mode" relativePoint="TOPRIGHT" />
 				</Label>
 				<Label name="$(parent)Class" inherits="IPM_BGs_Listing_Column3">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />
@@ -67,19 +71,19 @@
 		<Control name="IPM_BGs_Template" virtual="true">
 			<AnchorFill />
 			<Controls>
-				<Control name="$(parent)FilterTeamSize" inherits="ZO_MultiselectComboBox">
+				<Control name="$(parent)FilterTeamType" inherits="ZO_MultiselectComboBox">
 					<Dimensions x="270" y="32" />
 					<Anchor point="TOPRIGHT" offsetX="-16" offsetY="8" />
 				</Control>
 
-				<Control name="$(parent)FilterGameType" inherits="ZO_MultiselectComboBox">
+				<Control name="$(parent)FilterGameMode" inherits="ZO_MultiselectComboBox">
 					<Dimensions x="270" y="32" />
-					<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamSize" relativePoint="BOTTOMLEFT" offsetY="4" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamType" relativePoint="BOTTOMLEFT" offsetY="4" />
 				</Control>
 
 				<Control name="$(parent)FilterPlayerCharacters" inherits="ZO_MultiselectComboBox">
 					<Dimensions x="270" y="32" />
-                    <Anchor point="TOPRIGHT" relativeTo="$(parent)FilterGameType" relativePoint="BOTTOMRIGHT" offsetY="4" />
+                    <Anchor point="TOPRIGHT" relativeTo="$(parent)FilterGameMode" relativePoint="BOTTOMRIGHT" offsetY="4" />
 
 					<Controls>
 						<!-- TODO: virtualize filter -->
@@ -222,11 +226,11 @@
 								<Label name="$(parent)Index" inherits="IPM_Listing_Header IPM_BGs_Listing_Column1" horizontalAlignment="RIGHT" text="###">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 								</Label>
-								<Label name="$(parent)Type" inherits="IPM_Listing_Header IPM_BGs_Listing_Column2" text="Type">
+								<Label name="$(parent)Mode" inherits="IPM_Listing_Header IPM_BGs_Listing_Column2" text="Mode">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20"/>
 								</Label>
 								<Label name="$(parent)Map" inherits="IPM_Listing_Header IPM_BGs_Listing_Column4" text="Map">
-									<Anchor point="TOPLEFT" relativeTo="$(parent)Type" relativePoint="TOPRIGHT" />
+									<Anchor point="TOPLEFT" relativeTo="$(parent)Mode" relativePoint="TOPRIGHT" />
 								</Label>
 								<Label name="$(parent)Class" inherits="IPM_Listing_Header IPM_BGs_Listing_Column3" text="Class">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />

@@ -3,7 +3,7 @@ local addon = {}
 addon.name = 'IPM_MENU'
 addon.display_name = 'PvP Meter'
 
-local Log = IPM_Log
+local Log = IPM_Logger('IPM_MENU')
 
 local LMM = LibMainMenu2
 LMM:Init()

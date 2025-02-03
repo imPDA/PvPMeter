@@ -5,11 +5,19 @@ addon.name = 'IPM_BATTLEGROUNDS_UI'
 addon.listControl = nil
 addon.statsControl = nil
 
-local TEAM_SIZE_4 = 4
-local TEAM_SIZE_8 = 8
+local TEAM_TYPE_4_SOLO = 1
+local TEAM_TYPE_8_SOLO = 2
+local TEAM_TYPE_4_GROUP = 3
+local TEAM_TYPE_8_GROUP = 4
+
 addon.filters = {
-    size = {TEAM_SIZE_4, TEAM_SIZE_8},
-    type = {
+    size = {
+        TEAM_TYPE_4_SOLO,
+        TEAM_TYPE_8_SOLO,
+        TEAM_TYPE_4_GROUP,
+        TEAM_TYPE_8_GROUP,
+    },
+    modes = {
         BATTLEGROUND_GAME_TYPE_CAPTURE_THE_FLAG,
         BATTLEGROUND_GAME_TYPE_CRAZY_KING,
         BATTLEGROUND_GAME_TYPE_DEATHMATCH,
@@ -20,7 +28,7 @@ addon.filters = {
     playerCharacters = {}
 }
 
-local Log = IPM_Log
+local Log = IPM_Logger('MATCHES_UI')
 
 --#region IPM BATTLEGROUNDS STATS
 local IPM_BattlegroundsStats = {}
@@ -260,12 +268,15 @@ function addon:CreateScrollListDataType()
         local summary = self.matchSummaries[data.matchIndex]
 
         GetControl(rowControl, 'Index'):SetText(data.index)
+        if not self.matches[data.matchIndex].playedFromStart then
+            GetControl(rowControl, 'Warning'):SetHidden(false)
+        end
 
         if COLOR_OF_RESULT[summary.result] then
             GetControl(rowControl, 'BG'):SetHidden(false)
             GetControl(rowControl, 'BG'):SetColor(unpack(COLOR_OF_RESULT[summary.result]))
         end
-        GetControl(rowControl, 'Type'):SetText(GAME_TYPE_ABBREVIATION[summary.type])
+        GetControl(rowControl, 'Mode'):SetText(GAME_TYPE_ABBREVIATION[summary.mode])
         GetControl(rowControl, 'Map'):SetText(summary.zone)
         -- GetControl(rowControl, 'Team'):SetText(data.team)
         local classIcon = summary.playerClass and ZO_GetClassIcon(summary.playerClass) or 'EsoUI/Art/Icons/icon_missing.dds'
@@ -286,20 +297,55 @@ function addon:CreateScrollListDataType()
             ZO_ScrollList_MouseClick(scrollList, rowControl)
         end)
 
-        local tooltip = ''
+        local function BuildTooltip()
+            local tooltip = ''
 
-        if summary.entryTimestamp then
-            local formattedTime = os.date('%d.%m.%Y %H:%M', summary.entryTimestamp)
-            tooltip = tooltip .. formattedTime
-        else
-            tooltip = tooltip .. '-'
+            if summary.entryTimestamp then
+                local formattedTime = os.date('%d.%m.%Y %H:%M', summary.entryTimestamp)
+                tooltip = tooltip .. formattedTime
+            else
+                tooltip = tooltip .. '-'
+            end
+            tooltip = tooltip .. '\n'
+            tooltip = tooltip .. zo_strformat('<<1>> (<<2>>)', summary.displayName, summary.characterName)
+            tooltip = tooltip .. '\n'
+            tooltip = tooltip .. GetRaceName(0, summary.playerRace) .. ' / ' .. GetClassName(0, summary.playerClass)
+            tooltip = tooltip .. '\n'
+            tooltip = tooltip .. (self.matches[data.matchIndex].playedFromStart == true and 'Played from beginning' or self.matches[data.matchIndex].playedFromStart == false and 'Played NOT from beginning' or '(?) Played from beginning')
+            tooltip = tooltip .. '\n'
+            tooltip = tooltip .. (self.matches[data.matchIndex].grouped == true and 'Grouped' or self.matches[data.matchIndex].grouped == false and 'Solo' or '(?) Solo/Grouped')
+            return tooltip
         end
-        tooltip = tooltip .. '\n'
-        tooltip = tooltip .. zo_strformat('<<1>> (<<2>>)', summary.displayName, summary.characterName)
-        tooltip = tooltip .. '\n'
-        tooltip = tooltip .. GetRaceName(0, summary.playerRace) .. ' / ' .. GetClassName(0, summary.playerClass)
 
-        rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
+        -- TODO IMPORTANT: I dont like idea to add custom hadler to every row
+        -- it would be better to make some unified callback ?possible
+        rowControl:SetHandler('OnMouseDown', function(control, button)
+            if button == MOUSE_BUTTON_INDEX_RIGHT then
+                ClearMenu()
+                local particularMatch = self.matches[control.dataEntry.data.matchIndex]  -- data.matchIndex
+                if particularMatch.playedFromStart == true then
+                    AddCustomMenuItem('Mark as played NOT from beginning', function()
+                        particularMatch.playedFromStart = false
+                        -- TODO: DRY
+                        GetControl(control, 'Warning'):SetHidden(self.matches[data.matchIndex].playedFromStart)
+                    end)
+                else
+                    AddCustomMenuItem('Mark as played from beginning', function()
+                        particularMatch.playedFromStart = true
+                        -- TODO: DRY
+                        GetControl(control, 'Warning'):SetHidden(self.matches[data.matchIndex].playedFromStart)
+                    end)
+                end
+                -- local tooltip = BuildTooltip()
+                -- rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
+                ShowMenu()
+            end
+        end)
+
+        rowControl:SetHandler('OnMouseEnter', function()
+            local tooltip = BuildTooltip()
+            ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip)
+        end)
         rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
     end
 
@@ -323,7 +369,7 @@ end
 local function CreateMatchSummary(matchIndex, matchData)
     local matchSummary = {
         index = matchIndex,
-        type = matchData.type,
+        mode = matchData.type,
         result = matchData.result,
         playerRace = matchData.playerRace,
         playerClass =  matchData.playerClass,
@@ -474,15 +520,23 @@ local function SelectAllElements(filter)
     end
 end
 
-function addon:InitializeTeamSizeFilter()
+function addon:InitializeTeamTypeFilter()
     local entriesData = {
         {
-            text = 'Matches 4x4',
-            type = TEAM_SIZE_4,
+            text = '4x4 - Solo',
+            type = TEAM_TYPE_4_SOLO,
         },
         {
-            text = 'Matches 8x8',
-            type = TEAM_SIZE_8,
+            text = '8x8 - Solo',
+            type = TEAM_TYPE_8_SOLO,
+        },
+        {
+            text = '4x4 - Group',
+            type = TEAM_TYPE_4_GROUP,
+        },
+        {
+            text = '8x8 - Group',
+            type = TEAM_TYPE_8_GROUP,
         },
     }
 
@@ -491,17 +545,17 @@ function addon:InitializeTeamSizeFilter()
         self:Update()
     end
 
-    local filterControl = GetControl(self.battlegroundsControl, 'FilterTeamSize')
+    local filterControl = GetControl(self.battlegroundsControl, 'FilterTeamType')
     local filter = InitializeFilter(filterControl, entriesData, callback)
-    filter:SetNoSelectionText('|cFF0000Select Team Size|r')
-    filter:SetMultiSelectionTextFormatter('<<1[$d Size/$d Sizes]>> Selected')
+    filter:SetNoSelectionText('|cFF0000Select Team Type|r')
+    filter:SetMultiSelectionTextFormatter('<<1[$d Team Type/$d Team Types]>> Selected')
 
     SelectAllElements(filter)
 
     return filter
 end
 
-function addon:InitializeMatchTypeFilter()
+function addon:InitializeMatchModeFilter()
     local entriesData = {}
 
     -- TODO: game types
@@ -517,14 +571,14 @@ function addon:InitializeMatchTypeFilter()
     end
 
     local function callback(newFilters)
-        self.filters.type = newFilters
+        self.filters.modes = newFilters
         self:Update()
     end
 
-    local filterControl = GetControl(self.battlegroundsControl, 'FilterGameType')
+    local filterControl = GetControl(self.battlegroundsControl, 'FilterGameMode')
     local filter = InitializeFilter(filterControl, entriesData, callback)
-    filter:SetNoSelectionText('|cFF0000Select Match Type|r')
-    filter:SetMultiSelectionTextFormatter('<<1[$d Type/$d Types]>> Selected')
+    filter:SetNoSelectionText('|cFF0000Select Match Mode|r')
+    filter:SetMultiSelectionTextFormatter('<<1[$d Mode/$d Modes]>> Selected')
 
     SelectAllElements(filter)
 
@@ -649,16 +703,44 @@ function addon:Initialize(naming, selectedCharacters)
     end
     self:AddFilter(GoodDataFilter)
 
+    local function GetMatchTeamType(matchData)
+        if not matchData.teamType then  -- COMPATIBILITY with matches b4 0.1.0b18
+            local groupType = GetActivityGroupType(matchData.lfgActivityId)
+
+            if matchData.teamSize == 8 then
+                if groupType == LFG_GROUP_TYPE_NONE then
+                    matchData.teamType = TEAM_TYPE_8_SOLO
+                elseif groupType == LFG_GROUP_TYPE_REGULAR then
+                    matchData.teamType = TEAM_TYPE_8_GROUP
+                else
+                    Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
+                end
+            elseif matchData.teamSize == 4 then
+                if groupType == LFG_GROUP_TYPE_NONE then
+                    matchData.teamType = TEAM_TYPE_4_SOLO
+                elseif groupType == LFG_GROUP_TYPE_REGULAR then
+                    matchData.teamType = TEAM_TYPE_4_GROUP
+                else
+                    Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
+                end
+            else
+                Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
+            end
+        end
+
+        return matchData.teamType
+    end
+
     local function TeamSizeFilter(matchData)
         for i, option in ipairs(self.filters.size) do
-            if matchData.teamSize == option then return true end
+            if GetMatchTeamType(matchData) == option then return true end
         end
     end
     self:AddFilter(TeamSizeFilter)
 
     local function GameTypeFilter(matchData)
-        for i, option in ipairs(self.filters.type) do
-            if matchData.type == option then return true end
+        for i, option in ipairs(self.filters.modes) do
+            if matchData.type == option then return true end  -- type is old name for mode
         end
     end
     self:AddFilter(GameTypeFilter)
@@ -673,8 +755,8 @@ function addon:Initialize(naming, selectedCharacters)
     end
     self:AddFilter(PlayerCharactersFilter)
 
-    self:InitializeTeamSizeFilter()
-    self:InitializeMatchTypeFilter()
+    self:InitializeTeamTypeFilter()
+    self:InitializeMatchModeFilter()
 
     self.filters.playerCharacters = selectedCharacters
     if IPM_Shared.TableLength(self.filters.playerCharacters) < 1 then

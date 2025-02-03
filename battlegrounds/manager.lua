@@ -1,11 +1,11 @@
 local addon = {}
 addon.name = 'IPM_MATCH_MANAGER'
 
-local Log = IPM_Log
+local Log = IPM_Logger('MATCHES_MANAGER')
 
 --#region MATCH
 local function GetNewMatchFromCurrentMatch()
-    Log('[MATCH MANAGER] Creating new match')
+    Log('Creating new match')
 
     local bgId = GetCurrentBattlegroundId()
     local unitZoneIndex = GetUnitZoneIndex('player')
@@ -23,6 +23,7 @@ local function GetNewMatchFromCurrentMatch()
         result = BATTLEGROUND_RESULT_INVALID,
         lfgActivityId = GetCurrentLFGActivityId(),
         teamSize = GetBattlegroundTeamSize(GetCurrentBattlegroundId()),
+        grouped = IPM_BATTLEGROUNDS_MANAGER:IsGrouped(),
     }
 
     -- TODO: do i really nee to add rounds like this? 
@@ -109,7 +110,7 @@ function addon:UpdateCurrentMatchRound(round)
 
     -- self.rounds[round].endTimestamp = GetTimeStamp()
     if currentRound.result ~= nil and currentRound.result ~= BATTLEGROUND_RESULT_INVALID then
-        Log('[MATCH MANAGER] Round %d of current match was already saved, skipping', round)
+        Log('Round %d of current match was already saved, skipping', round)
         return
     end
 
@@ -117,7 +118,7 @@ function addon:UpdateCurrentMatchRound(round)
     currentRound.scores = GetScoresFromCurrentMatchRound(round)
     currentRound.result = GetResultFromCurrentMatchRound(round)
 
-    Log('[MATCH MANAGER] Round %d of current match updated', round)
+    Log('Round %d of current match updated', round)
 end
 
 function addon:UpdateCurrentRound()
@@ -136,7 +137,7 @@ local function IsCurrentMatch(match)
     return
     match.type == GetCurrentBattlegroundGameType() and
     match.battlegroundId == GetCurrentBattlegroundId() and
-    (GetTimeStamp() - started) <= 60 * 30
+    (GetTimeStamp() - started) <= 60 * 20
 end
 
 local MATCH_STATE = {
@@ -158,7 +159,7 @@ function addon:RestoreCurrentMatch()
 
     if battlegroundState and battlegroundState == BATTLEGROUND_STATE_NONE then return end
 
-    Log('[MATCH MANAGER] Restoring BG, round: %d, state: %s', currentRoundIndex, GetMatchStateName(battlegroundState))
+    Log('Restoring BG, round: %d, state: %s', currentRoundIndex, GetMatchStateName(battlegroundState))
     -- self.currentMatch = ImpPvPMeterMatchBackup or GetNewMatchFromCurrentMatch()
 
     for i = 1, GetBattlegroundNumRounds(self.currentMatch.battlegroundId) do
@@ -175,13 +176,13 @@ end
 --#endregion MATCH
 
 function addon:IsCurrentMatchFinished()
-    -- Log('[MATCH MANAGER] Lets decide if current match finished')
+    -- Log('Lets decide if current match finished')
     local battlegroundId = self.currentMatch.battlegroundId
 
-    -- Log('[MATCH MANAGER] BG is: %d (%d)', self.currentMatch.battlegroundId, GetCurrentBattlegroundId())
-    -- Log('[MATCH MANAGER] Has rounds: %s', tostring(not DoesBattlegroundHaveRounds(battlegroundId)))
-    -- Log('[MATCH MANAGER] Was the last round: %s', tostring(GetCurrentBattlegroundRoundIndex() == GetBattlegroundNumRounds(battlegroundId)))
-    -- Log('[MATCH MANAGER] Won early: %s', tostring(HasTeamWonBattlegroundEarly()))
+    -- Log('BG is: %d (%d)', self.currentMatch.battlegroundId, GetCurrentBattlegroundId())
+    -- Log('Has rounds: %s', tostring(not DoesBattlegroundHaveRounds(battlegroundId)))
+    -- Log('Was the last round: %s', tostring(GetCurrentBattlegroundRoundIndex() == GetBattlegroundNumRounds(battlegroundId)))
+    -- Log('Won early: %s', tostring(HasTeamWonBattlegroundEarly()))
 
     return
     -- not DoesBattlegroundHaveRounds(battlegroundId) or
@@ -190,33 +191,50 @@ function addon:IsCurrentMatchFinished()
 end
 
 function addon:SaveCurrentMatch()
-    self.matches[#self.matches+1] = self.currentMatch
+    -- can create some kind of hash to check if this is the same matches and avoid duplication
+    local function SameDamageDone()
+        local previousMatchLocalPlayer = self.matches[#self.matches].rounds[1].players[1]
+        if not previousMatchLocalPlayer then return end
+
+        local currentMatchLocalPlayer = self.currentMatch.rounds[1].players[1]
+        if not currentMatchLocalPlayer then return end
+
+        return previousMatchLocalPlayer.damageDone == currentMatchLocalPlayer.damageDone
+    end
+
+    if not IsCurrentMatch(self.matches[#self.matches]) and not SameDamageDone() then
+        self.matches[#self.matches+1] = self.currentMatch
+        Log('Match saved as #%d', #self.matches)
+    end
+
     self.currentMatch = nil
     ImpPvPMeterMatchBackup = nil
 end
 
 function addon:MatchStateChanged(previousState, currentState)
-    Log('[MATCH MANAGER] State: %s -> %s', GetMatchStateName(previousState), GetMatchStateName(currentState))
+    Log('State: %s -> %s', GetMatchStateName(previousState), GetMatchStateName(currentState))
 
-    -- if currentState == BATTLEGROUND_STATE_STARTING then
-    --     self.currentMatch = GetNewMatchFromCurrentMatch()
-    --     ImpPvPMeterMatchBackup = self.currentMatch
+    if not self.currentMatch then
+        Log('!Match state changed but there is no data about current match!')  -- TODO: throw error/can try to restore
+        return
+    end
+
+    if previousState == BATTLEGROUND_STATE_NONE then
+        self.currentMatch.playedFromStart = true
+    end
+
     if currentState == BATTLEGROUND_STATE_POSTROUND then
-        if not self.currentMatch then
-            Log('[MATCH MANAGER] !There is no data about current match!')  -- TODO: throw error/can try to restore
-            return
-        end
         self:UpdateCurrentRound()
 
         if self:IsCurrentMatchFinished() then
-            Log('[MATCH MANAGER] Current match finished')
+            Log('Current match finished')
             self:FinalizeCurrentMatch()
             self:SaveCurrentMatch()
             IPM_BATTLEGROUNDS_UI:Update()
         end
     -- elseif currentState == BATTLEGROUND_STATE_FINISHED then
     --     if self.currentMatch then
-    --         Log('[MATCH MANAGER] There is match to save, saving')
+    --         Log('There is match to save, saving')
     --         self:FinalizeCurrentMatch()
     --         self:SaveCurrentMatch()
     --         IPM_BATTLEGROUNDS_UI:Update()
@@ -224,20 +242,24 @@ function addon:MatchStateChanged(previousState, currentState)
     end
 end
 
+function addon:IsGrouped()
+    return self.sv.grouped
+end
+
 function addon:PlayerActivated(initial)
-    Log('[MATCH MANAGER] Initial: %s', tostring(initial))
+    Log('Initial: %s', tostring(initial))
     -- local battlegroundState = GetCurrentBattlegroundState()
 
     if IsActiveWorldBattleground() then
         if ImpPvPMeterMatchBackup then
-            Log('[MATCH MANAGER] There is a backup, same BG: %s', tostring(IsCurrentMatch(ImpPvPMeterMatchBackup)))
+            Log('There is a backup, same BG: %s', tostring(IsCurrentMatch(ImpPvPMeterMatchBackup)))
             if IsCurrentMatch(ImpPvPMeterMatchBackup) then
                 self.currentMatch = ImpPvPMeterMatchBackup
                 -- TODO: mark if it is backed up data or not, check if it is good
-                self:RestoreCurrentMatch()
+                -- self:RestoreCurrentMatch()
             else
                 self.currentMatch = GetNewMatchFromCurrentMatch()
-                self:RestoreCurrentMatch()
+                -- self:RestoreCurrentMatch()
 
                 self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
                 ImpPvPMeterMatchBackup = self.currentMatch
@@ -246,11 +268,12 @@ function addon:PlayerActivated(initial)
             self.currentMatch = GetNewMatchFromCurrentMatch()
             ImpPvPMeterMatchBackup = self.currentMatch
         end
+        self:RestoreCurrentMatch()
     else
         -- TODO: check if it is already saved match
         -- TODO: check if it is a good match
         if ImpPvPMeterMatchBackup then
-            Log('[MATCH MANAGER] There is a backup outside of BG')
+            Log('There is a backup outside of BG')
             self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
             ImpPvPMeterMatchBackup = nil
         end
@@ -310,7 +333,35 @@ function IPM_InitializeMatchSaver(settings, characterSettings)
     PvPMeterBattlegroundsData[server] = PvPMeterBattlegroundsData[server] or {}
     IPM_BATTLEGROUNDS_MANAGER.matches = PvPMeterBattlegroundsData[server]
 
-    Log('[MATCH MANAGER] There are %d matches saved', #IPM_BATTLEGROUNDS_MANAGER.matches)
+    Log('There are %d matches saved', #IPM_BATTLEGROUNDS_MANAGER.matches)
+
+    -- local GROUP_TYPE_TO_STRING = {
+    --     [LFG_GROUP_TYPE_BIG_TEAM_BATTLE] = 'BIG_TEAM_BATTLE',
+    --     [LFG_GROUP_TYPE_LARGE] = 'LARGE',
+    --     [LFG_GROUP_TYPE_MEDIUM] = 'MEDIUM',
+    --     [LFG_GROUP_TYPE_NONE] = 'NONE',
+    --     [LFG_GROUP_TYPE_REGULAR] = 'REGULAR',
+    -- }
+    -- for i, data in ipairs(ZO_ACTIVITY_FINDER_ROOT_MANAGER.sortedLocationsData[7]) do
+    --     local name, levelMin, levelMax, championPointsMin, championPointsMax, groupType, minGroupSize, description, sortOrder = GetActivityInfo(data.id)
+    --     if groupType == LFG_GROUP_TYPE_NONE then
+    --         Log('#%d, groupType: %s, minGroupSize: %d, maxGroupSize: %d', i, GROUP_TYPE_TO_STRING[groupType], minGroupSize, data.maxGroupSize)
+    --     end
+    -- end
+
+    -- EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_GROUP_UPDATE, function() Log('Group update') end)
+    -- ZO_PostHook(ZO_ACTIVITY_FINDER_ROOT_MANAGER, 'StartSearch', function(zo_activity_finder_root_manager)
+    --     IPM_BATTLEGROUNDS_MANAGER.sv.grouped = zo_activity_finder_root_manager.playerIsGrouped
+    --     Log(zo_activity_finder_root_manager.playerIsGrouped and 'Searching as group' or 'Searching as solo')
+    -- end)
+    EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_ACTIVITY_FINDER_STATUS_UPDATE, function(_, state)
+        if state ~= ACTIVITY_FINDER_STATUS_READY_CHECK then return end
+
+        IPM_BATTLEGROUNDS_MANAGER.sv.grouped = ZO_ACTIVITY_FINDER_ROOT_MANAGER.playerIsGrouped
+        Log(ZO_ACTIVITY_FINDER_ROOT_MANAGER.playerIsGrouped and 'Joining as group' or 'Joining as solo')
+    end)
+
+    IPM_BATTLEGROUNDS_MANAGER.sv = settings
 
     EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 

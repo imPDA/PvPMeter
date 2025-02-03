@@ -3,7 +3,7 @@ addon.name = 'IPM_DUELS_MANAGER'
 
 addon.playerData = nil
 
-local Log = IPM_Log
+local Log = IPM_Logger('DUELS_MANAGER')
 
 local function Close(timems1, timems2, diff)
     if timems1 == nil or timems2 == nil then return error('Time cant be nil') end

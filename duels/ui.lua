@@ -13,7 +13,7 @@ addon.filters = {
     playerCharacters = {}
 }
 
-local Log = IPM_Log
+local Log = IPM_Logger('DUELS_UI')
 
 --#region IPM DUESL STATISTICS
 local IPM_DuelsStats = {}

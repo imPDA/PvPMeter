@@ -1,4 +1,4 @@
-local Log = IPM_Log
+local Log = IPM_Logger('IPM_SHARED')
 
 local addon = {}
 

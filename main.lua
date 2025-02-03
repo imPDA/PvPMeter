@@ -1,9 +1,9 @@
 local addon = {}
 addon.name = 'ImpPvPMeter'
 addon.displayName = 'Imp\'s PvP Meter'
-addon.version = '0.1.0b17'
+addon.version = '0.1.0b18'
 
-local Log = IPM_Log
+local Log = IPM_Logger('IPM_MAIN')
 
 local DEFAULTS = {
 	battlegrounds = {

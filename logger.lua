@@ -1,15 +1,19 @@
 --#region LOGGER
-local logger
+function IPM_Logger(name)
+    local logger
 
-if LibDebugLogger then
-    logger = LibDebugLogger:Create('IPM')
-    logger:SetMinLevelOverride(LibDebugLogger.LOG_LEVEL_DEBUG)
-end
-
-function IPM_Log(...)
-    local level = LibDebugLogger.LOG_LEVEL_DEBUG
-    if logger then
-        logger:Log(level, ...)
+    if LibDebugLogger then
+        logger = LibDebugLogger:Create(name or 'IPM')
+        logger:SetMinLevelOverride(LibDebugLogger.LOG_LEVEL_DEBUG)
     end
+
+    local level = LibDebugLogger.LOG_LEVEL_DEBUG
+    local function inner (...)
+        if logger then
+            logger:Log(level, ...)
+        end
+    end
+
+    return inner
 end
 --#endregion LOGGER

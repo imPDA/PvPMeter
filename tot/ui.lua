@@ -10,7 +10,7 @@ addon.filters = {
     playerCharacters = {},
 }
 
-local Log = IPM_Log
+local Log = IPM_Logger('TOT_UI')
 
 --#region IPM TOT STATISTICS
 IPM_TOTStats = {}
