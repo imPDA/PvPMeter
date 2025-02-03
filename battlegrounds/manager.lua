@@ -335,6 +335,18 @@ function IPM_InitializeMatchSaver(settings, characterSettings)
 
     Log('There are %d matches saved', #IPM_BATTLEGROUNDS_MANAGER.matches)
 
+    if PvPMeterBattlegroundsData.version == nil then PvPMeterBattlegroundsData.version = 0 end
+    if PvPMeterBattlegroundsData.version < 1010019 then  -- before 0.1.0b19
+        for _, serverData in pairs(PvPMeterBattlegroundsData) do
+            for _, matchData in ipairs(serverData) do
+                if matchData.api == nil then matchData.api = 101044 end
+                if matchData.playedFromStart == nil then matchData.playedFromStart = true end
+            end
+        end
+
+        PvPMeterBattlegroundsData.version = 1010019
+    end
+
     -- local GROUP_TYPE_TO_STRING = {
     --     [LFG_GROUP_TYPE_BIG_TEAM_BATTLE] = 'BIG_TEAM_BATTLE',
     --     [LFG_GROUP_TYPE_LARGE] = 'LARGE',
