@@ -132,6 +132,8 @@ function addon:FinalizeCurrentMatch()
 end
 
 local function IsCurrentMatch(match)
+    if not match then return end
+
     local started = match.entryTimestamp or 0
 
     return
@@ -191,11 +193,15 @@ function addon:IsCurrentMatchFinished()
 end
 
 function addon:SaveCurrentMatch()
+    if not self.currentMatch then return end
+
     -- can create some kind of hash to check if this is the same matches and avoid duplication
     local function SameDamageDone()
+        if not self.matches[#self.matches] then return end
         local previousMatchLocalPlayer = self.matches[#self.matches].rounds[1].players[1]
         if not previousMatchLocalPlayer then return end
 
+        if not self.currentMatch then return end
         local currentMatchLocalPlayer = self.currentMatch.rounds[1].players[1]
         if not currentMatchLocalPlayer then return end
 
