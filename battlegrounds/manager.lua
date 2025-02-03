@@ -337,10 +337,12 @@ function IPM_InitializeMatchSaver(settings, characterSettings)
 
     if PvPMeterBattlegroundsData.version == nil then PvPMeterBattlegroundsData.version = 0 end
     if PvPMeterBattlegroundsData.version < 1010019 then  -- before 0.1.0b19
-        for _, serverData in pairs(PvPMeterBattlegroundsData) do
-            for _, matchData in ipairs(serverData) do
-                if matchData.api == nil then matchData.api = 101044 end
-                if matchData.playedFromStart == nil then matchData.playedFromStart = true end
+        for key, data in pairs(PvPMeterBattlegroundsData) do
+            if key ~= 'version' then
+                for _, matchData in ipairs(data) do
+                    if matchData.api == nil then matchData.api = 101044 end
+                    if matchData.playedFromStart == nil then matchData.playedFromStart = true end
+                end
             end
         end
 
