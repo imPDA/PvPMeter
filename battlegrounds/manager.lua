@@ -5,10 +5,10 @@ local Log = IPM_Logger('MATCHES_MANAGER')
 
 --#region MATCH
 local function GetNewMatchFromCurrentMatch()
-    Log('Creating new match')
-
     local bgId = GetCurrentBattlegroundId()
     local unitZoneIndex = GetUnitZoneIndex('player')
+
+    Log('Creating new match, battlegorundId: %d', bgId)
 
     local currentMatch = {
         type = GetCurrentBattlegroundGameType(),
@@ -220,16 +220,29 @@ end
 function addon:MatchStateChanged(previousState, currentState)
     Log('State: %s -> %s', GetMatchStateName(previousState), GetMatchStateName(currentState))
 
-    if not self.currentMatch then
-        Log('!Match state changed but there is no data about current match!')  -- TODO: throw error/can try to restore
-        return
-    end
+    if currentState == BATTLEGROUND_STATE_PREROUND then
+        if self.currentMatch and not IsCurrentMatch(self.currentMatch) then
+            -- self.matches[#self.matches+1] = self.currentMatch
+            Log('There is some other match in memory, dumping it')
+            self:SaveCurrentMatch()
+        end
 
-    if previousState == BATTLEGROUND_STATE_NONE then
-        self.currentMatch.playedFromStart = true
-    end
+        if not self.currentMatch then
+            self.currentMatch = GetNewMatchFromCurrentMatch()
+            ImpPvPMeterMatchBackup = self.currentMatch
+            self:RestoreCurrentMatch()
+        end
 
-    if currentState == BATTLEGROUND_STATE_POSTROUND then
+        if previousState == BATTLEGROUND_STATE_NONE then
+            self.currentMatch.playedFromStart = true
+            Log('Marked as played from start')
+        end
+    elseif currentState == BATTLEGROUND_STATE_POSTROUND then
+        if not self.currentMatch then
+            Log('!There is no current match!')  -- TODO: throw error/can try to restore
+            return
+        end
+
         self:UpdateCurrentRound()
 
         if self:IsCurrentMatchFinished() then
@@ -238,13 +251,22 @@ function addon:MatchStateChanged(previousState, currentState)
             self:SaveCurrentMatch()
             IPM_BATTLEGROUNDS_UI:Update()
         end
-    -- elseif currentState == BATTLEGROUND_STATE_FINISHED then
-    --     if self.currentMatch then
-    --         Log('There is match to save, saving')
-    --         self:FinalizeCurrentMatch()
-    --         self:SaveCurrentMatch()
-    --         IPM_BATTLEGROUNDS_UI:Update()
-    --     end
+    elseif currentState == BATTLEGROUND_STATE_FINISHED then
+        if self.currentMatch then
+            Log('There is match to save')
+            self:FinalizeCurrentMatch()
+            self:SaveCurrentMatch()
+            IPM_BATTLEGROUNDS_UI:Update()
+        end
+
+        if not IsCurrentMatch(self.matches[#self.matches]) then
+            Log('Current match seem not be recorded correctly, recreating it at the end of match')
+            self.currentMatch = GetNewMatchFromCurrentMatch()
+            self:RestoreCurrentMatch()
+            self:FinalizeCurrentMatch()
+            self:SaveCurrentMatch()
+            IPM_BATTLEGROUNDS_UI:Update()
+        end
     end
 end
 
@@ -253,7 +275,7 @@ function addon:IsGrouped()
 end
 
 function addon:PlayerActivated(initial)
-    Log('Initial: %s', tostring(initial))
+    Log('Player activated %s', initial and 'initial' or '')
     -- local battlegroundState = GetCurrentBattlegroundState()
 
     if IsActiveWorldBattleground() then
@@ -263,18 +285,18 @@ function addon:PlayerActivated(initial)
                 self.currentMatch = ImpPvPMeterMatchBackup
                 -- TODO: mark if it is backed up data or not, check if it is good
                 -- self:RestoreCurrentMatch()
-            else
-                self.currentMatch = GetNewMatchFromCurrentMatch()
-                -- self:RestoreCurrentMatch()
+            -- else
+            --     self.currentMatch = GetNewMatchFromCurrentMatch()
+            --     -- self:RestoreCurrentMatch()
 
-                self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
-                ImpPvPMeterMatchBackup = self.currentMatch
+            --     self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
+            --     ImpPvPMeterMatchBackup = self.currentMatch
             end
-        else
-            self.currentMatch = GetNewMatchFromCurrentMatch()
-            ImpPvPMeterMatchBackup = self.currentMatch
+        -- else
+        --     self.currentMatch = GetNewMatchFromCurrentMatch()
+        --     ImpPvPMeterMatchBackup = self.currentMatch
         end
-        self:RestoreCurrentMatch()
+        -- self:RestoreCurrentMatch()
     else
         -- TODO: check if it is already saved match
         -- TODO: check if it is a good match
