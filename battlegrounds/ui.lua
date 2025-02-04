@@ -268,9 +268,9 @@ function addon:CreateScrollListDataType()
         local summary = self.matchSummaries[data.matchIndex]
 
         GetControl(rowControl, 'Index'):SetText(data.index)
-        if not self.matches[data.matchIndex].playedFromStart then
-            GetControl(rowControl, 'Warning'):SetHidden(false)
-        end
+        -- if not self.matches[data.matchIndex].playedFromStart then
+        GetControl(rowControl, 'Warning'):SetHidden(self.matches[data.matchIndex].playedFromStart)
+        -- end
 
         if COLOR_OF_RESULT[summary.result] then
             GetControl(rowControl, 'BG'):SetHidden(false)
