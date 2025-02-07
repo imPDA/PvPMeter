@@ -1,5 +1,5 @@
 ## Title: |cAFD3FFimp|ceeeeee's PvP Meter|r
-## AddOnVersion: 1010022
+## AddOnVersion: 1010023
 ## APIVersion: 101044
 ## Author: |cAFD3FF@impda|r [EU]
 ## DependsOn: LibMainMenu-2.0 LibCombat ImpTools LibAsync LibAddonMenu-2.0 LibCustomMenu

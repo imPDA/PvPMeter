@@ -1,9 +1,9 @@
 local addon = {}
 
-addon.name = 'IPM_TOT_MANAGER'
+addon.name = 'IMP_STATS_TRIBUTE_MANAGER'
 addon.playerData = nil
 
-local Log = IPM_Logger('TOT_MANAGER')
+local Log = IMP_STATS_Logger('TRIBUTE_MANAGER')
 
 local function GetOpponentData(opponentName)
     local numEntries = GetNumTributeLeaderboardEntries(TRIBUTE_LEADERBOARD_TYPE_RANKED)
@@ -120,12 +120,12 @@ end
 
 -- function GameManager:UpdateScore(name)
 --     local found, rank, displayName, characterName, score = GetOpponentData(name)
---     Log('[T] Updated rank: %d (#%d)', score, rank)
+--     Log('Updated rank: %d (#%d)', score, rank)
 --     EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
 -- end
 
 --[[
-function IPM_TOTGame:InitializeOpponent()
+function IMP_TOTGame:InitializeOpponent()
     local name, playerType = GetTributePlayerInfo(TRIBUTE_PLAYER_PERSPECTIVE_OPPONENT)
 
     self.opponent = {
@@ -140,7 +140,7 @@ function IPM_TOTGame:InitializeOpponent()
     --         rank = found and rank or 0,
     --         -- topP = topPercent
     --     }
-    --     Log('[T] Rank: %d (#%d)', score, rank)
+    --     Log('Rank: %d (#%d)', score, rank)
     -- end
 
     -- EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED, function() self:UpdateScore(name) end)
@@ -150,7 +150,7 @@ end
 
 function GameManager:AddFirstPick()
     self.fp = GetActiveTributePlayerPerspective() == TRIBUTE_PLAYER_PERSPECTIVE_SELF
-    Log('[T] Fist pick: %s', tostring(self.fp))
+    Log('Fist pick: %s', tostring(self.fp))
 end
 
 function GameManager:WriteGameResults()
@@ -188,16 +188,16 @@ end
 function addon:SaveCurrentGame()
     self.games[#self.games+1] = self.currentGame
     self.currentGame = nil
-    Log('[T] Game saved, id: %d', #self.games)
+    Log('Game saved, id: %d', #self.games)
 end
 
 function addon:UpdateOpponentPreview()
-    local statsVsCurrentOpponent = IPM_TOTStats:New()
+    local statsVsCurrentOpponent = IMP_STATS_TRIBUTE_STATS:New()
 
     local games = {}
     local function CalculateStats(task)
         statsVsCurrentOpponent:Clear()
-        Log('[T] Previous games: %s', table.concat(games, ', '))
+        Log('Previous games: %s', table.concat(games, ', '))
         task:For(ipairs(games)):Do(function(index, gameIndex) statsVsCurrentOpponent:AddGame(index, self.games[gameIndex]) end)
     end
 
@@ -207,7 +207,7 @@ function addon:UpdateOpponentPreview()
         -- GetControl(self.previewControl, 'OpponentNameValue'):SetText(opponent.name)
         if statsVsCurrentOpponent.totalGames > 0 then
             GetControl(self.previewControl, 'PlayedBefore'):SetText(string.format('Played %d games', statsVsCurrentOpponent.totalGames))
-            local winrate = IPM_Shared.PossibleNan((statsVsCurrentOpponent.totalWonFP + statsVsCurrentOpponent.totalWonSP) / statsVsCurrentOpponent.totalGames)
+            local winrate = IMP_STATS_SHARED.PossibleNan((statsVsCurrentOpponent.totalWonFP + statsVsCurrentOpponent.totalWonSP) / statsVsCurrentOpponent.totalGames)
             GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', winrate * 100))
         end
 
@@ -231,10 +231,10 @@ function addon:HideOpponentPreview()
 end
 
 function addon:OnIntro()
-    Log('[T] Game started')
+    Log('Game started')
 
     if GetTributeMatchType() ~= TRIBUTE_MATCH_TYPE_COMPETITIVE then
-        Log('[T] Not competitive game')
+        Log('Not competitive game')
         -- return
     end
 
@@ -252,7 +252,7 @@ function addon:OnPatronDraft()
 end
 
 function addon:OnGameOver()
-    Log('[T] Game over')
+    Log('Game over')
     if not self.currentGame then return end
 
     self.currentGame:OnGameOver()
@@ -263,11 +263,11 @@ function addon:OnGameOver()
     -- TODO: find better solution
     -- since rating and mmr updated asyncronously, there is situation when
     -- ui starts to update but mmr or rank not updated yet and equal 'nil'
-    zo_callLater(function() IPM_TOT_UI:Update() end, 2000)
+    zo_callLater(function() IMP_STATS_TRIBUTE_UI:Update() end, 2000)
 end
 
 function addon:OnGameState(state)
-    Log('[T] Game state: %d', state)
+    Log('Game state: %d', state)
     if state == TRIBUTE_GAME_FLOW_STATE_INTRO then
         self:OnIntro()
     elseif state == TRIBUTE_GAME_FLOW_STATE_PATRON_DRAFT then
@@ -282,14 +282,10 @@ function addon:PlayerActivated(initial)
         self:OnGameState(state)
     end
 
-    -- local function OnDuelFinished(_, ...)
-    --     self:OnDuelFinished(...)
-    -- end
-
     EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_GAME_FLOW_STATE_CHANGE, OnTributeGameFlowStateChanged)
     -- EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_PATRON_DRAFTED, function(...) Log(...) end)
 
-    IPM_TOT_UI:Update()
+    IMP_STATS_TRIBUTE_UI:Update()
 end
 
 function addon:GetGamesWith(task, opponentName, tbl)
@@ -329,44 +325,44 @@ local function OnPlayerActivated(_, initial)
     addon:PlayerActivated(initial)
 end
 
-function IPM_InitializeTOTManager(settings, characterSettings)
-    IPM_TOT_MANAGER = addon
+function IMP_STATS_InitializeTributeManager(settings, characterSettings)
+    IMP_STATS_TRIBUTE_MANAGER = addon
 
-    IPM_TOT_MANAGER.settings = settings
+    IMP_STATS_TRIBUTE_MANAGER.settings = settings
 
     local server = string.sub(GetWorldName(), 1, 2)
-    IPM_TOT_MANAGER.playerData = {
+    IMP_STATS_TRIBUTE_MANAGER.playerData = {
         name = GetDisplayName(),
     }
 
     PvPMeterTOTData = PvPMeterTOTData or {}
     PvPMeterTOTData[server] = PvPMeterTOTData[server] or {}
 
-    IPM_TOT_MANAGER.games = PvPMeterTOTData[server]
-    Log('[T] There are %d games saved', #addon.games)
+    IMP_STATS_TRIBUTE_MANAGER.games = PvPMeterTOTData[server]
+    Log('There are %d games saved', #addon.games)
 
-    EVENT_MANAGER:RegisterForEvent(IPM_TOT_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
+    EVENT_MANAGER:RegisterForEvent(IMP_STATS_TRIBUTE_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 
-    IPM_TOT_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
+    IMP_STATS_TRIBUTE_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
 
-    IPM_TOT_MANAGER.previewControl = IPM_TOT_OpponentPreview
+    IMP_STATS_TRIBUTE_MANAGER.previewControl = IMP_STATS_TributeOpponentPreview
     do
         if settings.opponentPreview and settings.opponentPreview.anchor then
             local anchor = settings.opponentPreview.anchor
-            IPM_TOT_MANAGER.previewControl:ClearAnchors()
-            IPM_TOT_MANAGER.previewControl:SetAnchor(anchor[1], nil, anchor[3], anchor[4], anchor[5])
+            IMP_STATS_TRIBUTE_MANAGER.previewControl:ClearAnchors()
+            IMP_STATS_TRIBUTE_MANAGER.previewControl:SetAnchor(anchor[1], nil, anchor[3], anchor[4], anchor[5])
         end
     end
 end
 
-function FindGamesByName(name)
-    Log('Searching for %s', name)
-    local games = {}
+-- function FindGamesByName(name)
+--     Log('Searching for %s', name)
+--     local games = {}
 
-    local task = LibAsync:Create('TestOpponentSearch')
-    IPM_TOT_MANAGER:GetGamesWith(task, name, games):Then(function()
-        Log('%d found', #games)
-    end)
-end
+--     local task = LibAsync:Create('TestOpponentSearch')
+--     IMP_STATS_TRIBUTE_MANAGER:GetGamesWith(task, name, games):Then(function()
+--         Log('%d found', #games)
+--     end)
+-- end
 
-SLASH_COMMANDS['/ipmtotf'] = FindGamesByName
+-- SLASH_COMMANDS['/imptotf'] = FindGamesByName

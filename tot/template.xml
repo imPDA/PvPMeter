@@ -1,17 +1,17 @@
-<GuiXml>
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
-        <Label name="IPM_TOT_Listing_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="40" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
-		<!-- <Label name="IPM_TOT_Listing_Column3" virtual="true"><Dimensions x="220" y="32" /></Label> -->
-		<Label name="IPM_TOT_Listing_Column4" virtual="true"><Dimensions x="400" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="32" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column9" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_TOT_Listing_Column10" horizontalAlignment="CENTER" virtual="true"><Dimensions x="32" y="32" /></Label>
+        <Label name="IMP_STATS_Tribute_Listing_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="40" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
+		<!-- <Label name="IMP_STATS_Tribute_Listing_Column3" virtual="true"><Dimensions x="220" y="32" /></Label> -->
+		<Label name="IMP_STATS_Tribute_Listing_Column4" virtual="true"><Dimensions x="400" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="32" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column9" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column10" horizontalAlignment="CENTER" virtual="true"><Dimensions x="32" y="32" /></Label>
 		
-		<Label name="IPM_TOTSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
+		<Label name="IMP_STATS_TributeGameSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
 			<Dimensions y="32" />
 			<Controls>
 				<!-- TODO: texture order -->
@@ -21,40 +21,40 @@
 					<!-- TODO: ideally, get rid of Dimensions -->
 					<!-- TODO: find out why this texture less than row with height 32 -->
 				</Texture>
-				<Label name="$(parent)Index" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column1">
+				<Label name="$(parent)Index" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column1">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 				</Label>
-				<Label name="$(parent)Duration" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column2">
+				<Label name="$(parent)Duration" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column2">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20" />
 				</Label>
-				<!-- <Label name="$(parent)PlayerName" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column3">
+				<!-- <Label name="$(parent)PlayerName" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column3">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 				</Label> -->
-				<Label name="$(parent)OpponentName" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column4">
+				<Label name="$(parent)OpponentName" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column4">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)FirstPick" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column5">
+				<Label name="$(parent)FirstPick" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Score" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column6">
+				<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column6">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)FirstPick" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Result" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column10">
+				<Label name="$(parent)Result" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)PlayerMMR" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column7">
+				<Label name="$(parent)PlayerMMR" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column7">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Result" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Rank" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column8">
+				<Label name="$(parent)Rank" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column8">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerMMR" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)TopPercent" inherits="IPM_Listing_Cell IPM_TOT_Listing_Column9">
+				<Label name="$(parent)TopPercent" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column9">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Rank" relativePoint="TOPRIGHT" />
 				</Label>
 			</Controls>
 		</Label>
 
-		<Control name="IPM_TOT_Template" virtual="true">
+		<Control name="IMP_STATS_Tribute_Template" virtual="true">
 			<AnchorFill />
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
@@ -69,13 +69,13 @@
                     <Dimensions x="270" />
                     <Controls>
                         <EditBox name="$(parent)Box" inherits="ZO_DefaultEditForBackdrop" defaultText="SI_REQUEST_NAME_INSTRUCTIONS" />
-						<Label name="$(parent)Label" inherits="IPM_StatName" text="Opponent:">
+						<Label name="$(parent)Label" inherits="IMP_STATS_StatName" text="Opponent:">
 							<Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="-4" />
 						</Label>
                     </Controls>
                 </Backdrop>
 
-				<!-- <Control name="$(parent)FilterPlayerCharacters" inherits="ZO_MultiselectComboBox">
+				<!-- <Control name="$(parent)CharactersFilter" inherits="ZO_MultiselectComboBox">
                     <Anchor point="TOPRIGHT" relativeTo="$(parent)OpponentSearch" relativePoint="BOTTOMRIGHT" offsetX="2" offsetY="8" />
 					<Dimensions x="270" y="32" />
 				</Control> -->
@@ -85,35 +85,35 @@
 					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="150" />
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-						<Control name="$(parent)Shit" inherits="IPM_Shit">
+						<Control name="$(parent)GaugeKDAMeter" inherits="IMP_STATS_GaugeKDAMeter">
 							<Anchor point="TOPLEFT" />
 						</Control>
 
-						<Label name="$(parent)TotalGames" inherits="IPM_StatName" text="Games recorded:">
+						<Label name="$(parent)TotalGames" inherits="IMP_STATS_StatName" text="Games recorded:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)" offsetX="110" offsetY="6" />
 						</Label>
-						<Label name="$(parent)TotalGamesValue" inherits="IPM_StatValue">
+						<Label name="$(parent)TotalGamesValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalGames" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 						
-						<Label name="$(parent)Winrate" inherits="IPM_StatName" text="Winrate:">
+						<Label name="$(parent)Winrate" inherits="IMP_STATS_StatName" text="Winrate:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalGames" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateValue" inherits="IPM_StatValue">
+						<Label name="$(parent)WinrateValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<!-- <Label name="$(parent)WinrateFP" inherits="IPM_StatName" text="Winrate (1pick):">
+						<!-- <Label name="$(parent)WinrateFP" inherits="IMP_STATS_StatName" text="Winrate (1pick):">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateFPValue" inherits="IPM_StatValue">
+						<Label name="$(parent)WinrateFPValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)WinrateFP" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)WinrateSP" inherits="IPM_StatName" text="Winrate (2pick):">
+						<Label name="$(parent)WinrateSP" inherits="IMP_STATS_StatName" text="Winrate (2pick):">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)WinrateFP" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateSPValue" inherits="IPM_StatValue">
+						<Label name="$(parent)WinrateSPValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)WinrateSP" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label> -->
 					</Controls>
@@ -144,34 +144,34 @@
 							<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="40"/>
 							<Controls>
 								<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-								<Label name="$(parent)Index" inherits="IPM_Listing_Header IPM_TOT_Listing_Column1" text="###">
+								<Label name="$(parent)Index" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column1" text="###">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 								</Label>
-								<Label name="$(parent)Duration" inherits="IPM_Listing_Header IPM_TOT_Listing_Column2" text="Time">
+								<Label name="$(parent)Duration" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column2" text="Time">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20" />
 								</Label>
-								<!-- <Label name="$(parent)PlayerName" inherits="IPM_Listing_Header IPM_TOT_Listing_Column3" text="Player">
+								<!-- <Label name="$(parent)PlayerName" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column3" text="Player">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 								</Label> -->
-								<Label name="$(parent)OpponentName" inherits="IPM_Listing_Header IPM_TOT_Listing_Column4" text="Opponent">
+								<Label name="$(parent)OpponentName" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column4" text="Opponent">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)FirstPick" inherits="IPM_Listing_Header IPM_TOT_Listing_Column5" text="FP">
+								<Label name="$(parent)FirstPick" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column5" text="FP">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Score" inherits="IPM_Listing_Header IPM_TOT_Listing_Column6" text="Score">
+								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column6" text="Score">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)FirstPick" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Result" inherits="IPM_Listing_Header IPM_TOT_Listing_Column10" text="W/L">
+								<Label name="$(parent)Result" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column10" text="W/L">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)PlayerMMR" inherits="IPM_Listing_Header IPM_TOT_Listing_Column7" text="MMR">
+								<Label name="$(parent)PlayerMMR" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column7" text="MMR">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Result" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Rank" inherits="IPM_Listing_Header IPM_TOT_Listing_Column8" text="Rank">
+								<Label name="$(parent)Rank" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column8" text="Rank">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerMMR" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)TopPercent" inherits="IPM_Listing_Header IPM_TOT_Listing_Column9" text="Top%">
+								<Label name="$(parent)TopPercent" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column9" text="Top%">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Rank" relativePoint="TOPRIGHT" />
 								</Label>
 							</Controls>
@@ -188,47 +188,47 @@
 			</Controls>
 		</Control>
 
-		<Label name="IPM_OpponentPreview_Label" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT" text="-" virtual="true">
+		<Label name="IMP_STATS_TributeOpponentPreview_Label" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT" text="-" virtual="true">
 			<Dimensions y="24" />
 		</Label>
 
-		<TopLevelControl name="IPM_TOT_OpponentPreview" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true">
+		<TopLevelControl name="IMP_STATS_TributeOpponentPreview" mouseEnabled="true" movable="true" clampedToScreen="true" hidden="true">
 			<Dimensions x="180" y="70" />
 			<Anchor point="TOPLEFT" relativeTo="GuiRoot" relativePoint="TOPLEFT" />
 
 			<OnMoveStop>
-                IPM_OpponentPreview_OnMoveStop(self)
+                IMP_STATS_TributeOpponentPreview_OnMoveStop(self)
             </OnMoveStop>
 
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
 
-				<!-- <Label name="$(parent)OpponentName" inherits="IPM_OpponentPreview_Label" text="Opponent:">
+				<!-- <Label name="$(parent)OpponentName" inherits="IMP_STATS_TributeOpponentPreview_Label" text="Opponent:">
 					<Anchor point="TOPLEFT" />
 				</Label>
-				<Label name="$(parent)OpponentNameValue" inherits="IPM_OpponentPreview_Label">
+				<Label name="$(parent)OpponentNameValue" inherits="IMP_STATS_TributeOpponentPreview_Label">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" offsetX="4" />
 				</Label> -->
 
-				<Label name="$(parent)OpponentRank" inherits="IPM_OpponentPreview_Label" text="Below Top-100">
+				<Label name="$(parent)OpponentRank" inherits="IMP_STATS_TributeOpponentPreview_Label" text="Below Top-100">
 					<!-- <Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="BOTTOMLEFT" /> -->
 					<Anchor point="TOPLEFT" />
 				</Label>
-				<!-- <Label name="$(parent)OpponentMMRValue" inherits="IPM_OpponentPreview_Label">
+				<!-- <Label name="$(parent)OpponentMMRValue" inherits="IMP_STATS_TributeOpponentPreview_Label">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentMMR" relativePoint="TOPRIGHT" offsetX="4" />
 				</Label> -->
 
-				<Label name="$(parent)PlayedBefore" inherits="IPM_OpponentPreview_Label" text="Not played before">
+				<Label name="$(parent)PlayedBefore" inherits="IMP_STATS_TributeOpponentPreview_Label" text="Not played before">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentRank" relativePoint="BOTTOMLEFT" />
 				</Label>
-				<!-- <Label name="$(parent)TotalGamesValue" inherits="IPM_OpponentPreview_Label">
+				<!-- <Label name="$(parent)TotalGamesValue" inherits="IMP_STATS_TributeOpponentPreview_Label">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)TotalGames" relativePoint="TOPRIGHT" offsetX="4" />
 				</Label> -->
 
-				<Label name="$(parent)Winrate" inherits="IPM_OpponentPreview_Label" text="Winrate:">
+				<Label name="$(parent)Winrate" inherits="IMP_STATS_TributeOpponentPreview_Label" text="Winrate:">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)PlayedBefore" relativePoint="BOTTOMLEFT" />
 				</Label>
-				<Label name="$(parent)WinrateValue" inherits="IPM_OpponentPreview_Label" text="-">
+				<Label name="$(parent)WinrateValue" inherits="IMP_STATS_TributeOpponentPreview_Label" text="-">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="4" />
 				</Label>
 			</Controls>

@@ -1,21 +1,21 @@
 local addon = {}
 
-addon.name = 'IPM_TOT_UI'
+addon.name = 'IMP_STATS_TRIBUTE_UI'
 
 addon.listControl = nil
 addon.statsControl = nil
 
 addon.filters = {
     opponentName = '',
-    playerCharacters = {},
+    selectedCharacters = {},
 }
 
-local Log = IPM_Logger('TOT_UI')
+local Log = IMP_STATS_Logger('TOT_UI')
 
---#region IPM TOT STATISTICS
-IPM_TOTStats = {}
+--#region IMP STATS TRIBUTE STATS
+local TributeStats = {}
 
-function IPM_TOTStats:New(o)
+function TributeStats:New(o)
     o = o or {}
 
     setmetatable(o, self)
@@ -24,7 +24,7 @@ function IPM_TOTStats:New(o)
     return o
 end
 
-function IPM_TOTStats:Clear()
+function TributeStats:Clear()
     self.totalGames = 0
     self.totalFP = 0
     self.totalSP = 0
@@ -36,11 +36,13 @@ function IPM_TOTStats:Clear()
     self.lastProceededIndex = nil
 end
 
+IMP_STATS_TRIBUTE_STATS = TributeStats
+
 -- h5. TributeVictoryType
 local WIN = 1
 local LOSS = 2
 
-function IPM_TOTStats:AddGame(index, data)
+function TributeStats:AddGame(index, data)
     if self.lastProceededIndex and index <= self.lastProceededIndex then return end
     self.lastProceededIndex = index
 
@@ -65,26 +67,16 @@ function IPM_TOTStats:AddGame(index, data)
         end
     end
 end
---#endregion IPM TOT STATISTICS
+--#endregion
 
---#region IPM DUELS ADDON
-function addon:SetShit(value)
-    local shit = IPM_TOTStatsBlockShit
-    local r, g, b = IPM_Shared.Blend({1, 0, 0}, {0, 1, 0}, value)  -- {0.22, 0.08, 0.69}
-
-    GetControl(shit, 'Bar'):StartFixedCooldown(value, CD_TYPE_RADIAL, CD_TIME_TYPE_TIME_REMAINING, false)  -- TODO
-    GetControl(shit, 'Bar'):SetFillColor(r, g, b)
-    GetControl(shit, 'Winrate'):SetText(string.format('%d%%', value * 100))
-    GetControl(shit, 'Winrate'):SetColor(r, g, b)
-end
-
+--#region IMP STATS TRIBUTE UI
 function addon:UpdateStatsControl()
     local totalGames = self.stats.totalFP + self.stats.totalSP
     self.statsControl:GetNamedChild('TotalGamesValue'):SetText(totalGames)
 
     local totalWon = self.stats.totalWonFP + self.stats.totalWonSP
     local totalLost = self.stats.totalLostFP + self.stats.totalLostSP
-    local winrate = IPM_Shared.PossibleNan(totalWon / totalGames)
+    local winrate = IMP_STATS_SHARED.PossibleNan(totalWon / totalGames)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
         string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', winrate * 100, totalWon, totalLost)
     )
@@ -92,13 +84,13 @@ function addon:UpdateStatsControl()
     -- self.statsControl:GetNamedChild('TotalsValue'):SetText(
     --     string.format(
     --         '%s / %s / %s',
-    --         IPM_Shared.FormatNumber(self.stats.totalDamageDone),
-    --         IPM_Shared.FormatNumber(self.stats.totalDamageTaken),
-    --         IPM_Shared.FormatNumber(self.stats.totalHealingTaken)
+    --         IMP_STATS_SHARED.FormatNumber(self.stats.totalDamageDone),
+    --         IMP_STATS_SHARED.FormatNumber(self.stats.totalDamageTaken),
+    --         IMP_STATS_SHARED.FormatNumber(self.stats.totalHealingTaken)
     --     )
     -- )
 
-    self:SetShit(winrate)
+    IMP_STATS_SHARED.SetGaugeKDAMeter(self.statsControl:GetNamedChild('GaugeKDAMeter'), winrate)
 end
 
 -- TODO: make color uniforme and global
@@ -116,7 +108,7 @@ end
 
 function addon:CreateScrollListDataType()
     local function LayoutRow(rowControl, data, scrollList)
-        local game = IPM_TOT_MANAGER.games[data.gameIndex]
+        local game = IMP_STATS_TRIBUTE_MANAGER.games[data.gameIndex]
 
         local upIcon = zo_iconFormatInheritColor('/esoui/art/tooltips/arrow_up.dds', 12, 12)
         local downIcon = zo_iconFormatInheritColor('/esoui/art/tooltips/arrow_down.dds', 12, 12)
@@ -180,7 +172,7 @@ function addon:CreateScrollListDataType()
 
 	local control = self.listControl
 	local typeId = 1
-	local templateName = 'IPM_TOTSummaryRow'  -- TODO: change
+	local templateName = 'IMP_STATS_TributeGameSummaryRow'  -- TODO: change
 	local height = 32
 	local setupFunction = LayoutRow
 	local hideCallback = nil
@@ -229,7 +221,7 @@ end
 
 local function HideWarning(hidden)
     hidden = hidden == nil or hidden
-    GetControl(IPM_TOT, 'Warning'):SetHidden(hidden)
+    GetControl(IMP_STATS_TRIBUTE, 'Warning'):SetHidden(hidden)
 end
 
 local function ShowWarning()
@@ -243,14 +235,14 @@ function addon:Update()
 
     local task = LibAsync:Create('UpdateToTDataRows')
 
-    IPM_TOT_MANAGER:GetGames(task, self.filters, self.dataRows):Then(function()
+    IMP_STATS_TRIBUTE_MANAGER:GetGames(task, self.filters, self.dataRows):Then(function()
         self:UpdateScrollListControl(task)
         self:CalculateStats(task):Then(function() self:UpdateStatsControl() end)
     end):Then(HideWarning)
 end
 
 function addon:CreateControls()
-    local totControl = CreateControlFromVirtual('IPM_TOT', IPM_TOT_Container, 'IPM_TOT_Template')
+    local totControl = CreateControlFromVirtual('IMP_STATS_TRIBUTE', IMP_STATS_TributeContainer, 'IMP_STATS_Tribute_Template')
 
     assert(totControl ~= nil, 'Tribute control was not created')
 
@@ -328,34 +320,34 @@ function addon:InitializePlayerCharactersFilter()
 
     local function callback(newFilters)
         -- TODO: clear table instead
-        for characterId, _ in pairs(self.filters.playerCharacters) do
-            self.filters.playerCharacters[characterId] = false
+        for characterId, _ in pairs(self.filters.selectedCharacters) do
+            self.filters.selectedCharacters[characterId] = false
         end
 
         for _, characterId in ipairs(newFilters) do
-            self.filters.playerCharacters[characterId] = true
+            self.filters.selectedCharacters[characterId] = true
         end
 
         self:Update()
     end
 
-    local filterControl = GetControl(self.totControl, 'FilterPlayerCharacters')
+    local filterControl = GetControl(self.totControl, 'CharactersFilter')
     local filter = InitializeFilter(filterControl, entriesData, callback)
     filter:SetNoSelectionText('|cFF0000Select Character|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
 
     for i, item in ipairs(filter.m_sortedItems) do
         -- Log('%d - %s', i, item.name)
-        if self.filters.playerCharacters[item.filterType] then
+        if self.filters.selectedCharacters[item.filterType] then
             filter:SelectItem(item, true)
             Log('[T] Selecting %s', item.text)
         end
     end
 end
 
-function addon:Initialize(naming, selectedCharacters)
-    self.games = IPM_TOT_MANAGER.games
-    self.stats = IPM_TOTStats:New()
+function addon:Initialize(naming)
+    self.games = IMP_STATS_TRIBUTE_MANAGER.games
+    self.stats = TributeStats:New()
 
     -- local buffer = {}
     -- local NAMINGS = {
@@ -398,27 +390,17 @@ function addon:Initialize(naming, selectedCharacters)
         return string.find(name, self.filters.opponentName) ~= nil
     end
     self:AddFilter(OpponentNameFilter)
-
-    -- local function PlayerCharactersFilter(data)
-    --     return self.filters.playerCharacters[data.player.characterId]
-    -- end
-    -- self:AddFilter(PlayerCharactersFilter)
-
-    -- self.filters.playerCharacters = selectedCharacters
-    -- if IPM_Shared.TableLength(self.filters.playerCharacters) < 1 then
-    --     self.filters.playerCharacters[GetCurrentCharacterId()] = true
-    -- end
-    -- self:InitializePlayerCharactersFilter()
 end
---#endregion IPM DUELS ADDON
+--#endregion
 
 do
-    IPM_TOT_UI = addon
+    IMP_STATS_TRIBUTE_UI = addon
 end
 
-function IPM_OpponentPreview_OnMoveStop(control)
+-- TODO: separate opp preview to different file
+function IMP_STATS_TributeOpponentPreview_OnMoveStop(control)
     assert(control ~= nil, 'No preview control')
     local point, relativeTo, relativePoint, offsetX, offsetY = select(2, control:GetAnchor(0))
-    IPM_TOT_MANAGER.settings.opponentPreview = IPM_TOT_MANAGER.settings.opponentPreview or {}
-    IPM_TOT_MANAGER.settings.opponentPreview.anchor = {point, nil, relativePoint, offsetX, offsetY}
+    IMP_STATS_TRIBUTE_MANAGER.settings.opponentPreview = IMP_STATS_TRIBUTE_MANAGER.settings.opponentPreview or {}
+    IMP_STATS_TRIBUTE_MANAGER.settings.opponentPreview.anchor = {point, nil, relativePoint, offsetX, offsetY}
 end

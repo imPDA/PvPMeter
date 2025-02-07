@@ -1,6 +1,15 @@
-<GuiXml>
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
-		<Control name="IPM_Shit" virtual="true">
+		<Control name="IMP_STATS_CharactersFilter" inherits="ZO_MultiselectComboBox" virtual="true">
+			<Controls>
+				<Button name="$(parent)SelectButton" inherits="ZO_DefaultButton" text="Select All">
+					<Dimensions x="200" />
+					<Anchor point="TOP" relativeTo="$(parent)" relativePoint="BOTTOM" />
+				</Button>
+			</Controls>
+		</Control>
+
+		<Control name="IMP_STATS_GaugeKDAMeter" virtual="true">
             <!-- <Dimensions x="INFAMY_METER_WIDTH" y="INFAMY_METER_HEIGHT" /> -->
 			<Dimensions x="150" y="150" />
             <Controls>
@@ -43,10 +52,10 @@
 			</Controls>
         </Control>
 
-		<Label name="IPM_StatName" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT" text="TEXT" virtual="true"></Label>
-		<Label name="IPM_StatValue" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED" horizontalAlignment="LEFT" text="-" virtual="true"></Label>
-		<Label name="IPM_Listing_Cell" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="-" virtual="true" />
-		<Label name="IPM_Listing_Header" font="ZoFontGameLargeBold" color="CFDCBD" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="TEXT" virtual="true">
+		<Label name="IMP_STATS_StatName" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT" text="TEXT" virtual="true"></Label>
+		<Label name="IMP_STATS_StatValue" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_SELECTED" horizontalAlignment="LEFT" text="-" virtual="true"></Label>
+		<Label name="IMP_STATS_Listing_Cell" font="ZoFontWinH4" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="-" virtual="true" />
+		<Label name="IMP_STATS_Listing_Header" font="ZoFontGameLargeBold" color="CFDCBD" wrapMode="ELLIPSIS" verticalAlignment="CENTER" text="TEXT" virtual="true">
 			<Controls>
 				<!-- TODO sorting icons-->
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="000000" /> -->
@@ -57,18 +66,14 @@
 			</Controls>
 		</Label>
 
-		<TopLevelControl name="IPM_BGs_Container" inherits="ZO_RightPanelFootPrint" hidden="true" />
-		<TopLevelControl name="IPM_Duels_Container" inherits="ZO_RightPanelFootPrint" hidden="true" />
-		<TopLevelControl name="IPM_TOT_Container" inherits="ZO_RightPanelFootPrint" hidden="true" />
+		<TopLevelControl name="IMP_STATS_MatchesContainer" inherits="ZO_RightPanelFootPrint" hidden="true" />
+		<TopLevelControl name="IMP_STATS_DuelsContainer" inherits="ZO_RightPanelFootPrint" hidden="true" />
+		<TopLevelControl name="IMP_STATS_TributeContainer" inherits="ZO_RightPanelFootPrint" hidden="true" />
 
-		<TopLevelControl name="IPM_RightPanel" inherits="ZO_RightPanelFootPrint" hidden="true">
+		<TopLevelControl name="IMP_STATS_RightPanel" inherits="ZO_RightPanelFootPrint" hidden="true">
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="000000" /> -->
-				<Label name="IPM_VersionLabel" font="ZoFontGame" color="777777" text="v.-">
-					<!-- <Dimensions x="100" y="100" /> -->
-					<!-- <Anchor point="CENTER" /> -->
-					<!-- <Dimensions x="250" y="32" /> -->
-					<!-- <Anchor point="TOPLEFT" /> -->
+				<Label name="IMP_STATS_VersionLabel" font="ZoFontGame" color="777777" text="v.-">
 					<Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="BOTTOMRIGHT" offsetX="-8" offsetY="4" />
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="000000" /> -->

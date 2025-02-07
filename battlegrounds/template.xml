@@ -1,18 +1,18 @@
-<GuiXml>
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
-        <Label name="IPM_BGs_Listing_Column1" virtual="true"><Dimensions x="30" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column4" virtual="true"><Dimensions x="180" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column3" virtual="true"><Dimensions x="50" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column11" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column8" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column9" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
-		<Label name="IPM_BGs_Listing_Column10" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
+        <Label name="IMP_STATS_Matches_Listing_Column1" virtual="true"><Dimensions x="30" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column4" virtual="true"><Dimensions x="180" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column3" virtual="true"><Dimensions x="50" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column11" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column8" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column9" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column10" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
 
-		<Label name="IPM_MatchSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
+		<Label name="IMP_STATS_MatchSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
 			<Dimensions y="32" />
 			<Controls>
 				<!-- TODO: texture order -->
@@ -22,20 +22,20 @@
 					<!-- TODO: ideally, get rid of Dimensions -->
 					<!-- TODO: find out why this texture less than row with height 32 -->
 				</Texture>
-				<Label name="$(parent)Index" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column1" horizontalAlignment="RIGHT">
+				<Label name="$(parent)Index" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column1" horizontalAlignment="RIGHT">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 				</Label>
 				<Texture name="$(parent)Warning" tier="HIGH" textureFile="EsoUI/Art/Miscellaneous/eso_icon_warning.dds" color="FF0000" hidden="true">
 					<Dimensions x="16" y="16" />
 					<Anchor point="TOPRIGHT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="10" />
 				</Texture>
-				<Label name="$(parent)Mode" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column2">
+				<Label name="$(parent)Mode" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column2">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20"/>
 				</Label>
-				<Label name="$(parent)Map" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column4">
+				<Label name="$(parent)Map" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column4">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Mode" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Class" inherits="IPM_BGs_Listing_Column3">
+				<Label name="$(parent)Class" inherits="IMP_STATS_Matches_Listing_Column3">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />
 					<Controls>
 						<Texture name="$(parent)ClassIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds" level="1">
@@ -44,62 +44,61 @@
 						</Texture>
 					</Controls>
 				</Label>
-				<Label name="$(parent)Score" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column11">
+				<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column11">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Class" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Kills" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column5">
+				<Label name="$(parent)Kills" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Deaths" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column6">
+				<Label name="$(parent)Deaths" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column6">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Kills" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Assists" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column7">
+				<Label name="$(parent)Assists" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column7">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Deaths" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)DamageDone" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column8">
+				<Label name="$(parent)DamageDone" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column8">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Assists" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)HealingDone" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column9">
+				<Label name="$(parent)HealingDone" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column9">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)DamageDone" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)DamageTaken" inherits="IPM_Listing_Cell IPM_BGs_Listing_Column10">
+				<Label name="$(parent)DamageTaken" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)HealingDone" relativePoint="TOPRIGHT" />
 				</Label>
 			</Controls>
 		</Label>
 
-		<Control name="IPM_BGs_Template" virtual="true">
+		<Control name="IMP_STATS_MatchesTemplate" virtual="true">
 			<AnchorFill />
 			<Controls>
-				<Control name="$(parent)FilterTeamType" inherits="ZO_MultiselectComboBox">
-					<Dimensions x="270" y="32" />
-					<Anchor point="TOPRIGHT" offsetX="-16" offsetY="8" />
-				</Control>
-
-				<Control name="$(parent)FilterGameMode" inherits="ZO_MultiselectComboBox">
-					<Dimensions x="270" y="32" />
-					<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamType" relativePoint="BOTTOMLEFT" offsetY="4" />
-				</Control>
-
-				<Control name="$(parent)FilterPlayerCharacters" inherits="ZO_MultiselectComboBox">
-					<Dimensions x="270" y="32" />
-                    <Anchor point="TOPRIGHT" relativeTo="$(parent)FilterGameMode" relativePoint="BOTTOMRIGHT" offsetY="4" />
-
-					<Controls>
-						<!-- TODO: virtualize filter -->
-						<Button name="$(parent)SelectButton" inherits="ZO_DefaultButton" text="Select All">
-							<Dimensions x="200" />
-							<Anchor point="TOP" relativeTo="$(parent)" relativePoint="BOTTOM" />
-						</Button>
-					</Controls>
-				</Control>
-
 				<Control name="$(parent)StatsBlock">
 					<Anchor point="TOPLEFT" />
 					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="150" />
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-						<Control name="$(parent)Shit" inherits="IPM_Shit">
+						<Control name="$(parent)FilterTeamType" inherits="ZO_MultiselectComboBox">
+							<Dimensions x="270" y="32" />
+							<Anchor point="TOPRIGHT" offsetX="-16" offsetY="8" />
+						</Control>
+
+						<Control name="$(parent)FilterGameMode" inherits="ZO_MultiselectComboBox">
+							<Dimensions x="270" y="32" />
+							<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamType" relativePoint="BOTTOMLEFT" offsetY="4" />
+						</Control>
+
+						<Control name="$(parent)CharactersFilter" inherits="IMP_STATS_CharactersFilter">
+							<Dimensions x="270" y="32" />
+							<Anchor point="TOPRIGHT" relativeTo="$(parent)FilterGameMode" relativePoint="BOTTOMRIGHT" offsetY="4" />
+
+							<!-- <Controls>
+								<Button name="$(parent)SelectButton" inherits="ZO_DefaultButton" text="Select All">
+									<Dimensions x="200" />
+									<Anchor point="TOP" relativeTo="$(parent)" relativePoint="BOTTOM" />
+								</Button>
+							</Controls> -->
+						</Control>
+
+						<Control name="$(parent)GaugeKDAMeter" inherits="IMP_STATS_GaugeKDAMeter">
 							<Anchor point="TOPLEFT" />
 						</Control>
 
@@ -107,24 +106,24 @@
 							<Anchor point="TOPLEFT" relativeTo="$(parent)" offsetX="110" offsetY="6" />
 						</Control>
 
-						<Label name="$(parent)TotalMatches" inherits="IPM_StatName" text="Matches recorded:">
+						<Label name="$(parent)TotalMatches" inherits="IMP_STATS_StatName" text="Matches recorded:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" />
 						</Label>
-						<Label name="$(parent)TotalMatchesValue" inherits="IPM_StatValue">
+						<Label name="$(parent)TotalMatchesValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalMatches" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)Winrate" inherits="IPM_StatName" text="Winrate:">
+						<Label name="$(parent)Winrate" inherits="IMP_STATS_StatName" text="Winrate:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalMatches" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateValue" inherits="IPM_StatValue">
+						<Label name="$(parent)WinrateValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)KD" inherits="IPM_StatName" text="Kills/Deaths:">
+						<Label name="$(parent)KD" inherits="IMP_STATS_StatName" text="Kills/Deaths:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)KDValue" inherits="IPM_StatValue">
+						<Label name="$(parent)KDValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)KD" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
@@ -133,66 +132,66 @@
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" offsetX="270" />
 							<Controls>
 								<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="00FF00" /> -->
-								<Label name="$(parent)InvisibleLabel" inherits="IPM_StatName" text="-" hidden="true">
+								<Label name="$(parent)InvisibleLabel" inherits="IMP_STATS_StatName" text="-" hidden="true">
 									<Anchor point="TOPLEFT" />
 								</Label>
-								<Label name="$(parent)SumLabel" inherits="IPM_StatName" text="Sum">
+								<Label name="$(parent)SumLabel" inherits="IMP_STATS_StatName" text="Sum">
 									<Anchor point="TOPRIGHT" relativeTo="$(parent)InvisibleLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
 								</Label>
-								<Label name="$(parent)AvgLabel" inherits="IPM_StatName" text="Avg">
+								<Label name="$(parent)AvgLabel" inherits="IMP_STATS_StatName" text="Avg">
 									<Anchor point="TOPRIGHT" relativeTo="$(parent)SumLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
 								</Label>
 
-								<Label name="$(parent)K" inherits="IPM_StatName" text="Kills">
+								<Label name="$(parent)K" inherits="IMP_STATS_StatName" text="Kills">
 									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="18" />
 								</Label>
-								<Label name="$(parent)KSum" inherits="IPM_StatValue">
+								<Label name="$(parent)KSum" inherits="IMP_STATS_StatValue">
 									<Anchor point="CENTER" relativeTo="$(parent)K" relativePoint="CENTER" offsetY="32" />
 								</Label>
-								<Label name="$(parent)KAvg" inherits="IPM_StatValue">
+								<Label name="$(parent)KAvg" inherits="IMP_STATS_StatValue">
 									<Anchor point="CENTER" relativeTo="$(parent)KSum" relativePoint="CENTER" offsetY="32" />
 								</Label>
 
-								<Label name="$(parent)D" inherits="IPM_StatName" text="Deaths">
+								<Label name="$(parent)D" inherits="IMP_STATS_StatName" text="Deaths">
 									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="68" />
 								</Label>
-								<Label name="$(parent)DSum" inherits="IPM_StatValue">
+								<Label name="$(parent)DSum" inherits="IMP_STATS_StatValue">
 									<Anchor point="CENTER" relativeTo="$(parent)D" relativePoint="CENTER" offsetY="32" />
 								</Label>
-								<Label name="$(parent)DAvg" inherits="IPM_StatValue">
+								<Label name="$(parent)DAvg" inherits="IMP_STATS_StatValue">
 									<Anchor point="CENTER" relativeTo="$(parent)DSum" relativePoint="CENTER" offsetY="32" />
 								</Label>
 
-								<Label name="$(parent)A" inherits="IPM_StatName" text="Assists">
+								<Label name="$(parent)A" inherits="IMP_STATS_StatName" text="Assists">
 									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="128" />
 								</Label>
-								<Label name="$(parent)ASum" inherits="IPM_StatValue">
+								<Label name="$(parent)ASum" inherits="IMP_STATS_StatValue">
 									<Anchor point="CENTER" relativeTo="$(parent)A" relativePoint="CENTER" offsetY="32" />
 								</Label>
-								<Label name="$(parent)AAvg" inherits="IPM_StatValue">
+								<Label name="$(parent)AAvg" inherits="IMP_STATS_StatValue">
 									<Anchor point="CENTER" relativeTo="$(parent)ASum" relativePoint="CENTER" offsetY="32" />
 								</Label>
 							</Controls>
 						</Control>
 
-						<!-- <Label name="$(parent)TotalKDA" inherits="IPM_StatName" text="K/D/A (total):">
+						<!-- <Label name="$(parent)TotalKDA" inherits="IMP_STATS_StatName" text="K/D/A (total):">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)TotalKDAValue" inherits="IPM_StatValue">
+						<Label name="$(parent)TotalKDAValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalKDA" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label> -->
 						
-						<!-- <Label name="$(parent)KDA" inherits="IPM_StatName" text="K/D/A:">
+						<!-- <Label name="$(parent)KDA" inherits="IMP_STATS_StatName" text="K/D/A:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalKDA" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)KDAValue" inherits="IPM_StatValue">
+						<Label name="$(parent)KDAValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)KDA" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label> -->
 
-						<!-- <Label name="$(parent)Totals" inherits="IPM_StatName" text="Total damage/healing/damage taken:">
+						<!-- <Label name="$(parent)Totals" inherits="IMP_STATS_StatName" text="Total damage/healing/damage taken:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)KDA" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)TotalsValue" inherits="IPM_StatValue">
+						<Label name="$(parent)TotalsValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Totals" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label> -->
 					</Controls>
@@ -223,37 +222,37 @@
 							<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="40"/>
 							<Controls>
 								<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-								<Label name="$(parent)Index" inherits="IPM_Listing_Header IPM_BGs_Listing_Column1" horizontalAlignment="RIGHT" text="###">
+								<Label name="$(parent)Index" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column1" horizontalAlignment="RIGHT" text="###">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 								</Label>
-								<Label name="$(parent)Mode" inherits="IPM_Listing_Header IPM_BGs_Listing_Column2" text="Mode">
+								<Label name="$(parent)Mode" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column2" text="Mode">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20"/>
 								</Label>
-								<Label name="$(parent)Map" inherits="IPM_Listing_Header IPM_BGs_Listing_Column4" text="Map">
+								<Label name="$(parent)Map" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column4" text="Map">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Mode" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Class" inherits="IPM_Listing_Header IPM_BGs_Listing_Column3" text="Class">
+								<Label name="$(parent)Class" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column3" text="Class">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Score" inherits="IPM_Listing_Header IPM_BGs_Listing_Column11" text="Score">
+								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column11" text="Score">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Class" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Kills" inherits="IPM_Listing_Header IPM_BGs_Listing_Column5" text="Kills">
+								<Label name="$(parent)Kills" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column5" text="Kills">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Deaths" inherits="IPM_Listing_Header IPM_BGs_Listing_Column6" text="Deaths">
+								<Label name="$(parent)Deaths" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column6" text="Deaths">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Kills" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Assists" inherits="IPM_Listing_Header IPM_BGs_Listing_Column7" text="Assists">
+								<Label name="$(parent)Assists" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column7" text="Assists">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Deaths" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)DamageDone" inherits="IPM_Listing_Header IPM_BGs_Listing_Column8" text="Damage">
+								<Label name="$(parent)DamageDone" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column8" text="Damage">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Assists" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)HealingDone" inherits="IPM_Listing_Header IPM_BGs_Listing_Column9" text="Healing">
+								<Label name="$(parent)HealingDone" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column9" text="Healing">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)DamageDone" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)DamageTaken" inherits="IPM_Listing_Header IPM_BGs_Listing_Column10" text="D.Taken">
+								<Label name="$(parent)DamageTaken" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column10" text="D.Taken">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)HealingDone" relativePoint="TOPRIGHT" />
 								</Label>
 							</Controls>

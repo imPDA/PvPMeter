@@ -1,1 +1,1 @@
-ZO_CreateStringId("SI_BINDING_NAME_IPM_TOGGLE_PANEL", "Toggle PvP Meter")
+ZO_CreateStringId("SI_BINDING_NAME_IMP_STATS_TOGGLE_PANEL", "Toggle Imp-ressive Stats")

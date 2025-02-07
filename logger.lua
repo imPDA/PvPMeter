@@ -1,9 +1,9 @@
 --#region LOGGER
-function IPM_Logger(name)
+function IMP_STATS_Logger(name)
     local logger
 
     if LibDebugLogger then
-        logger = LibDebugLogger:Create(name or 'IPM')
+        logger = LibDebugLogger:Create(name or 'IMP_STATS')
         logger:SetMinLevelOverride(LibDebugLogger.LOG_LEVEL_DEBUG)
     end
 

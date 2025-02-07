@@ -1,24 +1,28 @@
 local addon = {}
 
-addon.name = 'IPM_DUELS_UI'
+addon.name = 'IMP_STATS_Duels_UI'
 
 addon.listControl = nil
 addon.statsControl = nil
 
 addon.filters = {
+}
+
+-- TODO: delete unused
+addon.selections = {
     playerClass = {},
     opponentClass = {},
     playerName = '',
     opponentName = '',
-    playerCharacters = {}
+    characters = {}
 }
 
-local Log = IPM_Logger('DUELS_UI')
+local Log = IMP_STATS_Logger('DUELS_UI')
 
---#region IPM DUESL STATISTICS
-local IPM_DuelsStats = {}
+--#region IMP STATS DUELS STATS
+local DuelsStats = {}
 
-function IPM_DuelsStats:New(o)
+function DuelsStats:New(o)
     o = o or {}
 
     setmetatable(o, self)
@@ -29,7 +33,7 @@ function IPM_DuelsStats:New(o)
     return o
 end
 
-function IPM_DuelsStats:Clear()
+function DuelsStats:Clear()
     -- self.current = {
     --     totalDuels = 0,
     --     totalWon = 0,
@@ -89,7 +93,7 @@ local function GetHumanUnderstandableResult(result, wasLocalPlayersResult)
 end
 --#endregion HUMAN UNDERSTANDABLE RESULT
 
-function IPM_DuelsStats:AddDuel(index, data)
+function DuelsStats:AddDuel(index, data)
     local duelIndex, duelData = index, data
 
     if self.lastProceededIndex and duelIndex <= self.lastProceededIndex then return end
@@ -110,23 +114,13 @@ function IPM_DuelsStats:AddDuel(index, data)
         self.totalLost = self.totalLost + 1
     end
 end
---#endregion IPM DUELS STATISTICS
+--#endregion
 
---#region IPM DUELS ADDON
-function addon:SetShit(value)
-    local shit = IPM_DuelsStatsBlockShit
-    local r, g, b = IPM_Shared.Blend({1, 0, 0}, {0, 1, 0}, value)  -- {0.22, 0.08, 0.69}
-
-    GetControl(shit, 'Bar'):StartFixedCooldown(value, CD_TYPE_RADIAL, CD_TIME_TYPE_TIME_REMAINING, false)  -- TODO
-    GetControl(shit, 'Bar'):SetFillColor(r, g, b)
-    GetControl(shit, 'Winrate'):SetText(string.format('%d%%', value * 100))
-    GetControl(shit, 'Winrate'):SetColor(r, g, b)
-end
-
+--#region IMP STATS DUELS UI
 function addon:UpdateStatsControl()
     self.statsControl:GetNamedChild('TotalDuelsValue'):SetText(self.stats.totalDuels)
 
-    local winrate = IPM_Shared.PossibleNan(self.stats.totalWon / self.stats.totalDuels)
+    local winrate = IMP_STATS_SHARED.PossibleNan(self.stats.totalWon / self.stats.totalDuels)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
         string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', winrate * 100, self.stats.totalWon, self.stats.totalLost)
     )
@@ -134,15 +128,15 @@ function addon:UpdateStatsControl()
     self.statsControl:GetNamedChild('TotalsValue'):SetText(
         string.format(
             '%s / %s / %s',
-            IPM_Shared.FormatNumber(self.stats.totalDamageDone),
-            IPM_Shared.FormatNumber(self.stats.totalDamageTaken),
-            IPM_Shared.FormatNumber(self.stats.totalHealingTaken)
-            -- IPM_Shared.FormatNumber(self.stats.totalDamageShielded),
-            -- IPM_Shared.FormatNumber(self.stats.totalDuration)
+            IMP_STATS_SHARED.FormatNumber(self.stats.totalDamageDone),
+            IMP_STATS_SHARED.FormatNumber(self.stats.totalDamageTaken),
+            IMP_STATS_SHARED.FormatNumber(self.stats.totalHealingTaken)
+            -- IMP_STATS_SHARED.FormatNumber(self.stats.totalDamageShielded),
+            -- IMP_STATS_SHARED.FormatNumber(self.stats.totalDuration)
         )
     )
 
-    self:SetShit(winrate)
+    IMP_STATS_SHARED.SetGaugeKDAMeter(self.statsControl:GetNamedChild('GaugeKDAMeter'), winrate)
 end
 
 -- TODO: make color uniforme and global
@@ -174,21 +168,21 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'Duration'):SetText(duration)
 
         local playerClassIcon = data.playerClass and ZO_GetClassIcon(data.playerClass) or 'EsoUI/Art/Icons/icon_missing.dds'
-        local playerRaceIcon = data.playerRace and IPM_Shared.GetRaceIcon(data.playerRace) or 'EsoUI/Art/Icons/icon_missing.dds'
+        local playerRaceIcon = data.playerRace and IMP_STATS_SHARED.GetRaceIcon(data.playerRace) or 'EsoUI/Art/Icons/icon_missing.dds'
         GetControl(rowControl, 'PlayerClass'):GetNamedChild('ClassIcon'):SetTexture(playerClassIcon)
         GetControl(rowControl, 'PlayerRace'):GetNamedChild('RaceIcon'):SetTexture(playerRaceIcon)
         GetControl(rowControl, 'PlayerCharacterName'):SetText(zo_strformat('<<1>>', data.playerName))
 
         local opponentClassIcon = data.opponentClass and ZO_GetClassIcon(data.opponentClass) or 'EsoUI/Art/Icons/icon_missing.dds'
-        local opponentRaceIcon = data.opponentRace and IPM_Shared.GetRaceIcon(data.opponentRace) or 'EsoUI/Art/Icons/icon_missing.dds'
+        local opponentRaceIcon = data.opponentRace and IMP_STATS_SHARED.GetRaceIcon(data.opponentRace) or 'EsoUI/Art/Icons/icon_missing.dds'
         GetControl(rowControl, 'OpponentClass'):GetNamedChild('ClassIcon'):SetTexture(opponentClassIcon)
         GetControl(rowControl, 'OpponentRace'):GetNamedChild('RaceIcon'):SetTexture(opponentRaceIcon)
         GetControl(rowControl, 'OpponentCharacterName'):SetText(zo_strformat('<<1>>', data.opponentName))
 
-        GetControl(rowControl, 'DamageDone'):SetText(IPM_Shared.FormatNumber(data.damageDone or 0))
-        GetControl(rowControl, 'DamageTaken'):SetText(IPM_Shared.FormatNumber(data.damageTaken or 0))
-        GetControl(rowControl, 'HealingTaken'):SetText(IPM_Shared.FormatNumber(data.healingTaken or 0))
-        GetControl(rowControl, 'DamageShielded'):SetText(IPM_Shared.FormatNumber(data.damageShielded or 0))
+        GetControl(rowControl, 'DamageDone'):SetText(IMP_STATS_SHARED.FormatNumber(data.damageDone or 0))
+        GetControl(rowControl, 'DamageTaken'):SetText(IMP_STATS_SHARED.FormatNumber(data.damageTaken or 0))
+        GetControl(rowControl, 'HealingTaken'):SetText(IMP_STATS_SHARED.FormatNumber(data.healingTaken or 0))
+        GetControl(rowControl, 'DamageShielded'):SetText(IMP_STATS_SHARED.FormatNumber(data.damageShielded or 0))
 
         -- rowControl:SetHandler('OnMouseUp', function()
         --     d('click')
@@ -218,7 +212,7 @@ function addon:CreateScrollListDataType()
 
 	local control = self.listControl
 	local typeId = 1
-	local templateName = 'IPM_DuelSummaryRow'  -- TODO: change
+	local templateName = 'IMP_STATS_DuelSummaryRow'  -- TODO: change
 	local height = 32
 	local setupFunction = LayoutRow
 	local hideCallback = nil
@@ -246,7 +240,7 @@ end
 
 local function HideWarning(hidden)
     hidden = hidden == nil or hidden
-    GetControl(IPM_Duels, 'Warning'):SetHidden(hidden)
+    GetControl(IMP_STATS_DUELS, 'Warning'):SetHidden(hidden)
 end
 
 local function ShowWarning()
@@ -279,9 +273,10 @@ function addon:UpdateUI()
     UpdateScrollListControl(self.listControl, self.dataRows, SOME_ID)
     self:UpdateStatsControl()
 
-    Log('[D] UI updated')
+    Log('UI updated')
 end
 
+-- TODO: made as in bgs
 function addon:Update()
     if #self.duels > 60000 then ShowWarning() end
 
@@ -316,11 +311,11 @@ function addon:Update()
 
     task:For(ipairs(self.duels)):Do(HandleDuelData):Then(function() self:UpdateUI() end)
 
-    Log('[D] Updated')
+    Log('Updated')
 end
 
 function addon:CreateControls()
-    local duelsControl = CreateControlFromVirtual('IPM_Duels', IPM_Duels_Container, 'IPM_Duels_Template')
+    local duelsControl = CreateControlFromVirtual('IMP_STATS_DUELS', IMP_STATS_DuelsContainer, 'IMP_STATS_Duels_Template')
 
     assert(duelsControl ~= nil, 'Duels control was not created')
 
@@ -330,11 +325,11 @@ function addon:CreateControls()
     local function OnSearchTextChanged(editBox, field)
         local newText = string.lower(editBox:GetText())
 
-        Log('[D] New search: ', newText)
+        Log('New search: ', newText)
 
-        if newText == self.filters[field] then return end
+        if newText == self.selections[field] then return end
 
-        self.filters[field] = newText
+        self.selections[field] = newText
         self:Update()
     end
 
@@ -352,84 +347,11 @@ local function SelectAllElements(filter)
     end
 end
 
---[[
-function addon:InitializePlayerCharactersFilter()
-    -- TODO: basically copied from bgs and replaced highlighter fucntions, so can make universal function
-    local function InitializeFilter(contorl, entriesData, setFiltersCallback)
-        local comboBox = ZO_ComboBox_ObjectFromContainer(contorl)
-
-        comboBox:SetSortsItems(false)
-        comboBox:SetFont('ZoFontWinT1')
-        comboBox:SetSpacing(4)
-
-        local function OnFilterChanged(comboBox, entryText, entry)
-            local newFilters = {}
-
-            for i, itemData in ipairs(comboBox.m_selectedItemData) do
-                table.insert(newFilters, itemData.filterType)
-            end
-
-            setFiltersCallback(newFilters)
-
-            Log('[D] Selection changed: ', table.concat(comboBox.m_selectedItemData, ','))
-        end
-
-        for i, entry in ipairs(entriesData) do
-            local item = comboBox:CreateItemEntry(entry.text, OnFilterChanged)
-            item.filterType = entry.type
-
-            comboBox:AddItem(item)
-        end
-
-        return comboBox
-    end
-
-    local numCharacters = GetNumCharacters()
-    local entriesData = {}
-
-    for i = 1, numCharacters do
-        local name, _, _, _, _, _, characterId, _ = GetCharacterInfo(i)
-        local formattedName = zo_strformat('<<1>>', name)
-
-        entriesData[i] = {
-            text = formattedName,
-            type = characterId,
-        }
-    end
-
-    local function callback(newFilters)
-        -- TODO: clear table instead
-        for characterId, _ in pairs(self.filters.playerCharacters) do
-            self.filters.playerCharacters[characterId] = false
-        end
-
-        for _, characterId in ipairs(newFilters) do
-            self.filters.playerCharacters[characterId] = true
-        end
-
-        self:Update()
-    end
-
-    local filterControl = GetControl(self.duelsControl, 'FilterPlayerCharacters')
-    local filter = InitializeFilter(filterControl, entriesData, callback)
-    filter:SetNoSelectionText('|cFF0000Select Character|r')
-    filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
-
-    for i, item in ipairs(filter.m_sortedItems) do
-        -- Log('[D] %d - %s', i, item.name)
-        if self.filters.playerCharacters[item.filterType] then
-            filter:SelectItem(item, true)
-            Log('[D] Selecting %s', item.name)
-        end
-    end
-end
-]]
-
-addon.InitializePlayerCharactersFilter = IPM_Shared.InitializePlayerCharactersFilter
+addon.InitializePlayerCharactersFilter = IMP_STATS_SHARED.InitializePlayerCharactersFilter
 
 function addon:Initialize(naming, selectedCharacters)
-    self.duels = IPM_DUELS_MANAGER.duels
-    self.stats = IPM_DuelsStats:New()
+    self.duels = IMP_STATS_Duels_MANAGER.duels
+    self.stats = DuelsStats:New()
 
     local buffer = {}
     local NAMINGS = {
@@ -458,40 +380,41 @@ function addon:Initialize(naming, selectedCharacters)
     self:CreateScrollListDataType()
 
     local function OpponentNameFilter(duelData)
-        if self.filters.opponentName == '' then return true end
+        if self.selections.opponentName == '' then return true end
 
         local characterName = string.lower(duelData.opponent.characterName)
         local displayName = string.lower(duelData.opponent.displayName)
 
-        if string.find(displayName, self.filters.opponentName) or string.find(characterName, self.filters.opponentName) then
+        if string.find(displayName, self.selections.opponentName) or string.find(characterName, self.selections.opponentName) then
             return true
         end
     end
     self:AddFilter(OpponentNameFilter)
 
     local function PlayerCharactersFilter(duelData)
-        return self.filters.playerCharacters[duelData.player.characterId]
+        return self.selections.characters[duelData.player.characterId]
     end
     self:AddFilter(PlayerCharactersFilter)
 
-    self.filters.playerCharacters = selectedCharacters
-    if IPM_Shared.TableLength(self.filters.playerCharacters) < 1 then
-        self.filters.playerCharacters[GetCurrentCharacterId()] = true
+    self.selections.characters = selectedCharacters
+    if IMP_STATS_SHARED.TableLength(self.selections.characters) < 1 then
+        self.selections.characters[GetCurrentCharacterId()] = true
     end
-    self:InitializePlayerCharactersFilter(GetControl(self.duelsControl, 'FilterPlayerCharacters'))
+    self:InitializePlayerCharactersFilter(GetControl(self.duelsControl, 'CharactersFilter'), self.selections.characters)
 
-    Log('[D] UI initialized')
+    Log('UI initialized')
 end
---#endregion IPM DUELS ADDON
+--#endregion
 
 do
-    IPM_DUELS_UI = addon
+    IMP_STATS_Duels_UI = addon
 end
 
 --[[
 -- ZO_GetBattlegroundTeamIcon
 ]]
 
+--[[
 function ProcessSlashCommand(cmd)
     Log('Command %s received', cmd)
 
@@ -519,3 +442,4 @@ function ProcessSlashCommand(cmd)
 end
 
 SLASH_COMMANDS['/ipmd'] = ProcessSlashCommand
+]]

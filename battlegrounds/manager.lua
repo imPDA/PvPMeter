@@ -1,7 +1,7 @@
 local addon = {}
-addon.name = 'IPM_MATCH_MANAGER'
+addon.name = 'IMP_STATS_MATCHES_MANAGER'
 
-local Log = IPM_Logger('MATCHES_MANAGER')
+local Log = IMP_STATS_Logger('MATCHES_MANAGER')
 
 --#region MATCH
 local function GetNewMatchFromCurrentMatch()
@@ -23,7 +23,7 @@ local function GetNewMatchFromCurrentMatch()
         result = BATTLEGROUND_RESULT_INVALID,
         lfgActivityId = GetCurrentLFGActivityId(),
         teamSize = GetBattlegroundTeamSize(GetCurrentBattlegroundId()),
-        grouped = IPM_BATTLEGROUNDS_MANAGER:IsGrouped(),
+        grouped = IMP_STATS_MATCHES_MANAGER:IsGrouped(),
     }
 
     -- TODO: do i really nee to add rounds like this? 
@@ -132,9 +132,14 @@ function addon:FinalizeCurrentMatch()
 end
 
 local function IsCurrentMatch(match)
+    Log('Is current match, match exists: %s', tostring(match ~= nil))
     if not match then return end
 
     local started = match.entryTimestamp or 0
+
+    Log('Type, previous: %d, current: %d, eq: %s', match.type, GetCurrentBattlegroundGameType(), tostring(match.type == GetCurrentBattlegroundGameType()))
+    Log('Id, previous: %d, current: %, eq: %s', match.battlegroundId, GetCurrentBattlegroundId(), tostring(match.battlegroundId == GetCurrentBattlegroundId()))
+    Log('Started %d ago', GetTimeStamp() - started)
 
     return
     match.type == GetCurrentBattlegroundGameType() and
@@ -172,7 +177,7 @@ function addon:RestoreCurrentMatch()
     if battlegroundState == BATTLEGROUND_STATE_FINISHED then
         self:FinalizeCurrentMatch()
         self:SaveCurrentMatch()
-        IPM_BATTLEGROUNDS_UI:Update()
+        IMP_STATS_MATCHES_UI:Update()
     end
 end
 --#endregion MATCH
@@ -249,23 +254,24 @@ function addon:MatchStateChanged(previousState, currentState)
             Log('Current match finished')
             self:FinalizeCurrentMatch()
             self:SaveCurrentMatch()
-            IPM_BATTLEGROUNDS_UI:Update()
+            IMP_STATS_MATCHES_UI:Update()
         end
     elseif currentState == BATTLEGROUND_STATE_FINISHED then
         if self.currentMatch then
             Log('There is match to save')
             self:FinalizeCurrentMatch()
             self:SaveCurrentMatch()
-            IPM_BATTLEGROUNDS_UI:Update()
+            IMP_STATS_MATCHES_UI:Update()
         end
 
-        if not IsCurrentMatch(self.matches[#self.matches]) then
-            Log('Current match seem not be recorded correctly, recreating it at the end of match')
+        if not IsCurrentMatch(self.matches[#self.matches]) and GetCurrentBattlegroundId() ~= 0 then
+            -- should not see this in logs after 0.1.0b23
+            Log('The current match does not seem to be recorded correctly, recreating it at the end of the match')
             self.currentMatch = GetNewMatchFromCurrentMatch()
             self:RestoreCurrentMatch()
             self:FinalizeCurrentMatch()
             self:SaveCurrentMatch()
-            IPM_BATTLEGROUNDS_UI:Update()
+            IMP_STATS_MATCHES_UI:Update()
         end
     end
 end
@@ -321,47 +327,49 @@ function addon:GetDataRows()
     return self.matches
 end
 
-addon.GetMatches = IPM_Shared.Get
+addon.GetMatches = IMP_STATS_SHARED.Get
 
 local function OnPlayerActivated(_, initial)
     addon:PlayerActivated(initial)
-    IPM_BATTLEGROUNDS_UI:Update()
+    IMP_STATS_MATCHES_UI:Update()
 end
 
+--[[
 local function PerformanceTesting()
     local function ProcessSlashCommand(cmd)
         Log('Command %s received', cmd)
 
         if cmd == 'x2' then
-            local matches = IPM_BATTLEGROUNDS_MANAGER.matches
+            local matches = IMP_STATS_MATCHES_MANAGER.matches
             local len = #matches
             for i = 1, len do
                 matches[#matches+1] = matches[i]
             end
             Log('New lenght: %d', #matches)
-            IPM_BATTLEGROUNDS_UI:Update()
+            IMP_STATS_MATCHES_UI:Update()
         elseif cmd == ':2' then
-            local matches = IPM_BATTLEGROUNDS_MANAGER.matches
+            local matches = IMP_STATS_MATCHES_MANAGER.matches
             for i = #matches, zo_round(#matches/2), -1 do
                 matches[i] = nil
             end
-            IPM_BATTLEGROUNDS_UI:Update()
+            IMP_STATS_MATCHES_UI:Update()
         end
     end
 
-    SLASH_COMMANDS['/ipmbg'] = ProcessSlashCommand
+    SLASH_COMMANDS['/impbg'] = ProcessSlashCommand
 end
+]]
 
-function IPM_InitializeMatchSaver(settings, characterSettings)
-    IPM_BATTLEGROUNDS_MANAGER = addon
+function IMP_STATS_InitializeMatchManager(settings, characterSettings)
+    IMP_STATS_MATCHES_MANAGER = addon
 
     local server = string.sub(GetWorldName(), 1, 2)
 
     PvPMeterBattlegroundsData = PvPMeterBattlegroundsData or {}
     PvPMeterBattlegroundsData[server] = PvPMeterBattlegroundsData[server] or {}
-    IPM_BATTLEGROUNDS_MANAGER.matches = PvPMeterBattlegroundsData[server]
+    IMP_STATS_MATCHES_MANAGER.matches = PvPMeterBattlegroundsData[server]
 
-    Log('There are %d matches saved', #IPM_BATTLEGROUNDS_MANAGER.matches)
+    Log('There are %d matches saved', #IMP_STATS_MATCHES_MANAGER.matches)
 
     if PvPMeterBattlegroundsData.version == nil then PvPMeterBattlegroundsData.version = 0 end
     if PvPMeterBattlegroundsData.version < 1010019 then  -- before 0.1.0b19
@@ -393,21 +401,21 @@ function IPM_InitializeMatchSaver(settings, characterSettings)
 
     -- EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_GROUP_UPDATE, function() Log('Group update') end)
     -- ZO_PostHook(ZO_ACTIVITY_FINDER_ROOT_MANAGER, 'StartSearch', function(zo_activity_finder_root_manager)
-    --     IPM_BATTLEGROUNDS_MANAGER.sv.grouped = zo_activity_finder_root_manager.playerIsGrouped
+    --     IMP_STATS_MATCHES_MANAGER.sv.grouped = zo_activity_finder_root_manager.playerIsGrouped
     --     Log(zo_activity_finder_root_manager.playerIsGrouped and 'Searching as group' or 'Searching as solo')
     -- end)
     EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_ACTIVITY_FINDER_STATUS_UPDATE, function(_, state)
         if state ~= ACTIVITY_FINDER_STATUS_READY_CHECK then return end
 
-        IPM_BATTLEGROUNDS_MANAGER.sv.grouped = ZO_ACTIVITY_FINDER_ROOT_MANAGER.playerIsGrouped
+        IMP_STATS_MATCHES_MANAGER.sv.grouped = ZO_ACTIVITY_FINDER_ROOT_MANAGER.playerIsGrouped
         Log(ZO_ACTIVITY_FINDER_ROOT_MANAGER.playerIsGrouped and 'Joining as group' or 'Joining as solo')
     end)
 
-    IPM_BATTLEGROUNDS_MANAGER.sv = settings
+    IMP_STATS_MATCHES_MANAGER.sv = settings
 
     EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 
-    IPM_BATTLEGROUNDS_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
+    IMP_STATS_MATCHES_UI:Initialize(settings.namingMode, characterSettings)
 
     -- PerformanceTesting()
 end

@@ -1,4 +1,4 @@
-local Log = IPM_Logger('IPM_SHARED')
+local Log = IMP_STATS_Logger('IMP_STAS_SHARED')
 
 local addon = {}
 
@@ -150,11 +150,12 @@ local function GetTextIf(selectionType)
     return CHARACTER_SELECTION_MESSAGE[selectionType]
 end
 
-function addon.InitializePlayerCharactersFilter(self, filterControl)
+function addon.InitializePlayerCharactersFilter(self, filterControl, charactersList)
     local filter
 
     local numCharacters = GetNumCharacters()
     local entriesData = {}
+    local characters = charactersList  -- self.filters.selectedCharacters
 
     local function GetSelectionType()
         local numCharactersSelected = filter:GetNumSelectedEntries()
@@ -164,7 +165,7 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
             return CHARACTER_SELECTION_TYPE_ALL
         end
 
-        if numCharactersSelected == 1 and self.filters.playerCharacters[GetCurrentCharacterId()] then
+        if numCharactersSelected == 1 and characters[GetCurrentCharacterId()] then
             return CHARACTER_SELECTION_TYPE_CURRENT
         end
 
@@ -185,14 +186,14 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
             type = characterId,
         }
     end
-    
+
     local function callback(newFilters)
-        for characterId, _ in pairs(self.filters.playerCharacters) do
-            self.filters.playerCharacters[characterId] = false
+        for characterId, _ in pairs(characters) do
+            characters[characterId] = false
         end
 
         for _, characterId in ipairs(newFilters) do
-            self.filters.playerCharacters[characterId] = true
+            characters[characterId] = true
         end
 
         self:Update()
@@ -203,7 +204,6 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
         end
     end
 
-    -- local filterControl = GetControl(self.battlegroundsControl, 'FilterPlayerCharacters')
     filter = InitializeFilter(filterControl, entriesData, callback)
 
     filter:SetNoSelectionText('|cFF0000Select Character|r')
@@ -211,7 +211,7 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
 
     for i, item in ipairs(filter.m_sortedItems) do
         -- Log('%d - %s', i, item.name)
-        if self.filters.playerCharacters[item.filterType] then
+        if characters[item.filterType] then
             filter:SelectItem(item, true)
             -- Log('[B] Selecting %s', item.text)
         end
@@ -233,17 +233,17 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
         if selectionType == CHARACTER_SELECTION_TYPE_ALL then
             -- filter:ClearAllSelections()
             for i, item in ipairs(filter.m_sortedItems) do
-                self.filters.playerCharacters[item.filterType] = false
+                characters[item.filterType] = false
             end
         elseif selectionType == CHARACTER_SELECTION_TYPE_CURRENT or selectionType == CHARACTER_SELECTION_TYPE_CUSTOM then
             -- filter:ClearAllSelections() 
             for i, item in ipairs(filter.m_sortedItems) do
-                self.filters.playerCharacters[item.filterType] = true
+                characters[item.filterType] = true
                 filter:SelectItem(item, true)
             end
         elseif selectionType == CHARACTER_SELECTION_TYPE_NONE then
             local currentCharacterId = GetCurrentCharacterId()
-            self.filters.playerCharacters[currentCharacterId] = true
+            characters[currentCharacterId] = true
             SelectCharacter(currentCharacterId)
         end
 
@@ -261,4 +261,13 @@ function addon.InitializePlayerCharactersFilter(self, filterControl)
     end
 end
 
-IPM_Shared = addon
+function addon.SetGaugeKDAMeter(kdaMeterControl, value)
+    local r, g, b = IMP_STATS_SHARED.Blend({1, 0, 0}, {0, 1, 0}, value)
+
+    GetControl(kdaMeterControl, 'Bar'):StartFixedCooldown(value, CD_TYPE_RADIAL, CD_TIME_TYPE_TIME_REMAINING, false)  -- TODO
+    GetControl(kdaMeterControl, 'Bar'):SetFillColor(r, g, b)
+    GetControl(kdaMeterControl, 'Winrate'):SetText(string.format('%d%%', value * 100))
+    GetControl(kdaMeterControl, 'Winrate'):SetColor(r, g, b)
+end
+
+IMP_STATS_SHARED = addon

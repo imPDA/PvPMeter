@@ -1,9 +1,9 @@
 local addon = {}
 
-addon.name = 'IPM_BATTLEGROUNDS_UI'
+addon.name = 'IMP_STATS_MATCHES_UI'
 
-addon.listControl = nil
-addon.statsControl = nil
+-- addon.listControl = nil
+-- addon.statsControl = nil
 
 local TEAM_TYPE_4_SOLO = 1
 local TEAM_TYPE_8_SOLO = 2
@@ -11,7 +11,25 @@ local TEAM_TYPE_4_GROUP = 3
 local TEAM_TYPE_8_GROUP = 4
 
 addon.filters = {
-    size = {
+    -- teamTypes = {
+    --     TEAM_TYPE_4_SOLO,
+    --     TEAM_TYPE_8_SOLO,
+    --     TEAM_TYPE_4_GROUP,
+    --     TEAM_TYPE_8_GROUP,
+    -- },
+    -- modes = {
+    --     BATTLEGROUND_GAME_TYPE_CAPTURE_THE_FLAG,
+    --     BATTLEGROUND_GAME_TYPE_CRAZY_KING,
+    --     BATTLEGROUND_GAME_TYPE_DEATHMATCH,
+    --     BATTLEGROUND_GAME_TYPE_DOMINATION,
+    --     BATTLEGROUND_GAME_TYPE_KING_OF_THE_HILL,
+    --     BATTLEGROUND_GAME_TYPE_MURDERBALL,
+    -- },
+    -- selectedCharacters = {}
+}
+
+addon.selections = {
+    teamTypes = {
         TEAM_TYPE_4_SOLO,
         TEAM_TYPE_8_SOLO,
         TEAM_TYPE_4_GROUP,
@@ -25,15 +43,15 @@ addon.filters = {
         BATTLEGROUND_GAME_TYPE_KING_OF_THE_HILL,
         BATTLEGROUND_GAME_TYPE_MURDERBALL,
     },
-    playerCharacters = {}
+    characters = {}
 }
 
-local Log = IPM_Logger('MATCHES_UI')
+local Log = IMP_STATS_Logger('MATCHES_UI')
 
---#region IPM BATTLEGROUNDS STATS
-local IPM_BattlegroundsStats = {}
+--#region IMP STATS MATCHES STATS
+local MatchesStats = {}
 
-function IPM_BattlegroundsStats:New(o)
+function MatchesStats:New(o)
     o = o or {}
 
     setmetatable(o, self)
@@ -42,7 +60,7 @@ function IPM_BattlegroundsStats:New(o)
     return o
 end
 
-function IPM_BattlegroundsStats:Clear()
+function MatchesStats:Clear()
     self.totalMatches = 0
     self.totalWon = 0
     self.totalLost = 0
@@ -58,7 +76,7 @@ function IPM_BattlegroundsStats:Clear()
     self.lastProceededIndex = 0
 end
 
-function IPM_BattlegroundsStats:AddMatch(index, data)
+function MatchesStats:AddMatch(index, data)
     if self.lastProceededIndex and index <= self.lastProceededIndex then return end
     self.lastProceededIndex = index
 
@@ -82,9 +100,9 @@ function IPM_BattlegroundsStats:AddMatch(index, data)
 
     self.lastProceededIndex = 0
 end
---#endregion IPM BATTLEGROUNDS STAT
+--#endregion
 
---#region IPM BATTLEGROUNDS ADDON
+--#region IMP STATS MATCHES ADDON
 local SORTABLE_HEADERS = {
     ['Index'] = 'index',
     ['Score'] = 'score',
@@ -145,77 +163,47 @@ function addon:ApplySorting(preventCommit)
     end
 end
 
-function addon:SetShit(value)
-    local shit = IPM_BGsStatsBlockShit
-    local r, g, b = IPM_Shared.Blend({1, 0, 0}, {0, 1, 0}, value)
-
-    GetControl(shit, 'Bar'):StartFixedCooldown(value, CD_TYPE_RADIAL, CD_TIME_TYPE_TIME_REMAINING, false)  -- TODO
-    GetControl(shit, 'Bar'):SetFillColor(r, g, b)
-    GetControl(shit, 'Winrate'):SetText(string.format('%d%%', value * 100))
-    GetControl(shit, 'Winrate'):SetColor(r, g, b)
-end
-
 function addon:UpdateStatsControl()
-    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IPM_Shared.FormatNumber(self.stats.totalMatches))
+    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IMP_STATS_SHARED.FormatNumber(self.stats.totalMatches))
 
-    local winrate = IPM_Shared.PossibleNan(self.stats.totalWon / self.stats.totalMatches)
+    local winrate = IMP_STATS_SHARED.PossibleNan(self.stats.totalWon / self.stats.totalMatches)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
         string.format(
             '%.1f %% (|c00FF00%d|r / |cFF0000%d|r / |c555555%d|r)',
             winrate * 100,
-            IPM_Shared.FormatNumber(self.stats.totalWon),
-            IPM_Shared.FormatNumber(self.stats.totalLost),
-            IPM_Shared.FormatNumber(self.stats.totalTied)
+            IMP_STATS_SHARED.FormatNumber(self.stats.totalWon),
+            IMP_STATS_SHARED.FormatNumber(self.stats.totalLost),
+            IMP_STATS_SHARED.FormatNumber(self.stats.totalTied)
         )
     )
 
     self.statsControl:GetNamedChild('KDValue'):SetText(
-        string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalDeaths))
+        string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalKills / self.stats.totalDeaths))
     )
 
-    -- TODO: total left
-    -- self.statsControl:GetNamedChild('TotalKDAValue'):SetText(
-    --     string.format('%d / %d / %d', self.stats.totalKills, self.stats.totalDeaths, self.stats.totalAssists)
-    -- )
-
-    -- self.statsControl:GetNamedChild('KDAValue'):SetText(
-    --     string.format(
-    --         '%.1f / %.1f / %.1f',
-    --         IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalMatches),
-    --         IPM_Shared.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches),
-    --         IPM_Shared.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)
-    --     )
-    -- )
-    -- self.statsControl:GetNamedChild('TotalsValue'):SetText(
-    --     string.format(
-    --         '%s / %s / %s',
-    --         IPM_Shared.FormatNumber(self.stats.totalDamageDone),
-    --         IPM_Shared.FormatNumber(self.stats.totalHealingDone),
-    --         IPM_Shared.FormatNumber(self.stats.totalDamageTaken)
-    --     )
-    -- )
+    -- TODO: left
 
     local KDAStatsControl = self.statsControl:GetNamedChild('KDAStats')
     KDAStatsControl:GetNamedChild('KSum'):SetText(self.stats.totalKills)
     KDAStatsControl:GetNamedChild('DSum'):SetText(self.stats.totalDeaths)
     KDAStatsControl:GetNamedChild('ASum'):SetText(self.stats.totalAssists)
 
-    KDAStatsControl:GetNamedChild('KAvg'):SetText(string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalKills / self.stats.totalMatches)))
-    KDAStatsControl:GetNamedChild('DAvg'):SetText(string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches)))
-    KDAStatsControl:GetNamedChild('AAvg'):SetText(string.format('%.1f', IPM_Shared.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('KAvg'):SetText(string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalKills / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('DAvg'):SetText(string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('AAvg'):SetText(string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)))
 
-    self:SetShit(winrate)
+    IMP_STATS_SHARED.SetGaugeKDAMeter(self.statsControl:GetNamedChild('GaugeKDAMeter'), winrate)
 end
 
 function addon:CreateControls()
-    local battlegroundsControl = CreateControlFromVirtual('IPM_BGs', IPM_BGs_Container, 'IPM_BGs_Template')
+    local matchesControl = CreateControlFromVirtual('IMP_STATS_MATCHES', IMP_STATS_MatchesContainer, 'IMP_STATS_MatchesTemplate')
 
-    assert(battlegroundsControl ~= nil, 'Battlegrounds control was not created')
+    assert(matchesControl ~= nil, 'Matches control was not created')
 
-    local listControl = battlegroundsControl:GetNamedChild('Listing'):GetNamedChild('ScrollableList')
-    local statsControl = battlegroundsControl:GetNamedChild('StatsBlock')
+    local listControl = matchesControl:GetNamedChild('Listing'):GetNamedChild('ScrollableList')
+    local statsControl = matchesControl:GetNamedChild('StatsBlock')
 
-    self.battlegroundsControl = battlegroundsControl
+    self.matchesControl = matchesControl
     self.listControl = listControl
     self.statsControl = statsControl
 
@@ -223,7 +211,7 @@ function addon:CreateControls()
 end
 
 function addon:InitializeSortingHeaders()
-    local headersControl = self.battlegroundsControl:GetNamedChild('Listing'):GetNamedChild('Headers')
+    local headersControl = self.matchesControl:GetNamedChild('Listing'):GetNamedChild('Headers')
 
     local function InitializeSortableHeader(headerName)
         local header = headersControl:GetNamedChild(headerName)
@@ -251,9 +239,9 @@ local GAME_TYPE_ABBREVIATION = {
     [BATTLEGROUND_GAME_TYPE_CRAZY_KING] = 'CK',
     [BATTLEGROUND_GAME_TYPE_DEATHMATCH] = 'DM',
     [BATTLEGROUND_GAME_TYPE_DOMINATION] = 'Dom',
-    [BATTLEGROUND_GAME_TYPE_KING_OF_THE_HILL] = 'KOtH',
+    -- [BATTLEGROUND_GAME_TYPE_KING_OF_THE_HILL] = 'KOtH',  -- not present in the game rn
     [BATTLEGROUND_GAME_TYPE_MURDERBALL] = 'CB',  -- Chaosball
-    [BATTLEGROUND_GAME_TYPE_NONE] = 'None',
+    -- [BATTLEGROUND_GAME_TYPE_NONE] = 'None',
 }
 
 function addon:CreateScrollListDataType()
@@ -287,9 +275,9 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'Deaths'):SetText(summary.deaths)
         GetControl(rowControl, 'Assists'):SetText(summary.assists)
 
-        GetControl(rowControl, 'DamageDone'):SetText(IPM_Shared.FormatNumber(summary.damageDone))
-        GetControl(rowControl, 'HealingDone'):SetText(IPM_Shared.FormatNumber(summary.healingDone))
-        GetControl(rowControl, 'DamageTaken'):SetText(IPM_Shared.FormatNumber(summary.damageTaken))
+        GetControl(rowControl, 'DamageDone'):SetText(IMP_STATS_SHARED.FormatNumber(summary.damageDone))
+        GetControl(rowControl, 'HealingDone'):SetText(IMP_STATS_SHARED.FormatNumber(summary.healingDone))
+        GetControl(rowControl, 'DamageTaken'):SetText(IMP_STATS_SHARED.FormatNumber(summary.damageTaken))
 
         -- TODO is it ok to have selectCallback with EnableSelection or I need to merge them?
         rowControl:SetHandler('OnMouseUp', function(control, button)
@@ -351,7 +339,7 @@ function addon:CreateScrollListDataType()
 
 	local control = self.listControl
 	local typeId = 1
-	local templateName = 'IPM_MatchSummaryRow'
+	local templateName = 'IMP_STATS_MatchSummaryRow'
 	local height = 32
 	local setupFunction = LayoutRow
 	local hideCallback = nil
@@ -424,13 +412,13 @@ function addon:AddFilter(filterCallback)
     table.insert(self.filters, filterCallback)
 end
 
-function addon:PassFilters(data)
-    for _, filter in ipairs(self.filters) do
-        if not filter(data) then return end
-    end
+-- function addon:PassFilters(data)
+--     for _, filter in ipairs(self.filters) do
+--         if not filter(data) then return end
+--     end
 
-    return true
-end
+--     return true
+-- end
 
 function addon:CalculateStats(task)
     self.stats:Clear()
@@ -452,7 +440,7 @@ function addon:Update()
     end
 
     local task = LibAsync:Create('UpdateBattlegroundsDataRows')
-    IPM_BATTLEGROUNDS_MANAGER
+    IMP_STATS_MATCHES_MANAGER
     :GetMatches(task, self.filters, self.dataRows)
     -- :Then(function() UpdateSummaries(task) end)
     :Then(function()
@@ -485,40 +473,13 @@ function addon:UpdateScrollListControl(task)
     -- ZO_ScrollList_Commit(control)
 end
 
--- local function InitializeFilter(contorl, entriesData, setFiltersCallback)
---     local comboBox = ZO_ComboBox_ObjectFromContainer(contorl)
+InitializeFilter = IMP_STATS_SHARED.InitializeFilter
 
---     comboBox:SetSortsItems(false)
---     comboBox:SetFont('ZoFontWinT1')
---     comboBox:SetSpacing(4)
-
---     local function OnFilterChanged(comboBox, entryText, entry)
---         local newFilters = {}
-
---         for i, itemData in ipairs(comboBox.m_selectedItemData) do
---             table.insert(newFilters, itemData.filterType)
---         end
-
---         setFiltersCallback(newFilters)
+-- local function SelectAllElements(filter)
+--     for i, item in ipairs(filter.m_sortedItems) do
+--         filter:SelectItem(item, true)
 --     end
-
---     for i, entry in ipairs(entriesData) do
---         local item = comboBox:CreateItemEntry(entry.text, OnFilterChanged)
---         item.filterType = entry.type
-
---         comboBox:AddItem(item)
---     end
-
---     return comboBox
 -- end
-
-InitializeFilter = IPM_Shared.InitializeFilter
-
-local function SelectAllElements(filter)
-    for i, item in ipairs(filter.m_sortedItems) do
-        filter:SelectItem(item, true)
-    end
-end
 
 function addon:InitializeTeamTypeFilter()
     local entriesData = {
@@ -540,17 +501,29 @@ function addon:InitializeTeamTypeFilter()
         },
     }
 
-    local function callback(newFilters)
-        self.filters.size = newFilters
+    local function callback(newSelection)
+        self.selections.teamTypes = newSelection
         self:Update()
     end
 
-    local filterControl = GetControl(self.battlegroundsControl, 'FilterTeamType')
+    local filterControl = GetControl(self.statsControl, 'FilterTeamType')
     local filter = InitializeFilter(filterControl, entriesData, callback)
     filter:SetNoSelectionText('|cFF0000Select Team Type|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Team Type/$d Team Types]>> Selected')
 
-    SelectAllElements(filter)
+    -- SelectAllElements(filter)
+    -- TODO: hash table?
+    local function SelectTeamType(teamType)
+        for i, item in ipairs(filter.m_sortedItems) do
+            if item.filterType == teamType then
+                filter:SelectItem(item, true)
+                return
+            end
+        end
+    end
+    for _, mode in ipairs(self.selections.teamTypes) do
+        SelectTeamType(mode)
+    end
 
     return filter
 end
@@ -559,6 +532,18 @@ function addon:InitializeMatchModeFilter()
     local entriesData = {}
 
     -- TODO: game types
+    for mode, modeName in pairs(GAME_TYPE_ABBREVIATION) do
+        table.insert(entriesData, {
+            text = string.format(
+                '%s (%s)',
+                GetString("SI_BATTLEGROUNDGAMETYPE", mode),
+               modeName
+            ),
+            type = mode,
+        })
+    end
+
+    --[[
     for i = 1, 6 do
         table.insert(entriesData, {
             text = string.format(
@@ -569,116 +554,54 @@ function addon:InitializeMatchModeFilter()
             type = i,
         })
     end
+    ]]
 
-    local function callback(newFilters)
-        self.filters.modes = newFilters
+    local function callback(newSelection)
+        self.selections.modes = newSelection
         self:Update()
     end
 
-    local filterControl = GetControl(self.battlegroundsControl, 'FilterGameMode')
+    local filterControl = GetControl(self.statsControl, 'FilterGameMode')
     local filter = InitializeFilter(filterControl, entriesData, callback)
     filter:SetNoSelectionText('|cFF0000Select Match Mode|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Mode/$d Modes]>> Selected')
 
-    SelectAllElements(filter)
+    -- SelectAllElements(filter)
+    -- TODO: hash table?
+    local function SelectMode(mode)
+        for i, item in ipairs(filter.m_sortedItems) do
+            if item.filterType == mode then
+                filter:SelectItem(item, true)
+                return
+            end
+        end
+    end
+    for _, mode in ipairs(self.selections.modes) do
+        SelectMode(mode)
+    end
 
     return filter
 end
 
---[[
-function addon:InitializePlayerCharactersFilter()
-    local numCharacters = GetNumCharacters()
-    local entriesData = {}
+addon.InitializePlayerCharactersFilter = IMP_STATS_SHARED.InitializePlayerCharactersFilter
 
-    for i = 1, numCharacters do
-        local name, _, _, classId, _, _, characterId, _ = GetCharacterInfo(i)
-        local classIcon = zo_iconFormatInheritColor(ZO_GetClassIcon(classId), 24, 24)
-        local formattedName = zo_strformat('<<1>> <<2>>', classIcon, name)
-
-        entriesData[i] = {
-            text = formattedName,
-            type = characterId,
-        }
-    end
-
-    local function callback(newFilters)
-        for characterId, _ in pairs(self.filters.playerCharacters) do
-            self.filters.playerCharacters[characterId] = false
-        end
-
-        for _, characterId in ipairs(newFilters) do
-            self.filters.playerCharacters[characterId] = true
-        end
-
-        self:Update()
-    end
-
-    local filterControl = GetControl(self.battlegroundsControl, 'FilterPlayerCharacters')
-    local filter = InitializeFilter(filterControl, entriesData, callback)
-
-    filter:SetNoSelectionText('|cFF0000Select Character|r')
-    filter:SetMultiSelectionTextFormatter('<<1[$d Character/$d Characters]>> Selected')
-
-    for i, item in ipairs(filter.m_sortedItems) do
-        -- Log('%d - %s', i, item.name)
-        if self.filters.playerCharacters[item.filterType] then
-            filter:SelectItem(item, true)
-            -- Log('[B] Selecting %s', item.text)
-        end
-    end
-
-    local function GetTextIf(everyoneSelected)
-        return everyoneSelected and 'Deselect All' or 'Select All'
-    end
-
-    local function IsEveryoneSelected()
-        return filter:GetNumSelectedEntries() == numCharacters
-    end
-
-    local function SelectUnselect(button)
-        local everyoneSelected = IsEveryoneSelected()
-
-        if everyoneSelected then
-            filter:ClearAllSelections()
-            for i, item in ipairs(filter.m_sortedItems) do
-                self.filters.playerCharacters[item.filterType] = false
-            end
-        else
-            for i, item in ipairs(filter.m_sortedItems) do
-                self.filters.playerCharacters[item.filterType] = true
-                filter:SelectItem(item, true)
-            end
-        end
-
-        button:SetText(GetTextIf(everyoneSelected))
-        self:Update()
-    end
-
-    local selectButton = GetControl(filterControl, 'SelectButton')
-    selectButton:SetText(GetTextIf(IsEveryoneSelected()))
-    selectButton:SetHandler('OnMouseDown', SelectUnselect)
-end
-]]
-
-addon.InitializePlayerCharactersFilter = IPM_Shared.InitializePlayerCharactersFilter
-
-function addon:Initialize(naming, selectedCharacters)
+function addon:Initialize(naming, selections)
     local server = string.sub(GetWorldName(), 1, 2)
     self.matches = PvPMeterBattlegroundsData[server]
     self.matchSummaries = {}
-    self.stats = IPM_BattlegroundsStats:New()
+    self.stats = MatchesStats:New()
 
     self:CreateControls()
     self:InitializeSortingHeaders()
     self:CreateScrollListDataType()
 
     local function GoodDataFilter(matchData)
-        if not matchData.rounds then
-            -- Log('matchData.rounds is not present')
-            return
-        end
+        -- if not matchData.rounds then
+        --     -- Log('matchData.rounds is not present')
+        --     return
+        -- end
 
-        if #matchData.rounds < 1 then
+        if not matchData.rounds or #matchData.rounds < 1 then
             -- Log('Less than 1 round: %s', tostring(#matchData.rounds))
             return
         end
@@ -731,41 +654,47 @@ function addon:Initialize(naming, selectedCharacters)
         return matchData.teamType
     end
 
-    local function TeamSizeFilter(matchData)
-        for i, option in ipairs(self.filters.size) do
+    local function TeamTypeFilter(matchData)
+        for i, option in ipairs(self.selections.teamTypes) do
+            Log('Match %d, teamType: %d', i, GetMatchTeamType(matchData))
             if GetMatchTeamType(matchData) == option then return true end
         end
     end
-    self:AddFilter(TeamSizeFilter)
+    self:AddFilter(TeamTypeFilter)
 
-    local function GameTypeFilter(matchData)
-        for i, option in ipairs(self.filters.modes) do
+    local function ModeFilter(matchData)
+        for i, option in ipairs(self.selections.modes) do
             if matchData.type == option then return true end  -- type is old name for mode
         end
     end
-    self:AddFilter(GameTypeFilter)
+    self:AddFilter(ModeFilter)
 
-    local function PlayerCharactersFilter(matchData)
+    local function CharactersFilter(matchData)
         local rounds = matchData.rounds
         local players = rounds[1].players
         local player = players[1]
         local chId = player.characterId
 
-        return chId and self.filters.playerCharacters[chId]
+        return chId and self.selections.characters[chId]
     end
-    self:AddFilter(PlayerCharactersFilter)
+    self:AddFilter(CharactersFilter)
+
+    for selectionName, defaultSelectionData in pairs(self.selections) do
+        selections[selectionName] = selections[selectionName] or defaultSelectionData
+    end
+    self.selections = selections
+    -- self.selections = selections or self.selections
 
     self:InitializeTeamTypeFilter()
     self:InitializeMatchModeFilter()
 
-    self.filters.playerCharacters = selectedCharacters
-    if IPM_Shared.TableLength(self.filters.playerCharacters) < 1 then
-        self.filters.playerCharacters[GetCurrentCharacterId()] = true
+    if IMP_STATS_SHARED.TableLength(self.selections.characters) < 1 then
+        self.selections.characters[GetCurrentCharacterId()] = true
     end
-    self:InitializePlayerCharactersFilter(GetControl(self.battlegroundsControl, 'FilterPlayerCharacters'))
+    self:InitializePlayerCharactersFilter(GetControl(self.statsControl, 'CharactersFilter'), self.selections.characters)
 end
---#endregion IPM BATTLEGROUNDS ADDON
+--#endregion
 
 do
-    IPM_BATTLEGROUNDS_UI = addon
+    IMP_STATS_MATCHES_UI = addon
 end

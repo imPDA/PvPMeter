@@ -1,15 +1,15 @@
 local addon = {}
-addon.name = 'IPM_DUELS_MANAGER'
+addon.name = 'IMP_STATS_Duels_MANAGER'
 
 addon.playerData = nil
 
-local Log = IPM_Logger('DUELS_MANAGER')
+local Log = IMP_STATS_Logger('DUELS_MANAGER')
 
 local function Close(timems1, timems2, diff)
     if timems1 == nil or timems2 == nil then return error('Time cant be nil') end
 
     diff = diff or 1000
-    Log('[D] Diff: %d', math.abs(timems1 - timems2))
+    Log('Diff: %d', math.abs(timems1 - timems2))
     if math.abs(timems1 - timems2) < diff then return true end
 end
 
@@ -17,10 +17,10 @@ local function IfFightBelongsToDuel(fight, duel)
     return Close(fight.combatstart, duel.duelStart, 3000)  -- Close(lastDuel.duelEnd, fight.combatend)
 end
 
---#region IPM DUEL
-local IPM_Duel = {}
+--#region IMP STATS DUEL
+local Duel = {}
 
-function IPM_Duel:New(o)
+function Duel:New(o)
     o = o or {}
 
     o.timestamp = GetTimeStamp()
@@ -32,7 +32,7 @@ function IPM_Duel:New(o)
     return o
 end
 
-function IPM_Duel:AddFightData(fight)
+function Duel:AddFightData(fight)
     self.damageDone = fight.damageOutTotal
     self.damageTaken = fight.damageInTotal
     self.healingTaken = fight.healingInTotal
@@ -43,36 +43,36 @@ function IPM_Duel:AddFightData(fight)
     self.duration = fight.combattime
 end
 
-function IPM_Duel:AddResult(duelResult, wasLocalPlayersResult)
+function Duel:AddResult(duelResult, wasLocalPlayersResult)
     self.duelEnd = GetGameTimeMilliseconds()
     self.result = duelResult
     self.wasLocalPlayersResult = wasLocalPlayersResult
 end
 
-function IPM_Duel:AddOpponentData(opponentData)
+function Duel:AddOpponentData(opponentData)
     self.opponent = opponentData
 end
 
-function IPM_Duel:AddPlayerData(playerData)
+function Duel:AddPlayerData(playerData)
     self.player = playerData
 end
---#endregion IPM DUEL
+--#endregion
 
---#region ADDON
+--#region IMP STATS DUELS
 function addon:TryToSaveCurrentDuel()
     if self.resultAdded and self.fightDataAdded then
         self.duels[#self.duels+1] = self.currentDuel
         self.currentDuel = nil
         self.resultAdded = nil
         self.fightDataAdded = nil
-        Log('[D] Duel data saved, id: %d', #self.duels)
+        Log('Duel data saved #%d', #self.duels)
 
-        IPM_DUELS_UI:Update()
+        IMP_STATS_Duels_UI:Update()
     end
 end
 
 function addon:OnFightSummary(fight)
-    Log('[D] Fight summary available')
+    Log('Fight summary available')
 
     LibCombat:UnregisterCallbackType(LIBCOMBAT_EVENT_FIGHTSUMMARY, _, addon.name)
 
@@ -85,14 +85,14 @@ function addon:OnFightSummary(fight)
 end
 
 function addon:OnDuelStarted()
-    Log('{D] Duel started')
+    Log('Duel started')
 
-    self.currentDuel = IPM_Duel:New()
+    self.currentDuel = Duel:New()
     LibCombat:RegisterCallbackType(LIBCOMBAT_EVENT_FIGHTSUMMARY, function(_, ...) self:OnFightSummary(...) end, addon.name)
 end
 
 function addon:OnDuelFinished(duelResult, wasLocalPlayersResult, opponentCharacterName, opponentDisplayName, opponentAlliance, opponentGender, opponentClassId, opponentRaceId)
-    Log('{D] Duel finished')
+    Log('Duel finished')
 
     self.currentDuel:AddPlayerData(self.playerData)
 
@@ -123,19 +123,19 @@ function addon:PlayerActivated(initial)
     EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_DUEL_STARTED, OnDuelStarted)
     EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_DUEL_FINISHED, OnDuelFinished)
 
-    IPM_DUELS_UI:Update()
+    IMP_STATS_Duels_UI:Update()
 end
---#endregion ADDON
+--#endregion
 
 local function OnPlayerActivated(_, initial)
     addon:PlayerActivated(initial)
 end
 
-function IPM_InitializeDuelSaver(settings, characterSettings)
-    IPM_DUELS_MANAGER = addon
+function IMP_STATS_InitializeDuelsManager(settings, characterSettings)
+    IMP_STATS_Duels_MANAGER = addon
 
     local server = string.sub(GetWorldName(), 1, 2)
-    IPM_DUELS_MANAGER.playerData = {
+    IMP_STATS_Duels_MANAGER.playerData = {
         characterName = GetRawUnitName('player'),
         displayName = GetDisplayName(),
         characterId = GetCurrentCharacterId(),
@@ -148,10 +148,10 @@ function IPM_InitializeDuelSaver(settings, characterSettings)
     PvPMeterDuelsData = PvPMeterDuelsData or {}
     PvPMeterDuelsData[server] = PvPMeterDuelsData[server] or {}
 
-    IPM_DUELS_MANAGER.duels = PvPMeterDuelsData[server]
-    Log('[D] There are %d duels saved', #addon.duels)
+    IMP_STATS_Duels_MANAGER.duels = PvPMeterDuelsData[server]
+    Log('There are %d duels saved', #addon.duels)
 
-    EVENT_MANAGER:RegisterForEvent(IPM_DUELS_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
+    EVENT_MANAGER:RegisterForEvent(IMP_STATS_Duels_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 
-    IPM_DUELS_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
+    IMP_STATS_Duels_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
 end

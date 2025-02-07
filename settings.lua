@@ -77,6 +77,6 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
     LAM:RegisterOptionControls(settingsName, optionsData)
 end
 
-function IPM_InitializeSettings(...)
+function IMP_STATS_InitializeSettings(...)
     addon:Initialize(...)
 end

@@ -1,19 +1,19 @@
-<GuiXml>
+<GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
-        <Label name="IPM_Duels_Listing_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="40" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column9" virtual="true"><Dimensions x="50" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column2" virtual="true"><Dimensions x="32" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column11" virtual="true"><Dimensions x="36" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column3" virtual="true"><Dimensions x="190" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column4" virtual="true"><Dimensions x="32" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column12" virtual="true"><Dimensions x="36" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column5" virtual="true"><Dimensions x="190" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IPM_Duels_Listing_Column10" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+        <Label name="IMP_STATS_Duels_Listing_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="40" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column9" virtual="true"><Dimensions x="50" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column2" virtual="true"><Dimensions x="32" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column11" virtual="true"><Dimensions x="36" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column3" virtual="true"><Dimensions x="190" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column4" virtual="true"><Dimensions x="32" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column12" virtual="true"><Dimensions x="36" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column5" virtual="true"><Dimensions x="190" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column10" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		
-		<Label name="IPM_DuelSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
+		<Label name="IMP_STATS_DuelSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
 			<Dimensions y="32" />
 			<Controls>
 				<!-- TODO: texture order -->
@@ -23,13 +23,13 @@
 					<!-- TODO: ideally, get rid of Dimensions -->
 					<!-- TODO: find out why this texture less than row with height 32 -->
 				</Texture>
-				<Label name="$(parent)Index" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column1">
+				<Label name="$(parent)Index" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column1">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 				</Label>
-				<Label name="$(parent)Duration" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column9">
+				<Label name="$(parent)Duration" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column9">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20" />
 				</Label>
-				<Label name="$(parent)PlayerClass" inherits="IPM_Duels_Listing_Column2">
+				<Label name="$(parent)PlayerClass" inherits="IMP_STATS_Duels_Listing_Column2">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 					<Controls>
 						<Texture name="$(parent)ClassIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds">
@@ -38,7 +38,7 @@
 						</Texture>
 					</Controls>
 				</Label>
-				<Label name="$(parent)PlayerRace" inherits="IPM_Duels_Listing_Column11">
+				<Label name="$(parent)PlayerRace" inherits="IMP_STATS_Duels_Listing_Column11">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerClass" relativePoint="TOPRIGHT" />
 					<Controls>
 						<Texture name="$(parent)RaceIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds">
@@ -47,11 +47,11 @@
 						</Texture>
 					</Controls>
 				</Label>
-				<Label name="$(parent)PlayerCharacterName" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column3">
+				<Label name="$(parent)PlayerCharacterName" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column3">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerRace" relativePoint="TOPRIGHT" />
 				</Label>
 
-				<Label name="$(parent)OpponentClass" inherits="IPM_Duels_Listing_Column4">
+				<Label name="$(parent)OpponentClass" inherits="IMP_STATS_Duels_Listing_Column4">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerCharacterName" relativePoint="TOPRIGHT" />
 					<Controls>
 						<Texture name="$(parent)ClassIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds">
@@ -60,7 +60,7 @@
 						</Texture>
 					</Controls>
 				</Label>
-				<Label name="$(parent)OpponentRace" inherits="IPM_Duels_Listing_Column12">
+				<Label name="$(parent)OpponentRace" inherits="IMP_STATS_Duels_Listing_Column12">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentClass" relativePoint="TOPRIGHT" />
 					<Controls>
 						<Texture name="$(parent)RaceIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds">
@@ -69,38 +69,38 @@
 						</Texture>
 					</Controls>
 				</Label>
-				<Label name="$(parent)OpponentCharacterName" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column5">
+				<Label name="$(parent)OpponentCharacterName" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentRace" relativePoint="TOPRIGHT" />
 				</Label>
 				
-				<!-- <Label name="$(parent)Map" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column4">
+				<!-- <Label name="$(parent)Map" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column4">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Class" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Kills" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column5">
+				<Label name="$(parent)Kills" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Deaths" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column6">
+				<Label name="$(parent)Deaths" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column6">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Kills" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)Assists" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column7">
+				<Label name="$(parent)Assists" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column7">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Deaths" relativePoint="TOPRIGHT" />
 				</Label> -->
-				<Label name="$(parent)DamageDone" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column6">
+				<Label name="$(parent)DamageDone" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column6">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentCharacterName" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)DamageTaken" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column8">
+				<Label name="$(parent)DamageTaken" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column8">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)DamageDone" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)HealingTaken" inherits="IPM_Listing_Cell IPM_Duels_Listing_Column7">
+				<Label name="$(parent)HealingTaken" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column7">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)DamageTaken" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)DamageShielded" inherits="IPM_Listing_Header IPM_Duels_Listing_Column10">
+				<Label name="$(parent)DamageShielded" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)HealingTaken" relativePoint="TOPRIGHT" />
 				</Label>
 			</Controls>
 		</Label>
 
-		<Control name="IPM_Duels_Template" virtual="true">
+		<Control name="IMP_STATS_Duels_Template" virtual="true">
 			<AnchorFill />
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
@@ -127,7 +127,7 @@
                     <Dimensions x="270" />
                     <Controls>
                         <EditBox name="$(parent)Box" inherits="ZO_DefaultEditForBackdrop" defaultText="SI_REQUEST_NAME_INSTRUCTIONS" />
-						<Label name="$(parent)Label" inherits="IPM_StatName" text="Player:">
+						<Label name="$(parent)Label" inherits="IMP_STATS_StatName" text="Player:">
 							<Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="-4" />
 						</Label>
                     </Controls>
@@ -138,13 +138,13 @@
                     <Dimensions x="270" />
                     <Controls>
                         <EditBox name="$(parent)Box" inherits="ZO_DefaultEditForBackdrop" defaultText="SI_REQUEST_NAME_INSTRUCTIONS" />
-						<Label name="$(parent)Label" inherits="IPM_StatName" text="Opponent:">
+						<Label name="$(parent)Label" inherits="IMP_STATS_StatName" text="Opponent:">
 							<Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="-4" />
 						</Label>
                     </Controls>
                 </Backdrop>
 
-				<Control name="$(parent)FilterPlayerCharacters" inherits="ZO_MultiselectComboBox">
+				<Control name="$(parent)CharactersFilter" inherits="ZO_MultiselectComboBox">
                     <Anchor point="TOPRIGHT" relativeTo="$(parent)OpponentSearch" relativePoint="BOTTOMRIGHT" offsetX="2" offsetY="8" />
 					<Dimensions x="270" y="32" />
 					<Controls>
@@ -161,28 +161,28 @@
 					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="150" />
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-						<Control name="$(parent)Shit" inherits="IPM_Shit">
+						<Control name="$(parent)GaugeKDAMeter" inherits="IMP_STATS_GaugeKDAMeter">
 							<Anchor point="TOPLEFT" />
 						</Control>
 
-						<Label name="$(parent)TotalDuels" inherits="IPM_StatName" text="Duels recorded:">
+						<Label name="$(parent)TotalDuels" inherits="IMP_STATS_StatName" text="Duels recorded:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)" offsetX="110" offsetY="6" />
 						</Label>
-						<Label name="$(parent)TotalDuelsValue" inherits="IPM_StatValue">
+						<Label name="$(parent)TotalDuelsValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalDuels" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)Winrate" inherits="IPM_StatName" text="Winrate:">
+						<Label name="$(parent)Winrate" inherits="IMP_STATS_StatName" text="Winrate:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalDuels" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateValue" inherits="IPM_StatValue">
+						<Label name="$(parent)WinrateValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)Totals" inherits="IPM_StatName" text="Total damage/healing/damage taken:">
+						<Label name="$(parent)Totals" inherits="IMP_STATS_StatName" text="Total damage/healing/damage taken:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)TotalsValue" inherits="IPM_StatValue">
+						<Label name="$(parent)TotalsValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Totals" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 					</Controls>
@@ -213,22 +213,22 @@
 							<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="40"/>
 							<Controls>
 								<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-								<Label name="$(parent)Index" inherits="IPM_Listing_Header IPM_Duels_Listing_Column1" text="###">
+								<Label name="$(parent)Index" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column1" text="###">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)" />
 								</Label>
-								<Label name="$(parent)Duration" inherits="IPM_Listing_Header IPM_Duels_Listing_Column9" text="Time">
+								<Label name="$(parent)Duration" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column9" text="Time">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Index" relativePoint="TOPRIGHT" offsetX="20" />
 								</Label>
-								<Label name="$(parent)PlayerClass" inherits="IPM_Listing_Header IPM_Duels_Listing_Column2" text="">
+								<Label name="$(parent)PlayerClass" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column2" text="">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)PlayerRace" inherits="IPM_Listing_Header IPM_Duels_Listing_Column11" text="">
+								<Label name="$(parent)PlayerRace" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column11" text="">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerClass" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)PlayerCharacterName" inherits="IPM_Listing_Header IPM_Duels_Listing_Column3" text="Player Name">
+								<Label name="$(parent)PlayerCharacterName" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column3" text="Player Name">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerRace" relativePoint="TOPRIGHT" />
 								</Label>
-								<!-- <Control name="$(parent)Class" inherits="IPM_Duels_Listing_Column3">
+								<!-- <Control name="$(parent)Class" inherits="IMP_STATS_Duels_Listing_Column3">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Type" relativePoint="TOPRIGHT" />
 									<Controls>
 										<Texture name="$(parent)ClassIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds">
@@ -237,32 +237,32 @@
 										</Texture>
 									</Controls>
 								</Control> -->
-								<!-- <Label name="$(parent)C3" inherits="IPM_Listing_Header IPM_Duels_Listing_Column3"><Anchor point="TOPLEFT" relativeTo="$(parent)ClassIcon" relativePoint="TOPRIGHT" /></Label> -->
-								<Label name="$(parent)OpponentClass" inherits="IPM_Listing_Header IPM_Duels_Listing_Column4" text="">
+								<!-- <Label name="$(parent)C3" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column3"><Anchor point="TOPLEFT" relativeTo="$(parent)ClassIcon" relativePoint="TOPRIGHT" /></Label> -->
+								<Label name="$(parent)OpponentClass" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column4" text="">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerCharacterName" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)OpponentRace" inherits="IPM_Listing_Header IPM_Duels_Listing_Column12" text="">
+								<Label name="$(parent)OpponentRace" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column12" text="">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentClass" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)OpponentCharacterName" inherits="IPM_Listing_Header IPM_Duels_Listing_Column5" text="Opponent Name">
+								<Label name="$(parent)OpponentCharacterName" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column5" text="Opponent Name">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentRace" relativePoint="TOPRIGHT" />
 								</Label>
-								<!-- <Label name="$(parent)Deaths" inherits="IPM_Listing_Header IPM_Duels_Listing_Column6" text="Deaths">
+								<!-- <Label name="$(parent)Deaths" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column6" text="Deaths">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Kills" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Assists" inherits="IPM_Listing_Header IPM_Duels_Listing_Column7" text="Assists">
+								<Label name="$(parent)Assists" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column7" text="Assists">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Deaths" relativePoint="TOPRIGHT" />
 								</Label> -->
-								<Label name="$(parent)DamageDone" inherits="IPM_Listing_Header IPM_Duels_Listing_Column6" text="Done">
+								<Label name="$(parent)DamageDone" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column6" text="Done">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentCharacterName" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)DamageTaken" inherits="IPM_Listing_Header IPM_Duels_Listing_Column8" text="Taken">
+								<Label name="$(parent)DamageTaken" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column8" text="Taken">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)DamageDone" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)HealingTaken" inherits="IPM_Listing_Header IPM_Duels_Listing_Column7" text="Heal">
+								<Label name="$(parent)HealingTaken" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column7" text="Heal">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)DamageTaken" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)DamageShielded" inherits="IPM_Listing_Header IPM_Duels_Listing_Column10" text="Shielded">
+								<Label name="$(parent)DamageShielded" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column10" text="Shielded">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)HealingTaken" relativePoint="TOPRIGHT" />
 								</Label>
 							</Controls>

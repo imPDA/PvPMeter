@@ -1,9 +1,8 @@
 local addon = {}
 
-addon.name = 'IPM_MENU'
-addon.display_name = 'PvP Meter'
+addon.name = 'IMP_STATS_MENU'
 
-local Log = IPM_Logger('IPM_MENU')
+local Log = IMP_STATS_Logger('IMP_STATS_MENU')
 
 local LMM = LibMainMenu2
 LMM:Init()
@@ -11,7 +10,7 @@ LMM:Init()
 local CATEGORIES = {
 	{
 		name = SI_IMP_PVP_METER_BATTLEGROUNS_TAB_TITLE,
-		container = IPM_BGs_Container,
+		container = IMP_STATS_MatchesContainer,
 		icons = {
 			normal = 'EsoUI/Art/Battlegrounds/battlegrounds_tabIcon_battlegrounds_up.dds',
 			pressed = 'EsoUI/Art/Battlegrounds/battlegrounds_tabIcon_battlegrounds_down.dds',
@@ -20,7 +19,7 @@ local CATEGORIES = {
 	},
 	{
 		name = SI_IMP_PVP_METER_DUELS_TAB_TITLE,
-		container = IPM_Duels_Container,
+		container = IMP_STATS_DuelsContainer,
 		icons = {
 			normal = "EsoUI/Art/Journal/journal_tabIcon_leaderboard_up.dds",
 			pressed = "EsoUI/Art/Journal/journal_tabIcon_leaderboard_down.dds",
@@ -29,7 +28,7 @@ local CATEGORIES = {
 	},
 	{
 		name = SI_IMP_PVP_METER_TOT_TAB_TITLE,
-		container = IPM_TOT_Container,
+		container = IMP_STATS_TributeContainer,
 		icons = {
 			normal = 'EsoUI/Art/Tribute/tribute_tabicon_tribute_up.dds',
 			pressed = 'EsoUI/Art/Tribute/tribute_tabicon_tribute_down.dds',
@@ -39,13 +38,13 @@ local CATEGORIES = {
 }
 
 function addon:Initialize(initBGs, initDuels, initTOT)
-	local IPM_TITLE_FRAGMENT = ZO_SetTitleFragment:New(SI_IMP_PVP_METER_MAIN_MENU_TITLE)
+	local IMP_STATS_TITLE_FRAGMENT = ZO_SetTitleFragment:New(SI_IMP_PVP_METER_MAIN_MENU_TITLE)
 	-- TODO: subtitle
 
 	local SUBMENU = {}
 	local SCENES = {}
 
-    local RIGHT_PANEL = ZO_FadeSceneFragment:New(IPM_RightPanel)
+    local RIGHT_PANEL = ZO_FadeSceneFragment:New(IMP_STATS_RightPanel)
 
 	local function CreateScene(sceneName, container)
 		local scene = ZO_Scene:New(sceneName, SCENE_MANAGER)
@@ -58,7 +57,7 @@ function addon:Initialize(initBGs, initDuels, initTOT)
 		scene:AddFragment(RIGHT_BG_FRAGMENT)
 
 		scene:AddFragment(TITLE_FRAGMENT)
-		scene:AddFragment(IPM_TITLE_FRAGMENT)
+		scene:AddFragment(IMP_STATS_TITLE_FRAGMENT)
 
 		local fragment = ZO_FadeSceneFragment:New(container)
 		scene:AddFragment(fragment)
@@ -88,7 +87,7 @@ function addon:Initialize(initBGs, initDuels, initTOT)
 
 	local MENU_CATEGORY = {
 		categoryName = SI_IMP_PVP_METER_MAIN_MENU_TITLE,
-		binding = IPM_TOGGLE_PANEL,
+		binding = IMP_STATS_TOGGLE_PANEL,
 		-- descriptor = 19,
 		-- normal = 'EsoUi/Art/journal/journal_tabicon_achievements_up.dds',
 		-- pressed = 'EsoUi/Art/journal/journal_tabicon_achievements_down.dds',
@@ -100,29 +99,29 @@ function addon:Initialize(initBGs, initDuels, initTOT)
 			self:Show()
 		end,
 	}
-	IPM_MENU = LMM:AddCategory(MENU_CATEGORY)
+	IMP_STATS_MENU = LMM:AddCategory(MENU_CATEGORY)
 
-	local IPM_SCENE_GROUP_NAME = addon.name .. 'SceneGroup'
+	local IMP_STATS_SCENE_GROUP_NAME = addon.name .. 'SceneGroup'
 	self.SCENE_GROUP = ZO_SceneGroup:New(unpack(SCENES))
-	SCENE_MANAGER:AddSceneGroup(IPM_SCENE_GROUP_NAME, self.SCENE_GROUP)
+	SCENE_MANAGER:AddSceneGroup(IMP_STATS_SCENE_GROUP_NAME, self.SCENE_GROUP)
 
-	LMM:AddSceneGroup(IPM_MENU, IPM_SCENE_GROUP_NAME, SUBMENU)
-	LMM:AddMenuItem(IPM_SCENE_GROUP_NAME, MENU_CATEGORY)
+	LMM:AddSceneGroup(IMP_STATS_MENU, IMP_STATS_SCENE_GROUP_NAME, SUBMENU)
+	LMM:AddMenuItem(IMP_STATS_SCENE_GROUP_NAME, MENU_CATEGORY)
 end
 
 -- TODO: refactor ?
 function addon:Show()
 	if not self.SCENE_GROUP:IsShowing() then
-		LMM:ToggleCategory(IPM_MENU)
+		LMM:ToggleCategory(IMP_STATS_MENU)
 	end
 end
 
-function IPM_TogglePanel()
-	LMM:ToggleCategory(IPM_MENU)
+function IMP_STATS_TogglePanel()
+	LMM:ToggleCategory(IMP_STATS_MENU)
 	-- TODO: highlight button in the menu itself
 	-- :RefreshCategoryIndicators()
 	-- :Update()
 	-- ZO_MenuBar_ClearSelection(MAIN_MENU_KEYBOARD.categoryBar)
 end
 
-IPM_MAIN_MENU = addon
+IMP_STATS_MENU = addon
