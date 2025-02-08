@@ -586,8 +586,7 @@ end
 addon.InitializePlayerCharactersFilter = IMP_STATS_SHARED.InitializePlayerCharactersFilter
 
 function addon:Initialize(naming, selections)
-    local server = string.sub(GetWorldName(), 1, 2)
-    self.matches = PvPMeterBattlegroundsData[server]
+    self.matches = IMP_STATS_MATCHES_MANAGER.matches
     self.matchSummaries = {}
     self.stats = MatchesStats:New()
 
@@ -633,7 +632,9 @@ function addon:Initialize(naming, selections)
             if matchData.teamSize == 8 then
                 if groupType == LFG_GROUP_TYPE_NONE then
                     matchData.teamType = TEAM_TYPE_8_SOLO
-                elseif groupType == LFG_GROUP_TYPE_REGULAR then
+                -- elseif groupType == LFG_GROUP_TYPE_REGULAR then
+                --     matchData.teamType = TEAM_TYPE_8_GROUP
+                elseif groupType == LFG_GROUP_TYPE_BIG_TEAM_BATTLE then
                     matchData.teamType = TEAM_TYPE_8_GROUP
                 else
                     Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
@@ -656,7 +657,7 @@ function addon:Initialize(naming, selections)
 
     local function TeamTypeFilter(matchData)
         for i, option in ipairs(self.selections.teamTypes) do
-            Log('Match %d, teamType: %d', i, GetMatchTeamType(matchData))
+            -- Log('Match %d, teamType: %d', i, GetMatchTeamType(matchData))
             if GetMatchTeamType(matchData) == option then return true end
         end
     end

@@ -1,7 +1,7 @@
 local addon = {}
-addon.name = 'ImpPvPMeter'
-addon.displayName = 'Imp-ressive Stats'
-addon.version = '0.1.0b23'
+addon.name = 'ImpressiveStats'
+addon.displayName = '|c7c42f2Imp|ceeeeee-ressive Stats|r'
+addon.version = '1.0.0'
 
 local Log = IMP_STATS_Logger('IMP_STATS_MAIN')
 
@@ -44,8 +44,8 @@ local CHARACTER_DEFAULTS = {
 function addon:OnLoad()
 	Log('Loading %s v%s', self.name, self.version)
 
-	self.sv = ZO_SavedVars:NewAccountWide(self.name .. 'SV', 1, nil, DEFAULTS)
-	self.csv = ZO_SavedVars:NewCharacterIdSettings(self.name .. 'CSV', 1, nil, CHARACTER_DEFAULTS)
+	self.sv = ZO_SavedVars:NewAccountWide('ImpressiveStatsSV', 1, nil, DEFAULTS)
+	self.csv = ZO_SavedVars:NewCharacterIdSettings('ImpressiveStatsCSV', 1, nil, CHARACTER_DEFAULTS)
 
 	IMP_STATS_MENU:Initialize(self.sv.battlegrounds.enabled, self.sv.duels.enabled, self.sv.tot.enabled)
 

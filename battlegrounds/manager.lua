@@ -167,7 +167,7 @@ function addon:RestoreCurrentMatch()
     if battlegroundState and battlegroundState == BATTLEGROUND_STATE_NONE then return end
 
     Log('Restoring BG, round: %d, state: %s', currentRoundIndex, GetMatchStateName(battlegroundState))
-    -- self.currentMatch = ImpPvPMeterMatchBackup or GetNewMatchFromCurrentMatch()
+    -- self.currentMatch = ImpressiveStatsMatchBackup or GetNewMatchFromCurrentMatch()
 
     for i = 1, GetBattlegroundNumRounds(self.currentMatch.battlegroundId) do
         if battlegroundState ~= BATTLEGROUND_STATE_FINISHED and i == currentRoundIndex then return end
@@ -219,7 +219,7 @@ function addon:SaveCurrentMatch()
     end
 
     self.currentMatch = nil
-    ImpPvPMeterMatchBackup = nil
+    ImpressiveStatsMatchBackup = nil
 end
 
 function addon:MatchStateChanged(previousState, currentState)
@@ -234,7 +234,7 @@ function addon:MatchStateChanged(previousState, currentState)
 
         if not self.currentMatch then
             self.currentMatch = GetNewMatchFromCurrentMatch()
-            ImpPvPMeterMatchBackup = self.currentMatch
+            ImpressiveStatsMatchBackup = self.currentMatch
             self:RestoreCurrentMatch()
         end
 
@@ -285,31 +285,31 @@ function addon:PlayerActivated(initial)
     -- local battlegroundState = GetCurrentBattlegroundState()
 
     if IsActiveWorldBattleground() then
-        if ImpPvPMeterMatchBackup then
-            Log('There is a backup, same BG: %s', tostring(IsCurrentMatch(ImpPvPMeterMatchBackup)))
-            if IsCurrentMatch(ImpPvPMeterMatchBackup) then
-                self.currentMatch = ImpPvPMeterMatchBackup
+        if ImpressiveStatsMatchBackup then
+            Log('There is a backup, same BG: %s', tostring(IsCurrentMatch(ImpressiveStatsMatchBackup)))
+            if IsCurrentMatch(ImpressiveStatsMatchBackup) then
+                self.currentMatch = ImpressiveStatsMatchBackup
                 -- TODO: mark if it is backed up data or not, check if it is good
                 -- self:RestoreCurrentMatch()
             -- else
             --     self.currentMatch = GetNewMatchFromCurrentMatch()
             --     -- self:RestoreCurrentMatch()
 
-            --     self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
-            --     ImpPvPMeterMatchBackup = self.currentMatch
+            --     self.matches[#self.matches+1] = ImpressiveStatsMatchBackup
+            --     ImpressiveStatsMatchBackup = self.currentMatch
             end
         -- else
         --     self.currentMatch = GetNewMatchFromCurrentMatch()
-        --     ImpPvPMeterMatchBackup = self.currentMatch
+        --     ImpressiveStatsMatchBackup = self.currentMatch
         end
         -- self:RestoreCurrentMatch()
     else
         -- TODO: check if it is already saved match
         -- TODO: check if it is a good match
-        if ImpPvPMeterMatchBackup then
+        if ImpressiveStatsMatchBackup then
             Log('There is a backup outside of BG')
-            self.matches[#self.matches+1] = ImpPvPMeterMatchBackup
-            ImpPvPMeterMatchBackup = nil
+            self.matches[#self.matches+1] = ImpressiveStatsMatchBackup
+            ImpressiveStatsMatchBackup = nil
         end
     end
 
@@ -365,15 +365,15 @@ function IMP_STATS_InitializeMatchManager(settings, characterSettings)
 
     local server = string.sub(GetWorldName(), 1, 2)
 
-    PvPMeterBattlegroundsData = PvPMeterBattlegroundsData or {}
-    PvPMeterBattlegroundsData[server] = PvPMeterBattlegroundsData[server] or {}
-    IMP_STATS_MATCHES_MANAGER.matches = PvPMeterBattlegroundsData[server]
+    ImpressiveStatsMatchesData = ImpressiveStatsMatchesData or {}
+    ImpressiveStatsMatchesData[server] = ImpressiveStatsMatchesData[server] or {}
+    IMP_STATS_MATCHES_MANAGER.matches = ImpressiveStatsMatchesData[server]
 
     Log('There are %d matches saved', #IMP_STATS_MATCHES_MANAGER.matches)
 
-    if PvPMeterBattlegroundsData.version == nil then PvPMeterBattlegroundsData.version = 0 end
-    if PvPMeterBattlegroundsData.version < 1010019 then  -- before 0.1.0b19
-        for key, data in pairs(PvPMeterBattlegroundsData) do
+    if ImpressiveStatsMatchesData.version == nil then ImpressiveStatsMatchesData.version = 0 end
+    if ImpressiveStatsMatchesData.version < 1010019 then  -- before 0.1.0b19
+        for key, data in pairs(ImpressiveStatsMatchesData) do
             if key ~= 'version' then
                 for _, matchData in ipairs(data) do
                     if matchData.api == nil then matchData.api = 101044 end
@@ -382,7 +382,7 @@ function IMP_STATS_InitializeMatchManager(settings, characterSettings)
             end
         end
 
-        PvPMeterBattlegroundsData.version = 1010019
+        ImpressiveStatsMatchesData.version = 1010019
     end
 
     -- local GROUP_TYPE_TO_STRING = {

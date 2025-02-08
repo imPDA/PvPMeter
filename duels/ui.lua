@@ -421,21 +421,21 @@ function ProcessSlashCommand(cmd)
 	if cmd == 'update' or cmd == 'u' then
 		addon:Update()
     elseif cmd == 'x2' then
-        local len = #PvPMeterDuelsData['EU']
-        local duels = PvPMeterDuelsData['EU']
+        local len = #ImpressiveStatsDuelsData['EU']
+        local duels = ImpressiveStatsDuelsData['EU']
         for i = 1, len do
             duels[#duels+1] = duels[i]
         end
         Log('New lenght: %d', #duels)
         addon:Update()
     elseif cmd == 'one' then
-        local firstDuel = ZO_DeepTableCopy(PvPMeterDuelsData['EU'][1])
-        PvPMeterDuelsData['EU'] = {firstDuel}
+        local firstDuel = ZO_DeepTableCopy(ImpressiveStatsDuelsData['EU'][1])
+        ImpressiveStatsDuelsData['EU'] = {firstDuel}
         addon:Update()
     elseif cmd == ':2' then
-        local duels = PvPMeterDuelsData['EU']
+        local duels = ImpressiveStatsDuelsData['EU']
         for i = #duels, zo_round(#duels/2), -1 do
-            PvPMeterDuelsData['EU'][i] = nil
+            ImpressiveStatsDuelsData['EU'][i] = nil
         end
         addon:Update()
     end

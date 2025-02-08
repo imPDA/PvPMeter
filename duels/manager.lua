@@ -145,10 +145,10 @@ function IMP_STATS_InitializeDuelsManager(settings, characterSettings)
         raceId = GetUnitRaceId('player'),
     }
 
-    PvPMeterDuelsData = PvPMeterDuelsData or {}
-    PvPMeterDuelsData[server] = PvPMeterDuelsData[server] or {}
+    ImpressiveStatsDuelsData = ImpressiveStatsDuelsData or {}
+    ImpressiveStatsDuelsData[server] = ImpressiveStatsDuelsData[server] or {}
 
-    IMP_STATS_Duels_MANAGER.duels = PvPMeterDuelsData[server]
+    IMP_STATS_Duels_MANAGER.duels = ImpressiveStatsDuelsData[server]
     Log('There are %d duels saved', #addon.duels)
 
     EVENT_MANAGER:RegisterForEvent(IMP_STATS_Duels_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)

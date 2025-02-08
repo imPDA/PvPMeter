@@ -335,10 +335,10 @@ function IMP_STATS_InitializeTributeManager(settings, characterSettings)
         name = GetDisplayName(),
     }
 
-    PvPMeterTOTData = PvPMeterTOTData or {}
-    PvPMeterTOTData[server] = PvPMeterTOTData[server] or {}
+    ImpressiveStatsTributeData = ImpressiveStatsTributeData or {}
+    ImpressiveStatsTributeData[server] = ImpressiveStatsTributeData[server] or {}
 
-    IMP_STATS_TRIBUTE_MANAGER.games = PvPMeterTOTData[server]
+    IMP_STATS_TRIBUTE_MANAGER.games = ImpressiveStatsTributeData[server]
     Log('There are %d games saved', #addon.games)
 
     EVENT_MANAGER:RegisterForEvent(IMP_STATS_TRIBUTE_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)

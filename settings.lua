@@ -2,6 +2,30 @@ local addon = {}
 
 local LAM = LibAddonMenu2
 
+--#region COPY OLD DATA TO NEW ADDON
+local dataMapping = {
+    ['ImpPvPMeterSV'] = 'ImpressiveStatsSV',
+    ['ImpPvPMeterCSV'] = 'ImpressiveStatsCSV',
+    ['PvPMeterBattlegroundsData'] = 'ImpressiveStatsMatchesData',
+    -- ['ImpPvPMeterMatchBackup'] = 'ImpressiveStatsMatchBackup',
+    ['PvPMeterDuelsData'] = 'ImpressiveStatsDuelsData',
+    ['PvPMeterTOTData'] = 'ImpressiveStatsTributeData',
+}
+local function IsDataFromImpPvPMeterAvailable()
+    for oldName, _ in pairs(dataMapping) do
+        if _G[oldName] ~= nil then return true end
+    end
+end
+
+local function CopyDataFromImpPvPMeter()
+    for oldSV, newSV in pairs(dataMapping) do
+        _G[newSV] = _G[oldSV]
+        _G[oldSV] = nil
+    end
+    ReloadUI()
+end
+--#endregion
+
 function addon:Initialize(settingsName, settingsDisplayName, sv)
     local panelData = {
         type = 'panel',
@@ -71,6 +95,16 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     requiresReload = true,
                 },
             },
+        },
+        {
+            type = "button",
+            name = "Copy from ImpPvPMeter",
+            tooltip = "For testers! It will make a full copy of saved data.",
+            func = CopyDataFromImpPvPMeter,
+            width = "full",
+            warning = "ALL DATA WILL BE IRREVERSIBLY REPLACED\n\nUse it only ONCE and BEFORE any new bgs/duels/tribute games.\n\nUI will be automatically reloaded.",
+            isDangerous	= true,
+            disabled = function() return not IsDataFromImpPvPMeterAvailable() end,
         },
     }
 
