@@ -164,7 +164,7 @@ function addon:CreateScrollListDataType()
         end
         GetControl(rowControl, 'Index'):SetText(data.index)
 
-        local duration = ImpTools.SecondsToTime(data.duration or 0)
+        local duration = IMP_STATS_SHARED.SecondsToTime(data.duration or 0)
         GetControl(rowControl, 'Duration'):SetText(duration)
 
         local playerClassIcon = data.playerClass and ZO_GetClassIcon(data.playerClass) or 'EsoUI/Art/Icons/icon_missing.dds'

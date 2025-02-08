@@ -270,4 +270,17 @@ function addon.SetGaugeKDAMeter(kdaMeterControl, value)
     GetControl(kdaMeterControl, 'Winrate'):SetColor(r, g, b)
 end
 
+function addon.SecondsToTime(seconds)
+	local minutes = math.floor(seconds / 60) % 60
+	local hours = math.floor(seconds / 60 / 60)
+
+	local remainingSeconds = seconds % 60
+
+	if hours == 0 then
+		return string.format('%d:%02d', minutes, remainingSeconds)
+	else
+		return string.format('%d:%02d:%02d', hours, minutes, remainingSeconds)
+	end
+end
+
 IMP_STATS_SHARED = addon

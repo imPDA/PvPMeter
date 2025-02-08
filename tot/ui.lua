@@ -120,7 +120,7 @@ function addon:CreateScrollListDataType()
         end
         GetControl(rowControl, 'Index'):SetText(data.index)
 
-        local duration = ImpTools.SecondsToTime(zo_round(game.duration / 1000))
+        local duration = IMP_STATS_SHARED.SecondsToTime(zo_round(game.duration / 1000))
         GetControl(rowControl, 'Duration'):SetText(duration)
 
         GetControl(rowControl, 'OpponentName'):SetText(game.opponent.name)
