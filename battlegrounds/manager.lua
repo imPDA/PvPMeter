@@ -15,6 +15,7 @@ local function GetNewMatchFromCurrentMatch()
         battlegroundId = bgId,
         playerRace = GetUnitRaceId('player'),
         playerClass = GetUnitClassId('player'),
+        playerCharacterId = GetCurrentCharacterId(),
         zoneIndex = unitZoneIndex,
         zoneId = GetZoneId(unitZoneIndex),
         zoneName = GetUnitZone('player'),
@@ -79,7 +80,9 @@ local function GetPlayersFromCurrentMatchRound(round)
         }
     end
 
-    players[1], players[localPlayerIndex] = players[localPlayerIndex], players[1]
+    if localPlayerIndex then
+        players[1], players[localPlayerIndex] = players[localPlayerIndex], players[1]
+    end
 
     return players
 end
@@ -372,6 +375,8 @@ function IMP_STATS_InitializeMatchManager(settings, characterSettings)
     Log('There are %d matches saved', #IMP_STATS_MATCHES_MANAGER.matches)
 
     if ImpressiveStatsMatchesData.version == nil then ImpressiveStatsMatchesData.version = 0 end
+    Log('Data version: %d', ImpressiveStatsMatchesData.version)
+
     if ImpressiveStatsMatchesData.version < 1010019 then  -- before 0.1.0b19
         for key, data in pairs(ImpressiveStatsMatchesData) do
             if key ~= 'version' then
@@ -383,6 +388,25 @@ function IMP_STATS_InitializeMatchManager(settings, characterSettings)
         end
 
         ImpressiveStatsMatchesData.version = 1010019
+        Log('Bumped to %d', ImpressiveStatsMatchesData.version)
+    end
+
+    if ImpressiveStatsMatchesData.version < 1102000 then
+        for key, data in pairs(ImpressiveStatsMatchesData) do
+            if key ~= 'version' then
+                for _, matchData in ipairs(data) do
+                    if matchData.playerCharacterId == nil then
+                        if matchData.rounds[1] and matchData.rounds[1].players[1] then
+                            local player = matchData.rounds[1].players[1]
+                            matchData.playerCharacterId = player.characterId
+                        end
+                    end
+                end
+            end
+        end
+
+        ImpressiveStatsMatchesData.version = 1102000
+        Log('Bumped to %d', ImpressiveStatsMatchesData.version)
     end
 
     -- local GROUP_TYPE_TO_STRING = {

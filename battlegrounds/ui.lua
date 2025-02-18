@@ -376,7 +376,7 @@ local function CreateMatchSummary(matchIndex, matchData)
         -- if roundData then
         local roundPlayerData = roundData.players[1]  -- player 1 = always local player
 
-        if roundPlayerData then  -- is it possible player data not be present?
+        if roundPlayerData and roundPlayerData.characterId then  -- is it possible player data not be present?
             matchSummary.kills      = matchSummary.kills            + roundPlayerData.kills
             matchSummary.deaths     = matchSummary.deaths           + roundPlayerData.deaths
             matchSummary.assists    = matchSummary.assists          + roundPlayerData.assists
@@ -671,10 +671,11 @@ function addon:Initialize(naming, selections)
     self:AddFilter(ModeFilter)
 
     local function CharactersFilter(matchData)
-        local rounds = matchData.rounds
-        local players = rounds[1].players
-        local player = players[1]
-        local chId = player.characterId
+        -- local rounds = matchData.rounds
+        -- local players = rounds[1].players
+        -- local player = players[1]
+        -- local chId = player.characterId
+        local chId = matchData.playercharacterId
 
         return chId and self.selections.characters[chId]
     end
