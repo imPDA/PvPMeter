@@ -33,7 +33,8 @@ function TributeStats:Clear()
     self.totalWonSP = 0
     self.totalLostSP = 0
     self.totalDuration = 0
-    self.lastProceededIndex = nil
+    self.highestRank = nil
+    self.lastProceededIndex = -1
 end
 
 IMP_STATS_TRIBUTE_STATS = TributeStats
@@ -43,11 +44,21 @@ local WIN = 1
 local LOSS = 2
 
 function TributeStats:AddGame(index, data)
-    if self.lastProceededIndex and index <= self.lastProceededIndex then return end
+    if index <= self.lastProceededIndex then return end
     self.lastProceededIndex = index
 
     self.totalGames             = self.totalGames           + 1
     -- self.totalDuration          = self.totalDuration        + (data.duration        or 0)
+    local rank = data.player.atEnd.rank
+    if rank ~= 0 then
+        if self.highestRank then
+            if rank < self.highestRank then
+                self.highestRank = rank
+            end
+        else
+            self.highestRank = rank
+        end
+    end
 
     if data.win then
         if data.fp then
@@ -74,11 +85,27 @@ function addon:UpdateStatsControl()
     local totalGames = self.stats.totalFP + self.stats.totalSP
     self.statsControl:GetNamedChild('TotalGamesValue'):SetText(totalGames)
 
+    self.statsControl:GetNamedChild('HighestRankValue'):SetText(self.stats.highestRank or '-')
+
     local totalWon = self.stats.totalWonFP + self.stats.totalWonSP
     local totalLost = self.stats.totalLostFP + self.stats.totalLostSP
     local winrate = IMP_STATS_SHARED.PossibleNan(totalWon / totalGames)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
         string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', winrate * 100, totalWon, totalLost)
+    )
+
+    local firstPickWon = self.stats.totalWonFP
+    local firstPickLost = self.stats.totalLostFP
+    local firstPickWinrate = IMP_STATS_SHARED.PossibleNan(firstPickWon / (firstPickWon + firstPickLost))
+    self.statsControl:GetNamedChild('FirstPickWinrateValue'):SetText(
+        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', firstPickWinrate * 100, firstPickWon, firstPickLost)
+    )
+
+    local secondPickWon = self.stats.totalWonSP
+    local secondPickLost = self.stats.totalLostSP
+    local secondPickWinrate = IMP_STATS_SHARED.PossibleNan(secondPickWon / (secondPickWon + secondPickLost))
+    self.statsControl:GetNamedChild('SecondPickWinrateValue'):SetText(
+        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', secondPickWinrate * 100, secondPickWon, secondPickLost)
     )
 
     -- self.statsControl:GetNamedChild('TotalsValue'):SetText(
@@ -125,12 +152,14 @@ function addon:CreateScrollListDataType()
 
         GetControl(rowControl, 'OpponentName'):SetText(game.opponent.name)
 
-        local fp = (game.fp == nil and 'U') or (game.fp and 'Y' or 'N')
-        GetControl(rowControl, 'FirstPick'):SetText(fp)
+        local fp = (game.fp == nil and '?') or (game.fp and '1P' or '2P')
+        GetControl(rowControl, 'Pick'):SetText(fp)
         GetControl(rowControl, 'Score'):SetText(string.format('%d/%d', game.player.score or 0, game.opponent.score or 0))
 
         local THE_LESS_THE_BETTER = -1
         local function IconSighColor(before, after, direction)
+            if after == before and after == 0 then return '-' end
+
             direction = direction or 1
             if after then
                 if before then

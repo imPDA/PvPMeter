@@ -4,7 +4,7 @@
 		<Label name="IMP_STATS_Tribute_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
 		<!-- <Label name="IMP_STATS_Tribute_Listing_Column3" virtual="true"><Dimensions x="220" y="32" /></Label> -->
 		<Label name="IMP_STATS_Tribute_Listing_Column4" virtual="true"><Dimensions x="400" y="32" /></Label>
-		<Label name="IMP_STATS_Tribute_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="32" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="50" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
@@ -33,11 +33,11 @@
 				<Label name="$(parent)OpponentName" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column4">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)FirstPick" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column5">
+				<Label name="$(parent)Pick" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" />
 				</Label>
 				<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column6">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)FirstPick" relativePoint="TOPRIGHT" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Pick" relativePoint="TOPRIGHT" />
 				</Label>
 				<Label name="$(parent)Result" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
@@ -95,27 +95,34 @@
 						<Label name="$(parent)TotalGamesValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalGames" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
+
+						<Label name="$(parent)HighestRank" inherits="IMP_STATS_StatName" text="Highest Rank:">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalGames" relativePoint="BOTTOMLEFT" offsetY="6" />
+						</Label>
+						<Label name="$(parent)HighestRankValue" inherits="IMP_STATS_StatValue">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)HighestRank" relativePoint="TOPRIGHT" offsetX="5" />
+						</Label>
 						
 						<Label name="$(parent)Winrate" inherits="IMP_STATS_StatName" text="Winrate:">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalGames" relativePoint="BOTTOMLEFT" offsetY="6"/>
+							<Anchor point="TOPLEFT" relativeTo="$(parent)HighestRank" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
 						<Label name="$(parent)WinrateValue" inherits="IMP_STATS_StatValue">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<!-- <Label name="$(parent)WinrateFP" inherits="IMP_STATS_StatName" text="Winrate (1pick):">
+						<Label name="$(parent)FirstPickWinrate" inherits="IMP_STATS_StatName" text="1P Winrate:">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateFPValue" inherits="IMP_STATS_StatValue">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)WinrateFP" relativePoint="TOPRIGHT" offsetX="5" />
+						<Label name="$(parent)FirstPickWinrateValue" inherits="IMP_STATS_StatValue">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)FirstPickWinrate" relativePoint="TOPRIGHT" offsetX="5" />
 						</Label>
 
-						<Label name="$(parent)WinrateSP" inherits="IMP_STATS_StatName" text="Winrate (2pick):">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)WinrateFP" relativePoint="BOTTOMLEFT" offsetY="6"/>
+						<Label name="$(parent)SecondPickWinrate" inherits="IMP_STATS_StatName" text="2P Winrate:">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)FirstPickWinrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 						</Label>
-						<Label name="$(parent)WinrateSPValue" inherits="IMP_STATS_StatValue">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)WinrateSP" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label> -->
+						<Label name="$(parent)SecondPickWinrateValue" inherits="IMP_STATS_StatValue">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)SecondPickWinrate" relativePoint="TOPRIGHT" offsetX="5" />
+						</Label>
 					</Controls>
 				</Control>
 				
@@ -156,11 +163,11 @@
 								<Label name="$(parent)OpponentName" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column4" text="Opponent">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Duration" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)FirstPick" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column5" text="FP">
+								<Label name="$(parent)PickOrder" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column5" text="Pick">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" />
 								</Label>
 								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column6" text="Score">
-									<Anchor point="TOPLEFT" relativeTo="$(parent)FirstPick" relativePoint="TOPRIGHT" />
+									<Anchor point="TOPLEFT" relativeTo="$(parent)PickOrder" relativePoint="TOPRIGHT" />
 								</Label>
 								<Label name="$(parent)Result" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column10" text="W/L">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
