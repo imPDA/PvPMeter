@@ -136,11 +136,15 @@ function addon:CreateScrollListDataType()
                 if before then
                     local diff = (after - before) * direction
 
-                    local icon = diff >= 0 and upIcon or downIcon
-                    local sign = diff >= 0 and '+' or ''
-                    local color = diff >= 0 and COLOR_OF_RESULT[WIN] or COLOR_OF_RESULT[LOSS]
+                    if diff ~= 0 then
+                        local icon = diff > 0 and upIcon or downIcon
+                        local color = diff > 0 and COLOR_OF_RESULT[WIN] or COLOR_OF_RESULT[LOSS]
+                        local text = string.format('%d (%s%d)', after, icon, diff)
 
-                    return color:Colorize(string.format('%s%d (%s%d)', icon, after, sign, diff))
+                        return color:Colorize(text)
+                    else
+                        return after
+                    end
                 else
                     return after
                 end
