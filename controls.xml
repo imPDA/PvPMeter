@@ -66,15 +66,11 @@
 			</Controls>
 		</Label>
 
-		<TopLevelControl name="IMP_STATS_MatchesContainer" inherits="ZO_RightPanelFootPrint" hidden="true" />
-		<TopLevelControl name="IMP_STATS_DuelsContainer" inherits="ZO_RightPanelFootPrint" hidden="true" />
-		<TopLevelControl name="IMP_STATS_TributeContainer" inherits="ZO_RightPanelFootPrint" hidden="true" />
-
 		<TopLevelControl name="IMP_STATS_RightPanel" inherits="ZO_RightPanelFootPrint" hidden="true">
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="000000" /> -->
-				<Label name="IMP_STATS_VersionLabel" font="ZoFontGame" color="777777" text="v.-">
-					<Anchor point="TOPRIGHT" relativeTo="$(parent)" relativePoint="BOTTOMRIGHT" offsetX="-8" offsetY="4" />
+				<Label name="IMP_STATS_VersionLabel" font="ZoFontGame" color="777777AA" text="v.-">
+					<Anchor point="TOPLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" />  <!-- offsetX="-8" offsetY="8" -->
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="000000" /> -->
 					</Controls>

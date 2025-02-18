@@ -68,8 +68,8 @@
 			</Controls>
 		</Label>
 
-		<Control name="IMP_STATS_MatchesTemplate" virtual="true">
-			<AnchorFill />
+		<TopLevelControl name="IMP_STATS_MATCHES" inherits="ZO_RightPanelFootPrint" hidden="true">
+			<!-- <AnchorFill /> -->
 			<Controls>
 				<Control name="$(parent)StatsBlock">
 					<Anchor point="TOPLEFT" />
@@ -267,6 +267,6 @@
 					</Controls>
 				</Control>
 			</Controls>
-		</Control>
+		</TopLevelControl>
     </Controls>
 </GuiXml>

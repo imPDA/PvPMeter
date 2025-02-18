@@ -196,7 +196,7 @@ function addon:UpdateStatsControl()
 end
 
 function addon:CreateControls()
-    local matchesControl = CreateControlFromVirtual('IMP_STATS_MATCHES', IMP_STATS_MatchesContainer, 'IMP_STATS_MatchesTemplate')
+    local matchesControl = IMP_STATS_MATCHES
 
     assert(matchesControl ~= nil, 'Matches control was not created')
 

@@ -1,5 +1,5 @@
 ## Title: |c7c42f2Imp|ceeeeee-ressive Stats|r
-## AddOnVersion: 1104000
+## AddOnVersion: 1105000
 ## APIVersion: 101044
 ## Author: |c7c42f2@impda|r [EU]
 ## DependsOn: LibMainMenu-2.0 LibCombat LibAsync LibAddonMenu-2.0 LibCustomMenu
@@ -11,19 +11,19 @@ strings.lua
 logger.lua
 shared.lua
 
-battlegrounds/template.xml
+controls.xml
+
+battlegrounds/controls.xml
 battlegrounds/ui.lua
 battlegrounds/manager.lua
 
-duels/template.xml
+duels/controls.xml
 duels/ui.lua
 duels/manager.lua
 
-tot/template.xml
+tot/controls.xml
 tot/ui.lua
 tot/manager.lua
-
-controls.xml
 
 bindings.xml
 bindings.lua

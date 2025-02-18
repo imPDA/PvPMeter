@@ -100,8 +100,8 @@
 			</Controls>
 		</Label>
 
-		<Control name="IMP_STATS_Duels_Template" virtual="true">
-			<AnchorFill />
+		<TopLevelControl name="IMP_STATS_DUELS" inherits="ZO_RightPanelFootPrint" hidden="true">
+			<!-- <AnchorFill /> -->
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
 
@@ -277,6 +277,6 @@
 					</Controls>
 				</Control>
 			</Controls>
-		</Control>
+		</TopLevelControl>
     </Controls>
 </GuiXml>

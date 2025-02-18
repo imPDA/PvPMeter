@@ -275,7 +275,7 @@ function addon:Update()
 end
 
 function addon:CreateControls()
-    local totControl = CreateControlFromVirtual('IMP_STATS_TRIBUTE', IMP_STATS_TributeContainer, 'IMP_STATS_Tribute_Template')
+    local totControl = IMP_STATS_TRIBUTE
 
     assert(totControl ~= nil, 'Tribute control was not created')
 

@@ -54,8 +54,8 @@
 			</Controls>
 		</Label>
 
-		<Control name="IMP_STATS_Tribute_Template" virtual="true">
-			<AnchorFill />
+		<TopLevelControl name="IMP_STATS_TRIBUTE" inherits="ZO_RightPanelFootPrint" hidden="true">
+			<!-- <AnchorFill /> -->
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
 
@@ -193,7 +193,7 @@
 					</Controls>
 				</Control>
 			</Controls>
-		</Control>
+		</TopLevelControl>
 
 		<Label name="IMP_STATS_TributeOpponentPreview_Label" font="ZoFontHeader2" color="INTERFACE_COLOR_TYPE_TEXT_COLORS:INTERFACE_TEXT_COLOR_NORMAL" horizontalAlignment="LEFT" text="-" virtual="true">
 			<Dimensions y="24" />

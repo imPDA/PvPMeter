@@ -27,7 +27,10 @@
         "ZO_SORT_ORDER_UP",
         "ZO_SORT_ORDER_DOWN",
         "AddCustomMenuItem",
-        "ZO_ACTIVITY_FINDER_ROOT_MANAGER"
+        "ZO_ACTIVITY_FINDER_ROOT_MANAGER",
+        "IMP_STATS_DUELS",
+        "IMP_STATS_TRIBUTE",
+        "IMP_STATS_MATCHES"
     ],
     "Lua.diagnostics.disable": [
         "unused-function"

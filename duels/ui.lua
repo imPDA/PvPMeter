@@ -315,7 +315,7 @@ function addon:Update()
 end
 
 function addon:CreateControls()
-    local duelsControl = CreateControlFromVirtual('IMP_STATS_DUELS', IMP_STATS_DuelsContainer, 'IMP_STATS_Duels_Template')
+    local duelsControl = IMP_STATS_DUELS
 
     assert(duelsControl ~= nil, 'Duels control was not created')
 

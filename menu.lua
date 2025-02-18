@@ -10,7 +10,7 @@ LMM:Init()
 local CATEGORIES = {
 	{
 		name = SI_IMP_PVP_METER_BATTLEGROUNS_TAB_TITLE,
-		container = IMP_STATS_MatchesContainer,
+		container = IMP_STATS_MATCHES,
 		icons = {
 			normal = 'EsoUI/Art/Battlegrounds/battlegrounds_tabIcon_battlegrounds_up.dds',
 			pressed = 'EsoUI/Art/Battlegrounds/battlegrounds_tabIcon_battlegrounds_down.dds',
@@ -19,7 +19,7 @@ local CATEGORIES = {
 	},
 	{
 		name = SI_IMP_PVP_METER_DUELS_TAB_TITLE,
-		container = IMP_STATS_DuelsContainer,
+		container = IMP_STATS_DUELS,
 		icons = {
 			normal = "EsoUI/Art/Journal/journal_tabIcon_leaderboard_up.dds",
 			pressed = "EsoUI/Art/Journal/journal_tabIcon_leaderboard_down.dds",
@@ -28,7 +28,7 @@ local CATEGORIES = {
 	},
 	{
 		name = SI_IMP_PVP_METER_TOT_TAB_TITLE,
-		container = IMP_STATS_TributeContainer,
+		container = IMP_STATS_TRIBUTE,
 		icons = {
 			normal = 'EsoUI/Art/Tribute/tribute_tabicon_tribute_up.dds',
 			pressed = 'EsoUI/Art/Tribute/tribute_tabicon_tribute_down.dds',
@@ -38,11 +38,12 @@ local CATEGORIES = {
 }
 
 function addon:Initialize(initBGs, initDuels, initTOT)
-	local IMP_STATS_TITLE_FRAGMENT = ZO_SetTitleFragment:New(SI_IMP_PVP_METER_MAIN_MENU_TITLE)
+	IMP_STATS_TITLE_FRAGMENT = ZO_SetTitleFragment:New(SI_IMP_PVP_METER_MAIN_MENU_TITLE)
 	-- TODO: subtitle
 
 	local SUBMENU = {}
-	local SCENES = {}
+
+	self.scenes = {}
 
     local RIGHT_PANEL = ZO_FadeSceneFragment:New(IMP_STATS_RightPanel)
 
@@ -62,9 +63,12 @@ function addon:Initialize(initBGs, initDuels, initTOT)
 		local fragment = ZO_FadeSceneFragment:New(container)
 		scene:AddFragment(fragment)
 
+		self.scenes[sceneName] = container
+
 		return scene
 	end
 
+	local scenes = {}
 	local function InitializeCategory(index)
 		local category = CATEGORIES[index]
 		local sceneName = addon.name .. category.name .. 'Scene'
@@ -76,7 +80,7 @@ function addon:Initialize(initBGs, initDuels, initTOT)
 			pressed = category.icons.pressed,
 			highlight = category.icons.highlight,
 		})
-		table.insert(SCENES, sceneName)
+		table.insert(scenes, sceneName)
 	end
 
 	local arg = {initBGs, initDuels, initTOT}
@@ -99,25 +103,25 @@ function addon:Initialize(initBGs, initDuels, initTOT)
 			self:Show()
 		end,
 	}
-	IMP_STATS_MENU = LMM:AddCategory(MENU_CATEGORY)
+	IMP_STATS_MENU_CATEGORY = LMM:AddCategory(MENU_CATEGORY)
 
 	local IMP_STATS_SCENE_GROUP_NAME = addon.name .. 'SceneGroup'
-	self.SCENE_GROUP = ZO_SceneGroup:New(unpack(SCENES))
-	SCENE_MANAGER:AddSceneGroup(IMP_STATS_SCENE_GROUP_NAME, self.SCENE_GROUP)
+	self.sceneGroup = ZO_SceneGroup:New(unpack(scenes))
+	SCENE_MANAGER:AddSceneGroup(IMP_STATS_SCENE_GROUP_NAME, self.sceneGroup)
 
-	LMM:AddSceneGroup(IMP_STATS_MENU, IMP_STATS_SCENE_GROUP_NAME, SUBMENU)
+	LMM:AddSceneGroup(IMP_STATS_MENU_CATEGORY, IMP_STATS_SCENE_GROUP_NAME, SUBMENU)
 	LMM:AddMenuItem(IMP_STATS_SCENE_GROUP_NAME, MENU_CATEGORY)
 end
 
 -- TODO: refactor ?
 function addon:Show()
-	if not self.SCENE_GROUP:IsShowing() then
-		LMM:ToggleCategory(IMP_STATS_MENU)
+	if not self.sceneGroup:IsShowing() then
+		LMM:ToggleCategory(IMP_STATS_MENU_CATEGORY)
 	end
 end
 
 function IMP_STATS_TogglePanel()
-	LMM:ToggleCategory(IMP_STATS_MENU)
+	LMM:ToggleCategory(IMP_STATS_MENU_CATEGORY)
 	-- TODO: highlight button in the menu itself
 	-- :RefreshCategoryIndicators()
 	-- :Update()
