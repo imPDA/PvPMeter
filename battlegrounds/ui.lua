@@ -675,7 +675,7 @@ function addon:Initialize(naming, selections)
         -- local players = rounds[1].players
         -- local player = players[1]
         -- local chId = player.characterId
-        local chId = matchData.playercharacterId
+        local chId = matchData.playerCharacterId
 
         return chId and self.selections.characters[chId]
     end
