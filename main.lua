@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpressiveStats'
 addon.displayName = '|c7c42f2Imp|ceeeeee-ressive Stats|r'
-addon.version = '1.0.6'
+addon.version = '1.0.7'
 
 local Log = IMP_STATS_Logger('IMP_STATS_MAIN')
 
@@ -49,9 +49,17 @@ local function MakeItPerfect()
 		IMP_STATS_TITLE_FRAGMENT,
 	}
 
-	local function magic(control, scene)
+	local function recreateBackground(control)
 		PP:CreateBackground(control, --[[#1]] nil, nil, nil, -10, -10, --[[#2]] nil, nil, nil, 0, 10)
+	end
+
+	local function reanchorControl(control)
 		PP.Anchor(control, --[[#1]] TOPRIGHT, GuiRoot, TOPRIGHT, 0, 120, --[[#2]] true, BOTTOMRIGHT, GuiRoot, BOTTOMRIGHT, 0, -70)
+	end
+
+	local function magic(control, scene)
+		recreateBackground(control)
+		reanchorControl(control)
 
 		if scene then
 			PP.removeFragmentsFromScene(scene, FRAGMENTS_TO_REMOVE)
@@ -61,7 +69,8 @@ local function MakeItPerfect()
 	for sceneName, container in pairs(IMP_STATS_MENU.scenes) do
 		magic(container, SCENE_MANAGER:GetScene(sceneName))
 	end
-	magic(IMP_STATS_RightPanel)
+
+	reanchorControl(IMP_STATS_RightPanel)
 
 	PP.Anchor(LMMXMLSceneGroupBar, --[[#1]] TOPRIGHT, GuiRoot, TOPRIGHT, -30, 64)
 	PP.Font(LMMXMLSceneGroupBar:GetNamedChild("Label"), --[[Font]] PP.f.u67, 22, "outline", --[[Alpha]] 0.9, --[[Color]] nil, nil, nil, nil, --[[StyleColor]] 0, 0, 0, 0.5)
