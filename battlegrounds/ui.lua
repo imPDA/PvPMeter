@@ -326,6 +326,15 @@ function addon:CreateScrollListDataType()
                 end
                 -- local tooltip = BuildTooltip()
                 -- rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
+
+                if particularMatch.superstar then
+                    AddCustomMenuItem('Open SuperStar', function()
+                        Log('Open SuperStart clicked')
+                        Log(ZO_LinkHandler_ParseLink(particularMatch.superstar))
+                        LINK_HANDLER:FireCallbacks(LINK_HANDLER.LINK_MOUSE_UP_EVENT, particularMatch.superstar, MOUSE_BUTTON_INDEX_LEFT, ZO_LinkHandler_ParseLink(particularMatch.superstar))
+                    end)
+                end
+
                 ShowMenu()
             end
         end)

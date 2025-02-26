@@ -2,6 +2,7 @@ local addon = {}
 addon.name = 'IMP_STATS_MATCHES_MANAGER'
 
 local Log = IMP_STATS_Logger('MATCHES_MANAGER')
+local SUPER_STAR_LINK
 
 --#region MATCH
 local function GetNewMatchFromCurrentMatch()
@@ -131,6 +132,7 @@ end
 
 function addon:FinalizeCurrentMatch()
     self.currentMatch.result = GetBattlegroundResultForTeam(GetUnitBattlegroundTeam('player'))
+    self.currentMatch.superstar = SUPER_STAR_LINK
     self.currentMatch.locked = true -- TODO: utilize?
 end
 
@@ -324,6 +326,8 @@ function addon:PlayerActivated(initial)
     -- EVENT_MANAGER:UnregisterForEvent(self.name, EVENT_PLAYER_ACTIVATED)
     EVENT_MANAGER:RegisterForEvent(self.name, EVENT_BATTLEGROUND_STATE_CHANGED, OnBattlegroundStateChanged)
 -- end
+
+    SUPER_STAR_LINK = addon.CreateSuperStarLink()
 end
 
 function addon:GetDataRows()
@@ -335,6 +339,11 @@ addon.GetMatches = IMP_STATS_SHARED.Get
 local function OnPlayerActivated(_, initial)
     addon:PlayerActivated(initial)
     IMP_STATS_MATCHES_UI:Update()
+end
+
+addon.CreateSuperStarLink = function()
+    Log('Creating SuperStar log')
+    return IMP_IS_INTEGRATIONS['superstar'].CreateSuperStarLink(IMP_IS_INTEGRATIONS['superstar'].CreateShareData())
 end
 
 --[[
@@ -442,4 +451,6 @@ function IMP_STATS_InitializeMatchManager(settings, characterSettings)
     IMP_STATS_MATCHES_UI:Initialize(settings.namingMode, characterSettings)
 
     -- PerformanceTesting()
+
+    SLASH_COMMANDS['/impstatsbuild'] = addon.CreateSuperStarLink
 end
