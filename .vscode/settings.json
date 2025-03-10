@@ -31,6 +31,7 @@
         "IMP_STATS_DUELS",
         "IMP_STATS_TRIBUTE",
         "IMP_STATS_MATCHES",
+        "ImpressiveStatsTributeNotes"
     ],
     "Lua.diagnostics.disable": [
         "unused-function"

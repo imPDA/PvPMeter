@@ -238,13 +238,12 @@ function addon:PassFilters(data)
     return true
 end
 
-local function HideWarning(hidden)
-    hidden = hidden == nil or hidden
-    GetControl(IMP_STATS_DUELS, 'Warning'):SetHidden(hidden)
+local function HideWarning()
+    GetControl(IMP_STATS_DUELS, 'Warning'):SetHidden(true)
 end
 
 local function ShowWarning()
-    return HideWarning(false)
+    GetControl(IMP_STATS_DUELS, 'Warning'):SetHidden(false)
 end
 
 local function UpdateScrollListControl(control, data, rowType)

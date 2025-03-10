@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpressiveStats'
 addon.displayName = '|c7c42f2Imp|ceeeeee-ressive Stats|r'
-addon.version = '1.1.0b1'
+addon.version = '1.0.7'
 
 local Log = IMP_STATS_Logger('IMP_STATS_MAIN')
 
@@ -19,6 +19,7 @@ local DEFAULTS = {
 	tot = {
 		enabled = true,
 		namingMode = 1,
+		leaderboard = false,
 		-- selectedCharacters = {},
 	},
 }
@@ -47,6 +48,8 @@ local function MakeItPerfect()
 		RIGHT_BG_FRAGMENT,
 		TITLE_FRAGMENT,
 		IMP_STATS_TITLE_FRAGMENT,
+		-- background for custom left panel
+		IMP_STATS_LEFT_PANEL_BACKGROUND,
 	}
 
 	local function recreateBackground(control)
@@ -74,6 +77,10 @@ local function MakeItPerfect()
 
 	PP.Anchor(LMMXMLSceneGroupBar, --[[#1]] TOPRIGHT, GuiRoot, TOPRIGHT, -30, 64)
 	PP.Font(LMMXMLSceneGroupBar:GetNamedChild("Label"), --[[Font]] PP.f.u67, 22, "outline", --[[Alpha]] 0.9, --[[Color]] nil, nil, nil, nil, --[[StyleColor]] 0, 0, 0, 0.5)
+
+	-- Tribute Leaderboard
+	PP:CreateBackground(IMP_STATS_TRIBUTE_LEADERBOARD, --[[#1]] nil, nil, nil, -10, -10, --[[#2]] nil, nil, nil, 0, 10)
+	PP.Anchor(IMP_STATS_TRIBUTE_LEADERBOARD, --[[#1]] TOPLEFT, GuiRoot, TOPLEFT, 0, 120, --[[#2]] true, BOTTOMLEFT, GuiRoot, BOTTOMLEFT, 0, -70)
 end
 
 function addon:OnLoad()
@@ -83,8 +90,6 @@ function addon:OnLoad()
 	self.csv = ZO_SavedVars:NewCharacterIdSettings('ImpressiveStatsCSV', 1, nil, CHARACTER_DEFAULTS)
 
 	IMP_STATS_MENU:Initialize(self.sv.battlegrounds.enabled, self.sv.duels.enabled, self.sv.tot.enabled)
-
-	if PP then MakeItPerfect() end
 
 	if self.sv.battlegrounds.enabled then
     	IMP_STATS_InitializeMatchManager(self.sv.battlegrounds, self.csv.battlegrounds)
@@ -100,6 +105,8 @@ function addon:OnLoad()
 		IMP_STATS_InitializeTributeManager(self.sv.tot, self.csv.tot)
 		Log('Tales of tribute initialized')
 	end
+
+	if PP then MakeItPerfect() end
 
 	IMP_STATS_InitializeSettings(addon.name .. 'Settings', addon.displayName, self.sv)
 

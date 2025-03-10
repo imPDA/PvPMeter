@@ -10,102 +10,38 @@ addon.filters = {
     selectedCharacters = {},
 }
 
+local EVENT_NAMESPACE = 'IMP_STATS_TRIBUTE_UI'
+
 local Log = IMP_STATS_Logger('TOT_UI')
-
---#region IMP STATS TRIBUTE STATS
-local TributeStats = {}
-
-function TributeStats:New(o)
-    o = o or {}
-
-    setmetatable(o, self)
-    self.__index = self
-
-    return o
-end
-
-function TributeStats:Clear()
-    self.totalGames = 0
-    self.totalFP = 0
-    self.totalSP = 0
-    self.totalWonFP = 0
-    self.totalLostFP = 0
-    self.totalWonSP = 0
-    self.totalLostSP = 0
-    self.totalDuration = 0
-    self.highestRank = nil
-    self.lastProceededIndex = -1
-end
-
-IMP_STATS_TRIBUTE_STATS = TributeStats
-
--- h5. TributeVictoryType
-local WIN = 1
-local LOSS = 2
-
-function TributeStats:AddGame(index, data)
-    if index <= self.lastProceededIndex then return end
-    self.lastProceededIndex = index
-
-    self.totalGames             = self.totalGames           + 1
-    -- self.totalDuration          = self.totalDuration        + (data.duration        or 0)
-    local rank = data.player.atEnd.rank
-    if rank ~= 0 then
-        if self.highestRank then
-            if rank < self.highestRank then
-                self.highestRank = rank
-            end
-        else
-            self.highestRank = rank
-        end
-    end
-
-    if data.win then
-        if data.fp then
-            self.totalWonFP = self.totalWonFP + 1
-            self.totalFP = self.totalFP + 1
-        else
-            self.totalWonSP = self.totalWonSP + 1
-            self.totalSP = self.totalSP + 1
-        end
-    else
-        if data.fp then
-            self.totalLostFP = self.totalLostFP + 1
-            self.totalFP = self.totalFP + 1
-        else
-            self.totalLostSP = self.totalLostSP + 1
-            self.totalSP = self.totalSP + 1
-        end
-    end
-end
---#endregion
 
 --#region IMP STATS TRIBUTE UI
 function addon:UpdateStatsControl()
-    local totalGames = self.stats.totalFP + self.stats.totalSP
-    self.statsControl:GetNamedChild('TotalGamesValue'):SetText(totalGames)
+    local stats = IMP_STATS_TRIBUTE_STATS_MANAGER.totalStats
 
-    self.statsControl:GetNamedChild('HighestRankValue'):SetText(self.stats.highestRank or '-')
+    local games = stats.totalFP + stats.totalSP
+    self.statsControl:GetNamedChild('TotalGamesValue'):SetText(games)
 
-    local totalWon = self.stats.totalWonFP + self.stats.totalWonSP
-    local totalLost = self.stats.totalLostFP + self.stats.totalLostSP
-    local winrate = IMP_STATS_SHARED.PossibleNan(totalWon / totalGames)
+    self.statsControl:GetNamedChild('HighestRankValue'):SetText(stats.highestRank or '-')
+
+    local won = stats.totalWonFP + stats.totalWonSP
+    local lost = stats.totalLostFP + stats.totalLostSP
+    local winrate = IMP_STATS_SHARED.PossibleNan(won / games)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
-        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', winrate * 100, totalWon, totalLost)
+        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', winrate * 100, won, lost)
     )
 
-    local firstPickWon = self.stats.totalWonFP
-    local firstPickLost = self.stats.totalLostFP
-    local firstPickWinrate = IMP_STATS_SHARED.PossibleNan(firstPickWon / (firstPickWon + firstPickLost))
+    local FPWon = stats.totalWonFP
+    local FPLost = stats.totalLostFP
+    local FPWinrate = IMP_STATS_SHARED.PossibleNan(FPWon / (FPWon + FPLost))
     self.statsControl:GetNamedChild('FirstPickWinrateValue'):SetText(
-        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', firstPickWinrate * 100, firstPickWon, firstPickLost)
+        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', FPWinrate * 100, FPWon, FPLost)
     )
 
-    local secondPickWon = self.stats.totalWonSP
-    local secondPickLost = self.stats.totalLostSP
-    local secondPickWinrate = IMP_STATS_SHARED.PossibleNan(secondPickWon / (secondPickWon + secondPickLost))
+    local SPWon = stats.totalWonSP
+    local SPLost = stats.totalLostSP
+    local SPWinrate = IMP_STATS_SHARED.PossibleNan(SPWon / (SPWon + SPLost))
     self.statsControl:GetNamedChild('SecondPickWinrateValue'):SetText(
-        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', secondPickWinrate * 100, secondPickWon, secondPickLost)
+        string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', SPWinrate * 100, SPWon, SPLost)
     )
 
     -- self.statsControl:GetNamedChild('TotalsValue'):SetText(
@@ -119,6 +55,9 @@ function addon:UpdateStatsControl()
 
     IMP_STATS_SHARED.SetGaugeKDAMeter(self.statsControl:GetNamedChild('GaugeKDAMeter'), winrate)
 end
+
+local WIN = 1
+local LOSS = 2
 
 -- TODO: make color uniforme and global
 local COLOR_OF_RESULT = {
@@ -182,6 +121,18 @@ function addon:CreateScrollListDataType()
             end
         end
 
+        rowControl:SetHandler('OnMouseDown', function(control, button)
+            if button == MOUSE_BUTTON_INDEX_RIGHT then
+                ClearMenu()
+
+                AddCustomMenuItem('Edit note', function()
+                    IMP_STATS_NOTES_MANAGER:ShowEditNoteDialog(game.opponent.name)
+                end)
+
+                ShowMenu()
+            end
+        end)
+
         GetControl(rowControl, 'PlayerMMR'):SetText(IconSighColor(game.player.atStart.mmr, game.player.atEnd.mmr))
         GetControl(rowControl, 'Rank'):SetText(IconSighColor(game.player.atStart.rank, game.player.atEnd.rank, THE_LESS_THE_BETTER))
 
@@ -197,6 +148,12 @@ function addon:CreateScrollListDataType()
         if game.timestamp then
             local formattedTime = os.date('%d.%m.%Y %H:%M', game.timestamp)
             tooltip = tooltip .. formattedTime
+        end
+
+        local note = IMP_STATS_NOTES_MANAGER:GetNote(game.opponent.name)
+        if note then
+            tooltip = tooltip .. '\n\nNote:\n'
+            tooltip = tooltip .. note
         end
 
         rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
@@ -243,22 +200,21 @@ function addon:UpdateScrollListControl(task)
 end
 
 function addon:CalculateStats(task)
-    self.stats:Clear()
+    IMP_STATS_TRIBUTE_STATS_MANAGER:Clear()
 
     local function AddGame(index, gameIndex)
-        self.stats:AddGame(gameIndex, self.games[gameIndex])
+        IMP_STATS_TRIBUTE_STATS_MANAGER:AddGame(gameIndex, self.games[gameIndex])
     end
 
     return task:Call(function() task:For(ipairs(self.dataRows)):Do(AddGame) end)
 end
 
-local function HideWarning(hidden)
-    hidden = hidden == nil or hidden
-    GetControl(IMP_STATS_TRIBUTE, 'Warning'):SetHidden(hidden)
+local function HideWarning()
+    GetControl(IMP_STATS_TRIBUTE, 'Warning'):SetHidden(true)
 end
 
 local function ShowWarning()
-    return HideWarning(false)
+    GetControl(IMP_STATS_TRIBUTE, 'Warning'):SetHidden(false)
 end
 
 function addon:Update()
@@ -380,7 +336,6 @@ end
 
 function addon:Initialize(naming)
     self.games = IMP_STATS_TRIBUTE_MANAGER.games
-    self.stats = TributeStats:New()
 
     -- local buffer = {}
     -- local NAMINGS = {
@@ -423,17 +378,12 @@ function addon:Initialize(naming)
         return string.find(name, self.filters.opponentName) ~= nil
     end
     self:AddFilter(OpponentNameFilter)
+
+    local task = LibAsync:Create('UpdateTributeScrollList')
+    IMP_STATS_NOTES_MANAGER:RegisterCallback(EVENT_NAMESPACE, IMP_STATS_NOTES_MANAGER.events.EVENT_NOTE_EDITED, function() self:UpdateScrollListControl(task) end)
 end
 --#endregion
 
 do
     IMP_STATS_TRIBUTE_UI = addon
-end
-
--- TODO: separate opp preview to different file
-function IMP_STATS_TributeOpponentPreview_OnMoveStop(control)
-    assert(control ~= nil, 'No preview control')
-    local point, relativeTo, relativePoint, offsetX, offsetY = select(2, control:GetAnchor(0))
-    IMP_STATS_TRIBUTE_MANAGER.settings.opponentPreview = IMP_STATS_TRIBUTE_MANAGER.settings.opponentPreview or {}
-    IMP_STATS_TRIBUTE_MANAGER.settings.opponentPreview.anchor = {point, nil, relativePoint, offsetX, offsetY}
 end

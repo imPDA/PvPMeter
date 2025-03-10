@@ -94,6 +94,13 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     setFunc = function(value) sv.tot.enabled = value end,
                     requiresReload = true,
                 },
+                {
+                    type = 'checkbox',
+                    name = '[EXPERIMENTAL]Add leaderboard',
+                    getFunc = function() return sv.tot.leaderboard end,
+                    setFunc = function(value) sv.tot.leaderboard = value end,
+                    requiresReload = true,
+                },
             },
         },
         {
