@@ -3,6 +3,8 @@ local addon = {}
 addon.name = 'IMP_STATS_TRIBUTE_MANAGER'
 addon.playerData = nil
 
+local EVENT_NAMESPACE = 'IMP_STATS_TRIBUTE_MANAGER'
+
 local Log = IMP_STATS_Logger('TRIBUTE_MANAGER')
 
 local function GetOpponentData(opponentName)
@@ -192,33 +194,21 @@ function addon:SaveCurrentGame()
 end
 
 function addon:UpdateOpponentPreview()
-    local statsVsCurrentOpponent = IMP_STATS_TRIBUTE_STATS:New()
+    local opponent = self.currentGame.opponent
 
-    local games = {}
-    local function CalculateStats(task)
-        statsVsCurrentOpponent:Clear()
-        Log('Previous games: %s', table.concat(games, ', '))
-        task:For(ipairs(games)):Do(function(index, gameIndex) statsVsCurrentOpponent:AddGame(index, self.games[gameIndex]) end)
+    local gamesPlayedBefore, totalWinrate, FPWinrate, SPWinrate = IMP_STATS_TRIBUTE_STATS_MANAGER:GetStatsVS(opponent.name)
+    if gamesPlayedBefore then
+        GetControl(self.previewControl, 'PlayedBefore'):SetText(string.format('Played %d games', gamesPlayedBefore))
+        GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', IMP_STATS_SHARED.PossibleNan(totalWinrate) * 100))
     end
 
-    local function UpdateControl()
-        local opponent = self.currentGame.opponent
-
-        -- GetControl(self.previewControl, 'OpponentNameValue'):SetText(opponent.name)
-        if statsVsCurrentOpponent.totalGames > 0 then
-            GetControl(self.previewControl, 'PlayedBefore'):SetText(string.format('Played %d games', statsVsCurrentOpponent.totalGames))
-            local winrate = IMP_STATS_SHARED.PossibleNan((statsVsCurrentOpponent.totalWonFP + statsVsCurrentOpponent.totalWonSP) / statsVsCurrentOpponent.totalGames)
-            GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', winrate * 100))
-        end
-
-        if opponent.atStart and opponent.atStart.rank then
-            -- GetControl(self.previewControl, 'OpponentRank'):SetText('Ladder #57 (754 MMR)')
-            GetControl(self.previewControl, 'OpponentRank'):SetText(string.format('Ladder #%d (%d MMR)', opponent.atStart.rank, opponent.atStart.mmr))
-        end
+    if opponent.atStart and opponent.atStart.rank then
+        GetControl(self.previewControl, 'OpponentRank'):SetText(string.format('Ladder #%d (%d MMR)', opponent.atStart.rank, opponent.atStart.mmr))
     end
 
-    local task = LibAsync:Create('UpdateOpponentPreview')
-    self:GetGamesWith(task, self.currentGame.opponent.name, games):Then(CalculateStats):Then(UpdateControl)
+    local note = IMP_STATS_NOTES_MANAGER:GetNote(opponent.name)
+    GetControl(self.previewControl, 'NoteIcon'):SetHidden(note == nil)
+    GetControl(self.previewControl, 'AddNoteIcon'):SetHidden(note ~= nil)
 end
 
 function addon:ShowOpponentPreview()
@@ -326,6 +316,8 @@ local function OnPlayerActivated(_, initial)
 end
 
 function IMP_STATS_InitializeTributeManager(settings, characterSettings)
+    IMP_STATS_NotesManager_Initialize()
+
     IMP_STATS_TRIBUTE_MANAGER = addon
 
     IMP_STATS_TRIBUTE_MANAGER.settings = settings
@@ -352,6 +344,19 @@ function IMP_STATS_InitializeTributeManager(settings, characterSettings)
             IMP_STATS_TRIBUTE_MANAGER.previewControl:ClearAnchors()
             IMP_STATS_TRIBUTE_MANAGER.previewControl:SetAnchor(anchor[1], nil, anchor[3], anchor[4], anchor[5])
         end
+    end
+
+    local function ChangeOpponentPreviewIconVisibility()
+        local name, playerType = GetTributePlayerInfo(TRIBUTE_PLAYER_PERSPECTIVE_OPPONENT)
+        local note = IMP_STATS_NOTES_MANAGER:GetNote(name)
+        GetControl(IMP_STATS_TRIBUTE_MANAGER.previewControl, 'NoteIcon'):SetHidden(note == nil)
+        GetControl(IMP_STATS_TRIBUTE_MANAGER.previewControl, 'AddNoteIcon'):SetHidden(note ~= nil)
+    end
+    IMP_STATS_NOTES_MANAGER:RegisterCallback(EVENT_NAMESPACE, IMP_STATS_NOTES_MANAGER.events.EVENT_NOTE_EDITED, ChangeOpponentPreviewIconVisibility)
+
+    Log('Leaderboard: %s', tostring(settings.leaderboard))
+    if settings.leaderboard then
+        IMP_STATS_TributeLeaderboard_Initialize()
     end
 end
 

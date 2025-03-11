@@ -22,7 +22,7 @@ jobs:
         ARCHIVE_NAME="ImpressiveStats${{ github.ref_name }}.zip"
 
         # mkdir -p $DEST_DIR
-        rsync -av --exclude='.git/' --exclude='.github/' --exclude='README.md' --exclude='.gitignore' $SOURCE_DIR/ $DEST_DIR/
+        rsync -av --exclude='.git/' --exclude='.github/' --exclude='README.md' --exclude='.gitignore' --exclude='.vscode' $SOURCE_DIR/ $DEST_DIR/
         zip -r $ARCHIVE_NAME $DEST_DIR
 
         echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_OUTPUT
