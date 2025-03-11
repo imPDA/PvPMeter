@@ -58,11 +58,11 @@
         <TopLevelControl name="IMP_STATS_LeftPanelBackground" inherits="IMP_STATS_LeftPanelBackgroundFootprint" hidden="true">  <!-- layer="BACKGROUND" level="1" -->
             <Controls>
             	<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="00FF00" centerColor="000000" /> -->
-                <Texture name="$(parent)Right" textureFile="EsoUI/Art/Miscellaneous/centerscreen_right.dds" mouseEnabled="true">
+                <Texture name="$(parent)Right" textureFile="EsoUI/Art/Miscellaneous/centerscreen_right.dds">
                     <Dimensions x="64" y="1024" />
                     <Anchor point="TOPRIGHT" offsetX="95" offsetY="-95" />
                 </Texture>
-                <Texture name="$(parent)Left" textureFile="EsoUI/Art/Miscellaneous/centerscreen_left.dds" mouseEnabled="true">
+                <Texture name="$(parent)Left" textureFile="EsoUI/Art/Miscellaneous/centerscreen_left.dds">
                     <Dimensions x="1024" y="1024" />
                     <Anchor point="TOPRIGHT" relativeTo="$(parent)Right" relativePoint="TOPLEFT" />
                 </Texture>

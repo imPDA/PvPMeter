@@ -202,8 +202,9 @@ function addon:UpdateOpponentPreview()
         GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', IMP_STATS_SHARED.PossibleNan(totalWinrate) * 100))
     end
 
-    if opponent.atStart and opponent.atStart.rank then
-        GetControl(self.previewControl, 'OpponentRank'):SetText(string.format('Ladder #%d (%d MMR)', opponent.atStart.rank, opponent.atStart.mmr))
+    local inLadder, rank, displayName, characterName, mmr = GetOpponentData(opponent.name)
+    if inLadder then
+        GetControl(self.previewControl, 'OpponentRank'):SetText(string.format('Ladder #%d (%d MMR)', rank, mmr))
     end
 
     local note = IMP_STATS_NOTES_MANAGER:GetNote(opponent.name)
