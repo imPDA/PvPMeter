@@ -13,6 +13,8 @@ function addon:CreateScrollListDataType()
         local games, winrate, FPWinrate, SPWinrate = IMP_STATS_TRIBUTE_STATS_MANAGER:GetStatsVS(data.name)
         if games then
             GetControl(rowControl, 'Stats'):SetText(('%.1f %%'):format(IMP_STATS_SHARED.PossibleNan(winrate) * 100))
+        else
+            GetControl(rowControl, 'Stats'):SetText('-')
         end
 
         -- GetControl(rowControl, 'Highlight'):SetHidden(data.name ~= '@Valoria_Winterdream')
@@ -151,5 +153,28 @@ function IMP_STATS_TributeLeaderboard_Initialize(initialize)
     scene:AddFragment(fragment)
     scene:AddFragment(IMP_STATS_LEFT_PANEL_BACKGROUND)
 
-    IMP_STATS_NOTES_MANAGER:RegisterCallback(EVENT_NAMESPACE, IMP_STATS_NOTES_MANAGER.events.EVENT_NOTE_EDITED, function() addon:UpdateScrollListControl(true) end)
+    IMP_STATS_NOTES_MANAGER:RegisterCallback(EVENT_NAMESPACE, IMP_STATS_NOTES_MANAGER.events.EVENT_NOTE_EDITED, function()
+        addon:UpdateScrollListControl(true)
+    end)
+
+    ZO_ACTIVITY_FINDER_ROOT_MANAGER:RegisterCallback('OnActivityFinderStatusUpdate', function(status)
+        local queued = status == ACTIVITY_FINDER_STATUS_QUEUED
+        GetControl(IMP_STATS_TRIBUTE_LEADERBOARD, 'Queue'):SetEnabled(not queued)
+        GetControl(IMP_STATS_TRIBUTE_LEADERBOARD, 'LeaveQueue'):SetEnabled(queued)
+    end)
+end
+
+function IMP_STATS_QueueTributeRanked()
+    if IsCurrentlySearchingForGroup() then
+        return
+    end
+
+    ClearActivityFinderSearch()
+
+    ZO_ACTIVITY_FINDER_ROOT_MANAGER.locationSetsLookupData[9][80]:AddActivitySearchEntry()
+
+    local result = StartActivityFinderSearch()
+    if result ~= ACTIVITY_QUEUE_RESULT_SUCCESS then
+        ZO_AlertEvent(EVENT_ACTIVITY_QUEUE_RESULT, result)
+    end
 end

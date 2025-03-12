@@ -92,14 +92,15 @@
 						</Label>
                     </Controls>
                 </Backdrop> -->
-				
+								
 				<!-- <Control name="$(parent)Divider">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)StatsBlock" relativePoint="BOTTOMLEFT" offsetY="10" />
-					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)StatsBlock" relativePoint="BOTTOMRIGHT" offsetY="24" />
+					<Dimensions y="4" />
+					<Anchor point="TOPLEFT" offsetY="32" />
+					<Anchor point="TOPRIGHT" offsetY="32" />
 					<Controls>
 						<Texture name="$(parent)Left" textureFile="EsoUI/Art/Guild/sectionDivider_left.dds">
 							<Anchor point="TOPLEFT"/>
-							<Dimensions x="880" y="4"/>
+							<Dimensions x="400" y="4"/>
 						</Texture>
 						<Texture name="$(parent)Right" textureFile="EsoUI/Art/Guild/sectionDivider_right.dds">
 							<Anchor point="TOPLEFT" relativeTo="$(parent)Left" relativePoint="TOPRIGHT"/>
@@ -109,7 +110,8 @@
 				</Control> -->
 
 				<Control name="$(parent)Listing">
-					<AnchorFill />
+					<Anchor point="TOPLEFT" />
+					<Anchor point="BOTTOMRIGHT" offsetY="-56" />
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
 						<Control name="$(parent)Header">
@@ -140,6 +142,41 @@
 						</Control>
 					</Controls>
 				</Control>
+
+				<Control name="$(parent)Divider" hidden="true">
+					<Dimensions y="4" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Listing" relativePoint="BOTTOMLEFT" offsetY="12"/>
+					<Anchor point="TOPRIGHT" relativeTo="$(parent)Listing" relativePoint="BOTTOMRIGHT" offsetY="12" />
+					<!-- <Anchor point="BOTTOMRIGHT" relativeTo="$(parent)StatsBlock" relativePoint="BOTTOMRIGHT" offsetY="24" /> -->
+					<Controls>
+						<Texture name="$(parent)Left" textureFile="EsoUI/Art/Guild/sectionDivider_left.dds">
+							<Anchor point="TOPLEFT"/>
+							<Dimensions x="400" y="4"/>
+						</Texture>
+						<Texture name="$(parent)Right" textureFile="EsoUI/Art/Guild/sectionDivider_right.dds">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)Left" relativePoint="TOPRIGHT"/>
+							<Dimensions x="100" y="4"/>
+						</Texture>
+					</Controls>
+				</Control>
+
+				<Button name="$(parent)Queue" inherits="ZO_DefaultButton" text="Queue Ranked">
+					<Dimensions x="160" y="28" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Divider" offsetX="90" offsetY="12" />
+
+					<OnClicked>
+						IMP_STATS_QueueTributeRanked()
+					</OnClicked>
+				</Button>
+
+				<Button name="$(parent)LeaveQueue" inherits="ZO_DefaultButton" text="SI_LFG_LEAVE_QUEUE">
+					<Dimensions x="160" y="28" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Queue" relativePoint="TOPRIGHT" />
+
+					<OnClicked>
+						ZO_SearchingForGroupQueueButton_OnClicked(self, button)
+					</OnClicked>
+				</Button>
 			</Controls>
 		</TopLevelControl>
     </Controls>
