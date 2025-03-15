@@ -2,6 +2,8 @@ local addon = {}
 
 addon.name = 'IMP_STATS_MATCHES_UI'
 
+local EVENT_NAMESPACE = addon.name
+
 -- addon.listControl = nil
 -- addon.statsControl = nil
 
@@ -703,6 +705,17 @@ function addon:Initialize(naming, selections)
         self.selections.characters[GetCurrentCharacterId()] = true
     end
     self:InitializePlayerCharactersFilter(GetControl(self.statsControl, 'CharactersFilter'), self.selections.characters)
+
+    local manager = IMP_STATS_MATCHES_MANAGER
+
+    local function OnMatchStateChanged(oldState, newState)
+        if newState ~= manager.states.MATCH_STATE_ENDED then return end
+        self:Update()
+    end
+
+    manager:RegisterCallback(EVENT_NAMESPACE, manager.events.EVENT_MATCH_STATE_CHANGED, OnMatchStateChanged)
+
+    self:Update()
 end
 --#endregion
 

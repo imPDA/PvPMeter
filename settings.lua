@@ -47,7 +47,14 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     getFunc = function() return sv.battlegrounds.enabled end,
                     setFunc = function(value) sv.battlegrounds.enabled = value end,
                     requiresReload = true,
-                }
+                },
+                {
+                    type = 'checkbox',
+                    name = '[EXPERIMENTAL]New manager',
+                    getFunc = function() return sv.battlegrounds.newManager end,
+                    setFunc = function(value) sv.battlegrounds.newManager = value end,
+                    requiresReload = true,
+                },
             },
         },
         {

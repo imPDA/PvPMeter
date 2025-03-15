@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpressiveStats'
 addon.displayName = '|c7c42f2Imp|ceeeeee-ressive Stats|r'
-addon.version = '1.0.7'
+addon.version = '1.0.7b3'
 
 local Log = IMP_STATS_Logger('IMP_STATS_MAIN')
 
@@ -9,6 +9,7 @@ local DEFAULTS = {
 	battlegrounds = {
 		enabled = true,
 		namingMode = 1,
+		newManager = false,
 		-- selectedCharacters = {},
 	},
 	duels = {
@@ -92,7 +93,11 @@ function addon:OnLoad()
 	IMP_STATS_MENU:Initialize(self.sv.battlegrounds.enabled, self.sv.duels.enabled, self.sv.tot.enabled)
 
 	if self.sv.battlegrounds.enabled then
-    	IMP_STATS_InitializeMatchManager(self.sv.battlegrounds, self.csv.battlegrounds)
+		if self.sv.battlegrounds.newManager then
+    		IMP_STATS_InitializeNewMatchManager(self.sv.battlegrounds, self.csv.battlegrounds)
+		else
+    		IMP_STATS_InitializeMatchManager(self.sv.battlegrounds, self.csv.battlegrounds)
+		end
 		Log('Matches initialized')
 	end
 
