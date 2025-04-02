@@ -197,15 +197,14 @@ function addon:UpdateOpponentPreview()
     local opponent = self.currentGame.opponent
 
     local gamesPlayedBefore, totalWinrate, FPWinrate, SPWinrate = IMP_STATS_TRIBUTE_STATS_MANAGER:GetStatsVS(opponent.name)
-    if gamesPlayedBefore then
-        GetControl(self.previewControl, 'PlayedBefore'):SetText(string.format('Played %d games', gamesPlayedBefore))
-        GetControl(self.previewControl, 'WinrateValue'):SetText(string.format('%.1f %%', IMP_STATS_SHARED.PossibleNan(totalWinrate) * 100))
-    end
+    local playedBeforeText = gamesPlayedBefore and ('Played %d games'):format(gamesPlayedBefore) or 'Not played before'
+    local winrateValueText = gamesPlayedBefore and ('%.1f %%'):format(IMP_STATS_SHARED.PossibleNan(totalWinrate) * 100) or '-'
+    GetControl(self.previewControl, 'PlayedBefore'):SetText(playedBeforeText)
+    GetControl(self.previewControl, 'WinrateValue'):SetText(winrateValueText)
 
     local inLadder, rank, displayName, characterName, mmr = GetOpponentData(opponent.name)
-    if inLadder then
-        GetControl(self.previewControl, 'OpponentRank'):SetText(string.format('Ladder #%d (%d MMR)', rank, mmr))
-    end
+    local opponentRankText = inLadder and ('Ladder #%d (%d MMR)'):format(rank, mmr) or 'Not in top-100'
+    GetControl(self.previewControl, 'OpponentRank'):SetText(opponentRankText)
 
     local note = IMP_STATS_NOTES_MANAGER:GetNote(opponent.name)
     GetControl(self.previewControl, 'NoteIcon'):SetHidden(note == nil)

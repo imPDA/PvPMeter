@@ -378,6 +378,15 @@ function addon:Initialize(naming, selectedCharacters)
     self:CreateControls()
     self:CreateScrollListDataType()
 
+    local function GoodDataFilter(duelData)
+        if not duelData.player then  -- or not duelData.opponent
+            return
+        end
+
+        return true
+    end
+    self:AddFilter(GoodDataFilter)
+
     local function OpponentNameFilter(duelData)
         if self.selections.opponentName == '' then return true end
 

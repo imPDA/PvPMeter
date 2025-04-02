@@ -283,4 +283,34 @@ function addon.SecondsToTime(seconds)
 	end
 end
 
+function addon.class(base)
+	local cls = {}
+
+	if type(base) == 'table' then
+		for k, v in pairs(base) do
+			cls[k] = v
+		end
+
+		cls.base = base
+	end
+
+	cls.__index = cls
+
+	setmetatable(cls, {
+        __call = function(self, ...)
+            local obj = setmetatable({}, cls)
+
+            if self.__init__ then
+                self.__init__(obj, ...)
+            elseif base ~= nil and base.__init__ ~= nil then
+                base.__init__(obj, ...)
+            end
+
+            return obj
+        end
+	})
+
+	return cls
+end
+
 IMP_STATS_SHARED = addon

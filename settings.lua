@@ -52,8 +52,20 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     type = 'checkbox',
                     name = '[EXPERIMENTAL]New manager',
                     getFunc = function() return sv.battlegrounds.newManager end,
-                    setFunc = function(value) sv.battlegrounds.newManager = value end,
+                    setFunc = function(value)
+                        sv.battlegrounds.newManager = value
+                        IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox:UpdateDisabled()
+                    end,
                     requiresReload = true,
+                },
+                {
+                    type = 'checkbox',
+                    name = '[EXPERIMENTAL]Show only U45 matches',
+                    getFunc = function() return sv.battlegrounds.showOnlyLastUpdateMatches end,
+                    setFunc = function(value) sv.battlegrounds.showOnlyLastUpdateMatches = value end,
+                    requiresReload = true,
+                    disabled = function() return not sv.battlegrounds.newManager end,
+                    reference = 'IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox',
                 },
             },
         },
@@ -70,22 +82,22 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     requiresReload = true,
                 },
                 {
-                    type = "dropdown",
-                    name = "Naming options",
-                    tooltip = "How to display names",
+                    type = 'dropdown',
+                    name = 'Naming options',
+                    tooltip = 'How to display names',
                     choices = {
-                        "Character Name",
-                        "@id",
-                        "@id (Character Name)"
+                        'Character Name',
+                        '@id',
+                        '@id (Character Name)'
                     },
                     choicesValues = {
                         1, 2, 3
                     },
                     getFunc = function() return sv.duels.namingMode end,
                     setFunc = function(var) sv.duels.namingMode = var end,
-                    width = "full",
+                    width = 'full',
                     requiresReload = true,
-                    -- warning = "Will need to reload the UI.",	--(optional)
+                    -- warning = 'Will need to reload the UI.',	--(optional)
                   },
             },
         },
@@ -111,12 +123,12 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
             },
         },
         {
-            type = "button",
-            name = "Copy from ImpPvPMeter",
-            tooltip = "For testers! It will make a full copy of saved data.",
+            type = 'button',
+            name = 'Copy from ImpPvPMeter',
+            tooltip = 'For testers! It will make a full copy of saved data.',
             func = CopyDataFromImpPvPMeter,
-            width = "full",
-            warning = "ALL DATA WILL BE IRREVERSIBLY REPLACED\n\nUse it only ONCE and BEFORE any new bgs/duels/tribute games.\n\nUI will be automatically reloaded.",
+            width = 'full',
+            warning = 'ALL DATA WILL BE IRREVERSIBLY REPLACED\n\nUse it only ONCE and BEFORE any new bgs/duels/tribute games.\n\nUI will be automatically reloaded.',
             isDangerous	= true,
             disabled = function() return not IsDataFromImpPvPMeterAvailable() end,
         },

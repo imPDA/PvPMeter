@@ -372,7 +372,7 @@ local function CreateMatchSummary(matchIndex, matchData)
         result = matchData.result,
         playerRace = matchData.playerRace,
         playerClass =  matchData.playerClass,
-        zone = matchData.zoneName,
+        zone = GetZoneNameById(matchData.zoneId),
         score = 0,
         kills = 0,
         deaths = 0,
@@ -387,7 +387,8 @@ local function CreateMatchSummary(matchIndex, matchData)
         -- if roundData then
         local roundPlayerData = roundData.players[1]  -- player 1 = always local player
 
-        if roundPlayerData and roundPlayerData.characterId then  -- is it possible player data not be present?
+        -- should I check first player is actually local player?
+        if roundPlayerData then
             matchSummary.kills      = matchSummary.kills            + roundPlayerData.kills
             matchSummary.deaths     = matchSummary.deaths           + roundPlayerData.deaths
             matchSummary.assists    = matchSummary.assists          + roundPlayerData.assists
@@ -596,7 +597,7 @@ end
 
 addon.InitializePlayerCharactersFilter = IMP_STATS_SHARED.InitializePlayerCharactersFilter
 
-function addon:Initialize(naming, selections)
+function addon:Initialize(naming, selections, filterByApi)
     self.matches = IMP_STATS_MATCHES_MANAGER.matches
     self.matchSummaries = {}
     self.stats = MatchesStats:New()
@@ -692,6 +693,14 @@ function addon:Initialize(naming, selections)
     end
     self:AddFilter(CharactersFilter)
 
+    if filterByApi then
+        local currentApiVerision = GetAPIVersion()
+        local function ShowOnlyLastUpdateFilter(matchData)
+            return matchData.api == currentApiVerision
+        end
+        self:AddFilter(ShowOnlyLastUpdateFilter)
+    end
+
     for selectionName, defaultSelectionData in pairs(self.selections) do
         selections[selectionName] = selections[selectionName] or defaultSelectionData
     end
@@ -707,15 +716,16 @@ function addon:Initialize(naming, selections)
     self:InitializePlayerCharactersFilter(GetControl(self.statsControl, 'CharactersFilter'), self.selections.characters)
 
     local manager = IMP_STATS_MATCHES_MANAGER
+    if manager.states then
+        local function OnMatchStateChanged(oldState, newState)
+            if newState ~= manager.states.MATCH_STATE_ENDED then return end
+            self:Update()
+        end
 
-    local function OnMatchStateChanged(oldState, newState)
-        if newState ~= manager.states.MATCH_STATE_ENDED then return end
+        manager:RegisterCallback(EVENT_NAMESPACE, manager.events.EVENT_MATCH_STATE_CHANGED, OnMatchStateChanged)
+
         self:Update()
     end
-
-    manager:RegisterCallback(EVENT_NAMESPACE, manager.events.EVENT_MATCH_STATE_CHANGED, OnMatchStateChanged)
-
-    self:Update()
 end
 --#endregion
 

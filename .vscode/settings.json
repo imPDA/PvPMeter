@@ -31,7 +31,8 @@
         "IMP_STATS_DUELS",
         "IMP_STATS_TRIBUTE",
         "IMP_STATS_MATCHES",
-        "ImpressiveStatsTributeNotes"
+        "ImpressiveStatsTributeNotes",
+        "LibDataPacker"
     ],
     "Lua.diagnostics.disable": [
         "unused-function"
