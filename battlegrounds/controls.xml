@@ -71,106 +71,128 @@
 		<TopLevelControl name="IMP_STATS_MATCHES" inherits="ZO_RightPanelFootPrint" hidden="true">
 			<!-- <AnchorFill /> -->
 			<Controls>
-				<Control name="$(parent)StatsBlock">
+				<Control name="$(parent)TopBlock">
 					<Anchor point="TOPLEFT" />
 					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)" relativePoint="TOPRIGHT" offsetY="150" />
 					<Controls>
 						<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FF0000" centerColor="00FF00" /> -->
-						<Control name="$(parent)FilterTeamType" inherits="ZO_MultiselectComboBox">
-							<Dimensions x="270" y="32" />
-							<Anchor point="TOPRIGHT" offsetX="-16" offsetY="8" />
-						</Control>
-
-						<Control name="$(parent)FilterGameMode" inherits="ZO_MultiselectComboBox">
-							<Dimensions x="270" y="32" />
-							<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamType" relativePoint="BOTTOMLEFT" offsetY="4" />
-						</Control>
-
-						<Control name="$(parent)CharactersFilter" inherits="IMP_STATS_CharactersFilter">
-							<Dimensions x="270" y="32" />
-							<Anchor point="TOPRIGHT" relativeTo="$(parent)FilterGameMode" relativePoint="BOTTOMRIGHT" offsetY="4" />
-
-							<!-- <Controls>
-								<Button name="$(parent)SelectButton" inherits="ZO_DefaultButton" text="Select All">
-									<Dimensions x="200" />
-									<Anchor point="TOP" relativeTo="$(parent)" relativePoint="BOTTOM" />
-								</Button>
-							</Controls> -->
-						</Control>
-
-						<Control name="$(parent)GaugeKDAMeter" inherits="IMP_STATS_GaugeKDAMeter">
+						
+						<Control name="$(parent)Stats">
 							<Anchor point="TOPLEFT" />
-						</Control>
-
-						<Control name="$(parent)TopLeftCorner" hidden="true">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)" offsetX="110" offsetY="6" />
-						</Control>
-
-						<Label name="$(parent)TotalMatches" inherits="IMP_STATS_StatName" text="Matches recorded:">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" />
-						</Label>
-						<Label name="$(parent)TotalMatchesValue" inherits="IMP_STATS_StatValue">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalMatches" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label>
-
-						<Label name="$(parent)Winrate" inherits="IMP_STATS_StatName" text="Winrate:">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)TotalMatches" relativePoint="BOTTOMLEFT" offsetY="6"/>
-						</Label>
-						<Label name="$(parent)WinrateValue" inherits="IMP_STATS_StatValue">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label>
-
-						<Label name="$(parent)KD" inherits="IMP_STATS_StatName" text="Kills/Deaths:">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
-						</Label>
-						<Label name="$(parent)KDValue" inherits="IMP_STATS_StatValue">
-							<Anchor point="TOPLEFT" relativeTo="$(parent)KD" relativePoint="TOPRIGHT" offsetX="5" />
-						</Label>
-
-						<Control name="$(parent)KDAStats">
-							<Dimensions x="100" y="100" />
-							<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" offsetX="270" />
 							<Controls>
-								<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="00FF00" /> -->
-								<Label name="$(parent)InvisibleLabel" inherits="IMP_STATS_StatName" text="-" hidden="true">
+								<Control name="$(parent)GaugeKDAMeter" inherits="IMP_STATS_GaugeKDAMeter">
 									<Anchor point="TOPLEFT" />
+								</Control>
+
+								<Control name="$(parent)TopLeftCorner" hidden="true">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)" offsetX="110" offsetY="12" />
+								</Control>
+
+								<Label name="$(parent)TotalMatches" inherits="IMP_STATS_StatName" text="Matches recorded:">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" />
 								</Label>
-								<Label name="$(parent)SumLabel" inherits="IMP_STATS_StatName" text="Sum">
-									<Anchor point="TOPRIGHT" relativeTo="$(parent)InvisibleLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
-								</Label>
-								<Label name="$(parent)AvgLabel" inherits="IMP_STATS_StatName" text="Avg">
-									<Anchor point="TOPRIGHT" relativeTo="$(parent)SumLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
+								<Label name="$(parent)TotalMatchesValue" inherits="IMP_STATS_StatValue">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)TotalMatches" relativePoint="TOPRIGHT" offsetX="5" />
 								</Label>
 
-								<Label name="$(parent)K" inherits="IMP_STATS_StatName" text="Kills">
-									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="18" />
+								<Control name="$(parent)TopLeftCorner2" hidden="true">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" offsetY="42" />
+								</Control>
+
+								<Label name="$(parent)MatchesCount" inherits="IMP_STATS_StatName" text="Stats over last 150 matches">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner2" />
 								</Label>
-								<Label name="$(parent)KSum" inherits="IMP_STATS_StatValue">
-									<Anchor point="CENTER" relativeTo="$(parent)K" relativePoint="CENTER" offsetY="32" />
+								<!-- <Label name="$(parent)MatchesCountValue" inherits="IMP_STATS_StatValue">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)MatchesCount" relativePoint="TOPRIGHT" offsetX="5" />
+								</Label> -->
+
+								<Label name="$(parent)Winrate" inherits="IMP_STATS_StatName" text="Winrate:">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)MatchesCount" relativePoint="BOTTOMLEFT" offsetY="6" />
 								</Label>
-								<Label name="$(parent)KAvg" inherits="IMP_STATS_StatValue">
-									<Anchor point="CENTER" relativeTo="$(parent)KSum" relativePoint="CENTER" offsetY="32" />
+								<Label name="$(parent)WinrateValue" inherits="IMP_STATS_StatValue">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="TOPRIGHT" offsetX="5" />
 								</Label>
 
-								<Label name="$(parent)D" inherits="IMP_STATS_StatName" text="Deaths">
-									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="68" />
+								<Label name="$(parent)KD" inherits="IMP_STATS_StatName" text="Kills/Deaths:">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)Winrate" relativePoint="BOTTOMLEFT" offsetY="6"/>
 								</Label>
-								<Label name="$(parent)DSum" inherits="IMP_STATS_StatValue">
-									<Anchor point="CENTER" relativeTo="$(parent)D" relativePoint="CENTER" offsetY="32" />
-								</Label>
-								<Label name="$(parent)DAvg" inherits="IMP_STATS_StatValue">
-									<Anchor point="CENTER" relativeTo="$(parent)DSum" relativePoint="CENTER" offsetY="32" />
+								<Label name="$(parent)KDValue" inherits="IMP_STATS_StatValue">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)KD" relativePoint="TOPRIGHT" offsetX="5" />
 								</Label>
 
-								<Label name="$(parent)A" inherits="IMP_STATS_StatName" text="Assists">
-									<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="128" />
-								</Label>
-								<Label name="$(parent)ASum" inherits="IMP_STATS_StatValue">
-									<Anchor point="CENTER" relativeTo="$(parent)A" relativePoint="CENTER" offsetY="32" />
-								</Label>
-								<Label name="$(parent)AAvg" inherits="IMP_STATS_StatValue">
-									<Anchor point="CENTER" relativeTo="$(parent)ASum" relativePoint="CENTER" offsetY="32" />
-								</Label>
+								<Control name="$(parent)KDAStats">
+									<Dimensions x="100" y="100" />
+									<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner2" offsetX="285" />
+									<Controls>
+										<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="0000FF" centerColor="00FF00" /> -->
+										<Label name="$(parent)InvisibleLabel" inherits="IMP_STATS_StatName" text="-" hidden="true">
+											<Anchor point="TOPLEFT" />
+										</Label>
+										<Label name="$(parent)SumLabel" inherits="IMP_STATS_StatName" text="Sum">
+											<Anchor point="TOPRIGHT" relativeTo="$(parent)InvisibleLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
+										</Label>
+										<Label name="$(parent)AvgLabel" inherits="IMP_STATS_StatName" text="Avg">
+											<Anchor point="TOPRIGHT" relativeTo="$(parent)SumLabel" relativePoint="BOTTOMRIGHT" offsetY="6"/>
+										</Label>
+
+										<Label name="$(parent)K" inherits="IMP_STATS_StatName" text="Kills">
+											<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="18" />
+										</Label>
+										<Label name="$(parent)KSum" inherits="IMP_STATS_StatValue">
+											<Anchor point="CENTER" relativeTo="$(parent)K" relativePoint="CENTER" offsetY="32" />
+										</Label>
+										<Label name="$(parent)KAvg" inherits="IMP_STATS_StatValue">
+											<Anchor point="CENTER" relativeTo="$(parent)KSum" relativePoint="CENTER" offsetY="32" />
+										</Label>
+
+										<Label name="$(parent)D" inherits="IMP_STATS_StatName" text="Deaths">
+											<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="68" />
+										</Label>
+										<Label name="$(parent)DSum" inherits="IMP_STATS_StatValue">
+											<Anchor point="CENTER" relativeTo="$(parent)D" relativePoint="CENTER" offsetY="32" />
+										</Label>
+										<Label name="$(parent)DAvg" inherits="IMP_STATS_StatValue">
+											<Anchor point="CENTER" relativeTo="$(parent)DSum" relativePoint="CENTER" offsetY="32" />
+										</Label>
+
+										<Label name="$(parent)A" inherits="IMP_STATS_StatName" text="Assists">
+											<Anchor point="LEFT" relativeTo="$(parent)InvisibleLabel" relativePoint="RIGHT" offsetX="128" />
+										</Label>
+										<Label name="$(parent)ASum" inherits="IMP_STATS_StatValue">
+											<Anchor point="CENTER" relativeTo="$(parent)A" relativePoint="CENTER" offsetY="32" />
+										</Label>
+										<Label name="$(parent)AAvg" inherits="IMP_STATS_StatValue">
+											<Anchor point="CENTER" relativeTo="$(parent)ASum" relativePoint="CENTER" offsetY="32" />
+										</Label>
+									</Controls>
+								</Control>
+							</Controls>
+						</Control>
+						
+						<Control name="$(parent)Filters">
+							<Anchor point="TOPLEFT" relativeTo="$(parent)GaugeKDAMeter" relativePoint="TOPRIGHT" />
+							<Controls>
+								<Control name="$(parent)FilterTeamType" inherits="ZO_MultiselectComboBox">
+									<Dimensions x="270" y="32" />
+									<Anchor point="TOPRIGHT" offsetX="-16" offsetY="8" />
+								</Control>
+
+								<Control name="$(parent)FilterGameMode" inherits="ZO_MultiselectComboBox">
+									<Dimensions x="270" y="32" />
+									<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamType" relativePoint="BOTTOMLEFT" offsetY="4" />
+								</Control>
+
+								<Control name="$(parent)CharactersFilter" inherits="IMP_STATS_CharactersFilter">
+									<Dimensions x="270" y="32" />
+									<Anchor point="TOPRIGHT" relativeTo="$(parent)FilterGameMode" relativePoint="BOTTOMRIGHT" offsetY="4" />
+
+									<!-- <Controls>
+										<Button name="$(parent)SelectButton" inherits="ZO_DefaultButton" text="Select All">
+											<Dimensions x="200" />
+											<Anchor point="TOP" relativeTo="$(parent)" relativePoint="BOTTOM" />
+										</Button>
+									</Controls> -->
+								</Control>
 							</Controls>
 						</Control>
 
@@ -198,8 +220,8 @@
 				</Control>
 				
 				<Control name="$(parent)Divider">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)StatsBlock" relativePoint="BOTTOMLEFT" offsetY="10" />
-					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)StatsBlock" relativePoint="BOTTOMRIGHT" offsetY="24" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)TopBlock" relativePoint="BOTTOMLEFT" offsetY="10" />
+					<Anchor point="BOTTOMRIGHT" relativeTo="$(parent)TopBlock" relativePoint="BOTTOMRIGHT" offsetY="24" />
 					<Controls>
 						<Texture name="$(parent)Left" textureFile="EsoUI/Art/Guild/sectionDivider_left.dds">
 							<Anchor point="TOPLEFT"/>

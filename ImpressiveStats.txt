@@ -1,8 +1,8 @@
 ## Title: |c7c42f2Imp|ceeeeee-ressive Stats|r
-## AddOnVersion: 110000
+## AddOnVersion: 111100
 ## APIVersion: 101045
 ## Author: |c7c42f2@impda|r [EU]
-## DependsOn: LibMainMenu-2.0 LibCombat LibAsync LibAddonMenu-2.0 LibCustomMenu
+## DependsOn: LibMainMenu-2.0 LibCombat LibAsync LibAddonMenu-2.0 LibCustomMenu LibDataPacker
 ## OptionalDependsOn LibDebugLogger PerfectPixel ImpPvPMeter
 ## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData ImpPvPMeterMatchBackup PvPMeterDuelsData PvPMeterDuelsSV PvPMeter
 
@@ -47,5 +47,8 @@ bindings.lua
 menu.lua
 
 settings.lua
+
+announcement/ui.lua
+announcement/controls.xml
 
 main.lua

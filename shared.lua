@@ -102,7 +102,7 @@ function addon.Get(self, task, filters, tbl)
         if PassFilters(data) then table.insert(tbl, index) end
     end
 
-    return task:For(ipairs(self:GetDataRows())):Do(Filter)
+    return task:For(ipairs(self:GetDataRows(task))):Do(Filter)
 end
 
 local function InitializeFilter(contorl, entriesData, setFiltersCallback)

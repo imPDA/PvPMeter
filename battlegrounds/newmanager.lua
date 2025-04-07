@@ -21,28 +21,67 @@ local EVENT_ROUND_ENDED = 2
 
 -- ----------------------------------------------------------------------------
 
+local TEAM_TYPE_4_SOLO = 1
+local TEAM_TYPE_8_SOLO = 2
+local TEAM_TYPE_4_GROUP = 3
+local TEAM_TYPE_8_GROUP = 4
+
+local function getTeamType(lfgActivityId, teamSize)
+    local groupType = GetActivityGroupType(lfgActivityId)
+
+    local teamType
+
+    if teamSize == 8 then
+        if groupType == LFG_GROUP_TYPE_NONE then
+            teamType = TEAM_TYPE_8_SOLO
+        -- elseif groupType == LFG_GROUP_TYPE_REGULAR then
+        --     teamType = TEAM_TYPE_8_GROUP
+        elseif groupType == LFG_GROUP_TYPE_BIG_TEAM_BATTLE then
+            teamType = TEAM_TYPE_8_GROUP
+        else
+            Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', teamSize, groupType)
+        end
+    elseif teamSize == 4 then
+        if groupType == LFG_GROUP_TYPE_NONE then
+            teamType = TEAM_TYPE_4_SOLO
+        elseif groupType == LFG_GROUP_TYPE_REGULAR then
+            teamType = TEAM_TYPE_4_GROUP
+        else
+            Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', teamSize, groupType)
+        end
+    else
+        Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', teamSize, groupType)
+    end
+
+    return teamType
+end
+
 local function GetNewMatchFromCurrentMatch()
     local bgId = GetCurrentBattlegroundId()
     local unitZoneIndex = GetUnitZoneIndex('player')
 
     Log('Creating new match, battlegorundId: %d', bgId)
 
+    local lfgActivityId = GetCurrentLFGActivityId()
+    local teamSize = GetBattlegroundTeamSize(GetCurrentBattlegroundId())
+
     local currentMatch = {
-        type = GetCurrentBattlegroundGameType(),
-        battlegroundId = bgId,
-        playerRace = GetUnitRaceId('player'),
-        playerClass = GetUnitClassId('player'),
-        playerCharacterId = GetCurrentCharacterId(),
-        zoneIndex = unitZoneIndex,
-        zoneId = GetZoneId(unitZoneIndex),
-        zoneName = GetUnitZone('player'),
-        entryTimestamp = GetTimeStamp(),
-        rounds = {},
-        result = BATTLEGROUND_RESULT_INVALID,
-        lfgActivityId = GetCurrentLFGActivityId(),
-        teamSize = GetBattlegroundTeamSize(GetCurrentBattlegroundId()),
-        -- grouped = IMP_STATS_NEW_MATCHES_MANAGER:IsGrouped(),
         api = GetAPIVersion(),
+        battlegroundId = bgId,
+        entryTimestamp = GetTimeStamp(),
+        lfgActivityId = lfgActivityId,
+        -- grouped = IMP_STATS_NEW_MATCHES_MANAGER:IsGrouped(),
+        playerCharacterId = GetCurrentCharacterId(),
+        playerClass = GetUnitClassId('player'),
+        playerRace = GetUnitRaceId('player'),
+        result = BATTLEGROUND_RESULT_INVALID,
+        rounds = {},
+        teamSize = teamSize,
+        teamType = getTeamType(lfgActivityId, teamSize),
+        type = GetCurrentBattlegroundGameType(),
+        -- zoneIndex = unitZoneIndex,
+        -- zoneName = GetUnitZone('player'),
+        zoneId = GetZoneId(unitZoneIndex),
     }
 
     -- TODO: do i really nee to add rounds like this? 
@@ -117,20 +156,25 @@ local function GetResultFromCurrentMatchRound(round)
     return GetCurrentBattlegroundRoundResult(round)
 end
 
-local function IsCurrentMatch(match)
-    if not match then return end
+local function samePlayersOfTheFirstRound(match1, match2)
+    local players1 = match1.rounds[1].players
+    local players2 = match2.rounds[1].players
 
-    local started = match.entryTimestamp or 0
+    for player1Name, player1Stats in pairs(players1) do
+        if not players2[player1Name] then return end
+        if player1Stats.damageDone ~= players2[player1Name].damageDone then return end
+    end
 
-    Log('Type, previous: %d, current: %d, eq: %s', match.type, GetCurrentBattlegroundGameType(), tostring(match.type == GetCurrentBattlegroundGameType()))
-    Log('Id, previous: %d, current: %d, eq: %s', match.battlegroundId, GetCurrentBattlegroundId(), tostring(match.battlegroundId == GetCurrentBattlegroundId()))
-    Log('Started %d ago', GetTimeStamp() - started)
+    return true
+end
 
+local function isSameMatches(match1, match2)
     return
     -- TODO: some type of hash for fast comparison
-    match.type == GetCurrentBattlegroundGameType() and
-    match.battlegroundId == GetCurrentBattlegroundId() and
-    (GetTimeStamp() - started) <= 60 * 20
+    match1.entryTimestamp == match2.entryTimestamp and
+    match1.battlegroundId == match2.battlegroundId and
+    match1.type == match2.type and
+    samePlayersOfTheFirstRound(match1, match2)
 end
 
 local function UpdateMatchRound(match, round)
@@ -171,6 +215,20 @@ local function CheckMatch(match)
     end
 end
 
+local function WorthSaving(match)
+    -- partially copied from good filter from UI
+
+    if not match.rounds or #match.rounds < 1 then
+        return
+    end
+
+    if not match.rounds[1].players or #match.rounds[1].players < 1 then
+        return
+    end
+
+    return true
+end
+
 -- ----------------------------------------------------------------------------
 
 local MatchManager = IMP_STATS_SHARED.class()
@@ -190,16 +248,7 @@ function MatchManager:__init__(savedMatches)
     self.savedMatches = savedMatches
     self.matches = {}
 
-    for i, matchData in ipairs(savedMatches) do
-        Log('Loading match #%d', i)
-        if type(matchData) == 'string' then
-            self.matches[i] = self.UnpackMatch(matchData)
-        else
-            self.matches[i] = {}
-            ZO_DeepTableCopy(matchData, self.matches[i])
-        end
-    end
-    Log('There are %d matches saved', #self.matches)
+    Log('There are %d matches saved', #savedMatches)
 
     self.callbacks = {
         [EVENT_MATCH_STATE_CHANGED] = {},
@@ -317,14 +366,58 @@ end
 
 MatchManager.GetMatches = IMP_STATS_SHARED.Get
 
-function MatchManager:GetDataRows()
+function MatchManager:GetDataRows(task)
+    --[[
+    for i = #self.matches+1, #self.savedMatches do
+        local matchData = self.savedMatches[i]
+        if type(matchData) == 'string' then
+            self.matches[i] = self.UnpackMatch(matchData)
+        else
+            self.matches[i] = {}
+            ZO_DeepTableCopy(matchData, self.matches[i])
+        end
+    end
+    --]]
+
+    ---[[
+    Log('GetDataRows requested, going to load %s matches (%s -> %s)', #self.savedMatches - #self.matches, #self.matches, #self.savedMatches)
+
+    local function loadMatch(index)
+        local matchData = self.savedMatches[index]
+        if type(matchData) == 'string' then
+            self.matches[index] = self.UnpackMatch(matchData)
+        else
+            self.matches[index] = {}
+            ZO_DeepTableCopy(matchData, self.matches[index])
+        end
+    end
+
+    task:For(#self.matches+1, #self.savedMatches):Do(loadMatch)
+    --]]
+
     return self.matches
 end
 
 -- ----------------------------------------------------------------------------
 
+local function isCurrentMatch(match)
+    if not match then return end
+
+    local started = match.entryTimestamp or 0
+
+    Log('Type, previous: %d, current: %d, eq: %s', match.type, GetCurrentBattlegroundGameType(), tostring(match.type == GetCurrentBattlegroundGameType()))
+    Log('Id, previous: %d, current: %d, eq: %s', match.battlegroundId, GetCurrentBattlegroundId(), tostring(match.battlegroundId == GetCurrentBattlegroundId()))
+    Log('Started %d ago', GetTimeStamp() - started)
+
+    return
+    match.type == GetCurrentBattlegroundGameType() and
+    match.battlegroundId == GetCurrentBattlegroundId() and
+    (GetTimeStamp() - started) <= 60 * 20
+end
+
 function MatchManager:CreateMatch()
-    local currentMatchAlreadyCreated = IsCurrentMatch(self.currentMatch)
+    local currentMatchAlreadyCreated = isCurrentMatch(self.currentMatch)
+
     if not currentMatchAlreadyCreated then
         self.currentMatch = GetNewMatchFromCurrentMatch()
 
@@ -353,23 +446,50 @@ end
 function MatchManager:SaveMatch()
     self:CheckCurrentMatch()
 
-    local lastSavedMatchLooksSimilarToWhatIsBeingSaved = IsCurrentMatch(self.matches[#self.matches])
-    -- dont save if last saved looks identical to avoid duplication
-    if not lastSavedMatchLooksSimilarToWhatIsBeingSaved then
-        local index = #self.matches + 1
-        self.matches[index] = self.currentMatch
+    if self.currentMatch.wasPlayed then
+        self.currentMatch.wasPlayed = nil  -- discard as no longer needed
+        --[[
+        local lastSavedMatchLooksSimilarToWhatIsBeingSaved = isSameMatches(self.matches[#self.matches], self.currentMatch)
+        -- dont save if last saved looks identical to avoid duplication
+        if not lastSavedMatchLooksSimilarToWhatIsBeingSaved then
+            local index = #self.matches + 1
+            self.matches[index] = self.currentMatch
+
+            local success, result = pcall(self.PackMatch, self.currentMatch)
+            if success then
+                self.savedMatches[index] = result
+            else
+                self.savedMatches[index] = {}
+                ZO_DeepTableCopy(self.currentMatch, self.savedMatches[index])
+                Log('Error saving match: %s', result)
+            end
+            Log('Match saved as #%d', index)
+        end
+        --]]
+        local index = #self.savedMatches
 
         local success, result = pcall(self.PackMatch, self.currentMatch)
         if success then
-            self.savedMatches[index] = result
+            if type(self.savedMatches[index]) ~= 'string' or self.savedMatches[index] ~= result then
+                self.savedMatches[index+1] = result
+                Log('Match saved as #%d (and packed successfully)', index)
+            else
+                Log('Match was not saved because it is similar to previous, most likely duplication')
+            end
         else
-            self.savedMatches[index] = {}
-            ZO_DeepTableCopy(self.currentMatch, self.savedMatches[index])
-            Log('Error saving match: %s', result)
+            if type(self.savedMatches[index]) ~= 'table' or not isSameMatches(self.savedMatches[index], self.currentMatch) then
+                self.savedMatches[index+1] = {}
+                ZO_DeepTableCopy(self.currentMatch, self.savedMatches[index+1])
+                Log('Match saved as #%d (but packing failed: %s)', index, result)
+            else
+                Log('Match was not saved because it is similar to previous, most likely duplication')
+            end
         end
-        Log('Match saved as #%d', index)
+    else
+        Log('Match was not played, skipping saving')
     end
 
+    -- TODO: clear via ZO_ClearTable etc.?
     self.currentMatch = nil
     ImpressiveStatsMatchBackup = nil
 end
@@ -397,7 +517,18 @@ function MatchManager:OnActivityFinderStatusUpdate(state)
     self.grouped = isGrouped
 end
 
+local BATTLEGROUND_STATE_TO_NAME = {
+    [BATTLEGROUND_STATE_NONE]       = 'none',       -- 0
+    [BATTLEGROUND_STATE_PREROUND]   = 'preround',   -- 1
+    [BATTLEGROUND_STATE_STARTING]   = 'starting',   -- 2
+    [BATTLEGROUND_STATE_RUNNING]    = 'running',    -- 3
+    [BATTLEGROUND_STATE_POSTROUND]  = 'postround',  -- 4
+    [BATTLEGROUND_STATE_FINISHED]   = 'finished',   -- 5
+}
+
 function MatchManager:OnBattlegroundStateChanged(oldState, newState)
+    Log('Battleground state changed: %s -> %s', BATTLEGROUND_STATE_TO_NAME[oldState], BATTLEGROUND_STATE_TO_NAME[newState])
+
     if oldState == BATTLEGROUND_STATE_NONE and newState == BATTLEGROUND_STATE_PREROUND then
         self:MarkPlayedFromStart()
         Log('Marked as played from start: loaded at very beginning')
@@ -415,7 +546,14 @@ function MatchManager:OnBattlegroundStateChanged(oldState, newState)
     local matchState = self:GetMatchStateFromBattlegroundState(newState)
     self:SetState(matchState)
 
-    Log('BG state changed, state: %s', STATE_NAME[self.state])
+    if newState > BATTLEGROUND_STATE_PREROUND or (newState == BATTLEGROUND_STATE_PREROUND and GetCurrentBattlegroundRoundIndex() > 1) then
+        if self.currentMatch then
+            self.currentMatch.wasPlayed = true
+            Log('Marked as was played (=need to save this BG), roundIndex: %d, state: %s', GetCurrentBattlegroundRoundIndex(), BATTLEGROUND_STATE_TO_NAME[newState])
+        else
+            Log('Should be marked as was played, but there is no match, roundIndex: %d, state: %s', GetCurrentBattlegroundRoundIndex(), BATTLEGROUND_STATE_TO_NAME[newState])
+        end
+    end
 end
 
 -- ----------------------------------------------------------------------------
@@ -480,76 +618,104 @@ local MATCH_TYPE_LOOKUP_TABLE = {
     BATTLEGROUND_GAME_TYPE_MURDERBALL,
 }
 
-local function PlayerSchema()
-    local Field = LDP.Field
+local Field = LDP.Field
+local INVERSED = true
 
-    local INVERSED = true
+--[[
+local DamageNumber = setmetatable({}, { __index = Field.Number })
+DamageNumber.__index = DamageNumber
 
-    return Field.Table('player', {
-        Field.String('characterName',   100),
-        Field.String('displayName',     100),
+function DamageNumber.New(name)
+    local o = Field.Number(name, 0)
 
-        Field.Number('battlegroundTeam', 2),  -- max 3
-
-        Field.Number('lives',       2),  -- max 3
-        Field.Number('medalScore',  17),  -- ~131K
-        Field.Number('kills',       8),  -- 255
-        Field.Number('deaths',      8),  -- 255
-        Field.Number('assists',     8),  -- 255
-        --[[
-        Field.Number('damageDone',  19, -2),  -- ~52.4M @ 19&-2
-        Field.Number('damageTaken', 19, -2),  -- ~52.4M @ 19&-2
-        Field.Number('healingDone', 19, -2),  -- ~52.4M @ 19&-2
-        ]]
-        Field.Number('damageDone',  25),  -- ~33.5M @ 25
-        Field.Number('damageTaken', 25),  -- ~33.5M @ 25
-        Field.Number('healingDone', 25),  -- ~33.5M @ 25
-        Field.Enum('classId', CLASSES_LOOKUP_TABLE, INVERSED)
-    })
+    return o
 end
 
-local function MatchSchema()
-    local Field = LDP.Field
+local function getLengthBits(number)
+    if number <= 524287     then return {0, 0}, 19 end
+    if number <= 1048575    then return {1, 0}, 20 end
+    if number <= 4194303    then return {0, 1}, 22 end
+    if number <= 67108863   then return {1, 1}, 26 end
 
-    local INVERSED = true
-
-    return Field.Table(nil, {
-        Field.Enum('api', APIS_LOOKUP_TABLE, INVERSED),
-        Field.Number('battlegroundId', 10),  -- U45 max id is 294
-        Field.Number('entryTimestamp', 32),
-        Field.Number('lfgActivityId', 12), -- U45 max id is 1041 (Vengeance)
-        Field.Optional(Field.Bool('locked')),
-        Field.Optional(Field.Bool('playedFromStart')),
-        Field.Optional(Field.Bool('grouped')),
-        -- Field.Number('playerCharacterId', 53),
-        Field.String('playerCharacterId', 16),
-        Field.Enum('playerClass', CLASSES_LOOKUP_TABLE, INVERSED),
-        Field.Enum('playerRace', RACES_LOOKUP_TABLE, INVERSED),
-        Field.Enum('result', BATTLEGROUND_RESULT_LOOKUP_TABLE, INVERSED),
-        Field.VLArray('rounds', 3, Field.Table(nil, {
-            Field.VLArray('players', 16, PlayerSchema()),
-            Field.Enum('result', BATTLEGROUND_ROUND_RESULT_LOOKUP_TABLE, INVERSED),
-            Field.VLArray('scores', 3, Field.Number(nil, 10)),
-        })),
-        Field.Enum('teamSize', TEAM_SIZE_LOOKUP_TABLE, INVERSED),
-        Field.Enum('teamType', TEAM_TYPE_LOOKUP_TABLE, INVERSED),
-        Field.Enum('type', MATCH_TYPE_LOOKUP_TABLE, INVERSED),
-        Field.Number('zoneId', 11),  -- TODO: check
-
-        Field.Optional(Field.String('superstar', 230)),
-    })
+    error(('Cant handle numbers bigger than 67108863, got %d'):format(number))
 end
+
+function DamageNumber:Serialize(data, binaryBuffer)
+    local lengthBits, bitLength = getLengthBits(data)
+    binaryBuffer:WriteBits(lengthBits)
+    binaryBuffer:Write(data, bitLength)
+end
+
+function DamageNumber:Unserialize(binaryBuffer)
+    local length = 18 + 2^(binaryBuffer:Read(2))
+    return binaryBuffer:Read(length)
+end
+--]]
+
+local PlayerSchema = Field.Table('player', {
+    Field.String('characterName',   100),
+    Field.String('displayName',     100),
+
+    Field.Number('battlegroundTeam', 2),  -- max 3
+
+    Field.Number('lives',       2),  -- max 3
+    Field.Number('medalScore',  17),  -- ~131K
+    Field.Number('kills',       8),  -- 255
+    Field.Number('deaths',      8),  -- 255
+    Field.Number('assists',     8),  -- 255
+    ---[[
+    Field.Number('damageDone',  19, -2),  -- ~52.4M @ 19&-2
+    Field.Number('damageTaken', 19, -2),  -- ~52.4M @ 19&-2
+    Field.Number('healingDone', 19, -2),  -- ~52.4M @ 19&-2
+    --]]
+    --[[
+    Field.Number('damageDone',  25),  -- ~33.5M @ 25
+    Field.Number('damageTaken', 25),  -- ~33.5M @ 25
+    Field.Number('healingDone', 25),  -- ~33.5M @ 25
+    --]]
+    --[[
+    DamageNumber.New('damageDone'),
+    DamageNumber.New('damageTaken'),
+    DamageNumber.New('healingDone'),
+    --]]
+    Field.Enum('classId', CLASSES_LOOKUP_TABLE, INVERSED)
+})
+
+local MatchSchema = Field.Table(nil, {
+    Field.Enum('api', APIS_LOOKUP_TABLE, INVERSED),
+    Field.Number('battlegroundId', 10),  -- U45 max id is 294
+    Field.Number('entryTimestamp', 32),
+    Field.Number('lfgActivityId', 12), -- U45 max id is 1041 (Vengeance)
+    Field.Optional(Field.Bool('locked')),
+    Field.Optional(Field.Bool('playedFromStart')),
+    Field.Optional(Field.Bool('grouped')),
+    -- Field.Number('playerCharacterId', 53),
+    Field.String('playerCharacterId', 16),
+    Field.Enum('playerClass', CLASSES_LOOKUP_TABLE, INVERSED),
+    Field.Enum('playerRace', RACES_LOOKUP_TABLE, INVERSED),
+    Field.Enum('result', BATTLEGROUND_RESULT_LOOKUP_TABLE, INVERSED),
+    Field.VLArray('rounds', 3, Field.Table(nil, {
+        Field.VLArray('players', 16, PlayerSchema),
+        Field.Enum('result', BATTLEGROUND_ROUND_RESULT_LOOKUP_TABLE, INVERSED),
+        Field.VLArray('scores', 3, Field.Number(nil, 10)),
+    })),
+    Field.Enum('teamSize', TEAM_SIZE_LOOKUP_TABLE, INVERSED),
+    Field.Enum('teamType', TEAM_TYPE_LOOKUP_TABLE, INVERSED),
+    Field.Enum('type', MATCH_TYPE_LOOKUP_TABLE, INVERSED),
+    Field.Number('zoneId', 11),  -- TODO: check
+
+    Field.Optional(Field.String('superstar', 230)),
+})
 
 local ENCODE_BASE = LDP.Base.Base64RCF4648
 
-
 local function PackMatch(matchData)
-    return LDP.Pack(matchData, MatchSchema(), ENCODE_BASE)
+    return LDP.Pack(matchData, MatchSchema, ENCODE_BASE)
 end
 MatchManager.PackMatch = PackMatch
 
 local function UnpackMatch(packedMatch)
-    return LDP.Unpack(packedMatch, MatchSchema(), ENCODE_BASE)
+    return LDP.Unpack(packedMatch, MatchSchema, ENCODE_BASE)
 end
 MatchManager.UnpackMatch = UnpackMatch
 
@@ -739,6 +905,7 @@ local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
         end
     end
 
+    ---[[
     do
         if svTable.version < 1108003 then
             svProblemsTable[1108003] = {}
@@ -753,6 +920,7 @@ local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
                             if success then
                                 data[matchId] = result
                             else
+                                -- handleProblem(matchId, ('failedToPack: %s'):format(result))
                                 handleProblem(matchId, 'failedToPack')
                             end
                         else
@@ -766,6 +934,7 @@ local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
             Log('Bumped to %d', svTable.version)
         end
     end
+    --]]
 end
 
 -- ----------------------------------------------------------------------------

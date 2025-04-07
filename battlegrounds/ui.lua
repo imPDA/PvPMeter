@@ -1,3 +1,7 @@
+local PossibleNan = IMP_STATS_SHARED.PossibleNan
+
+-- ----------------------------------------------------------------------------
+
 local addon = {}
 
 addon.name = 'IMP_STATS_MATCHES_UI'
@@ -7,6 +11,7 @@ local EVENT_NAMESPACE = addon.name
 -- addon.listControl = nil
 -- addon.statsControl = nil
 
+-- TODO: some global to avoid duplication, it also present in newMatchManager
 local TEAM_TYPE_4_SOLO = 1
 local TEAM_TYPE_8_SOLO = 2
 local TEAM_TYPE_4_GROUP = 3
@@ -166,9 +171,11 @@ function addon:ApplySorting(preventCommit)
 end
 
 function addon:UpdateStatsControl()
-    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IMP_STATS_SHARED.FormatNumber(self.stats.totalMatches))
+    local totalMatches = #self.matches  -- self.stats.totalMatches
 
-    local winrate = IMP_STATS_SHARED.PossibleNan(self.stats.totalWon / self.stats.totalMatches)
+    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IMP_STATS_SHARED.FormatNumber(totalMatches))
+
+    local winrate = PossibleNan(self.stats.totalWon / self.stats.totalMatches)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
         string.format(
             '%.1f %% (|c00FF00%d|r / |cFF0000%d|r / |c555555%d|r)',
@@ -180,7 +187,7 @@ function addon:UpdateStatsControl()
     )
 
     self.statsControl:GetNamedChild('KDValue'):SetText(
-        string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalKills / self.stats.totalDeaths))
+        string.format('%.1f', PossibleNan(self.stats.totalKills / self.stats.totalDeaths))
     )
 
     -- TODO: left
@@ -190,9 +197,9 @@ function addon:UpdateStatsControl()
     KDAStatsControl:GetNamedChild('DSum'):SetText(self.stats.totalDeaths)
     KDAStatsControl:GetNamedChild('ASum'):SetText(self.stats.totalAssists)
 
-    KDAStatsControl:GetNamedChild('KAvg'):SetText(string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalKills / self.stats.totalMatches)))
-    KDAStatsControl:GetNamedChild('DAvg'):SetText(string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalDeaths / self.stats.totalMatches)))
-    KDAStatsControl:GetNamedChild('AAvg'):SetText(string.format('%.1f', IMP_STATS_SHARED.PossibleNan(self.stats.totalAssists / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('KAvg'):SetText(string.format('%.1f', PossibleNan(self.stats.totalKills / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('DAvg'):SetText(string.format('%.1f', PossibleNan(self.stats.totalDeaths / self.stats.totalMatches)))
+    KDAStatsControl:GetNamedChild('AAvg'):SetText(string.format('%.1f', PossibleNan(self.stats.totalAssists / self.stats.totalMatches)))
 
     IMP_STATS_SHARED.SetGaugeKDAMeter(self.statsControl:GetNamedChild('GaugeKDAMeter'), winrate)
 end
@@ -203,11 +210,17 @@ function addon:CreateControls()
     assert(matchesControl ~= nil, 'Matches control was not created')
 
     local listControl = matchesControl:GetNamedChild('Listing'):GetNamedChild('ScrollableList')
-    local statsControl = matchesControl:GetNamedChild('StatsBlock')
+    local statsControl = matchesControl:GetNamedChild('TopBlock'):GetNamedChild('Stats')
+    local filtersControl = matchesControl:GetNamedChild('TopBlock'):GetNamedChild('Filters')
 
     self.matchesControl = matchesControl
     self.listControl = listControl
     self.statsControl = statsControl
+    self.filtersControl = filtersControl
+
+    matchesControl:SetHandler("OnShow", function()
+        if self.dirty then self:Update() end
+    end)
 
     Log('Controls created')
 end
@@ -255,7 +268,7 @@ function addon:CreateScrollListDataType()
     }
 
     local function LayoutRow(rowControl, data, scrollList)
-        local summary = self.matchSummaries[data.matchIndex]
+        local summary = self:GetMatchSummary(data.matchIndex)
 
         GetControl(rowControl, 'Index'):SetText(data.index)
         -- if not self.matches[data.matchIndex].playedFromStart then
@@ -436,22 +449,39 @@ function addon:CalculateStats(task)
     self.stats:Clear()
 
     local function AddMatch(index, matchIndex)
+        matchIndex = self.dataRows[index]
         self.stats:AddMatch(matchIndex, self:GetMatchSummary(matchIndex))
     end
 
-    return task:Call(function() task:For(ipairs(self.dataRows)):Do(AddMatch) end)
+    local LAST_N = 150
+
+    local stopIndex = #self.dataRows
+    local startIndex = math.max(1, stopIndex - LAST_N + 1)
+
+    return task:Call(function() task:For(startIndex, stopIndex):Do(AddMatch) end)  -- ipairs(self.dataRows)
+end
+
+function addon:IsHidden()
+    return self.matchesControl:IsHidden()
 end
 
 function addon:Update()
     -- TODO ShowWarning
 
-    self.dataRows = {}
-
-    local function UpdateSummaries(task)
-        return task:For(ipairs(self.dataRows)):Do(function(index, matchIndex) self:UpdateMatchSummary(matchIndex) end)
+    if self:IsHidden() then
+        self.dirty = true
+        return
     end
 
+    -- TODO: clear via ZO_ClearTable etc.?
+    self.dataRows = {}
+
+    -- local function UpdateSummaries(task)
+    --     return task:For(ipairs(self.dataRows)):Do(function(index, matchIndex) self:UpdateMatchSummary(matchIndex) end)
+    -- end
+
     local task = LibAsync:Create('UpdateBattlegroundsDataRows')
+
     IMP_STATS_MATCHES_MANAGER
     :GetMatches(task, self.filters, self.dataRows)
     -- :Then(function() UpdateSummaries(task) end)
@@ -461,6 +491,7 @@ function addon:Update()
     end)
     :Then(function() self:ApplySorting(true) end)
     :Then(function() ZO_ScrollList_Commit(self.listControl) end)
+    :Then(function() self.dirty = false end)
 end
 
 function addon:UpdateScrollListControl(task)
@@ -518,7 +549,7 @@ function addon:InitializeTeamTypeFilter()
         self:Update()
     end
 
-    local filterControl = GetControl(self.statsControl, 'FilterTeamType')
+    local filterControl = GetControl(self.filtersControl, 'FilterTeamType')
     local filter = InitializeFilter(filterControl, entriesData, callback)
     filter:SetNoSelectionText('|cFF0000Select Team Type|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Team Type/$d Team Types]>> Selected')
@@ -573,7 +604,7 @@ function addon:InitializeMatchModeFilter()
         self:Update()
     end
 
-    local filterControl = GetControl(self.statsControl, 'FilterGameMode')
+    local filterControl = GetControl(self.filtersControl, 'FilterGameMode')
     local filter = InitializeFilter(filterControl, entriesData, callback)
     filter:SetNoSelectionText('|cFF0000Select Match Mode|r')
     filter:SetMultiSelectionTextFormatter('<<1[$d Mode/$d Modes]>> Selected')
@@ -638,31 +669,7 @@ function addon:Initialize(naming, selections, filterByApi)
     self:AddFilter(GoodDataFilter)
 
     local function GetMatchTeamType(matchData)
-        if not matchData.teamType then  -- COMPATIBILITY with matches b4 0.1.0b18
-            local groupType = GetActivityGroupType(matchData.lfgActivityId)
-
-            if matchData.teamSize == 8 then
-                if groupType == LFG_GROUP_TYPE_NONE then
-                    matchData.teamType = TEAM_TYPE_8_SOLO
-                -- elseif groupType == LFG_GROUP_TYPE_REGULAR then
-                --     matchData.teamType = TEAM_TYPE_8_GROUP
-                elseif groupType == LFG_GROUP_TYPE_BIG_TEAM_BATTLE then
-                    matchData.teamType = TEAM_TYPE_8_GROUP
-                else
-                    Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
-                end
-            elseif matchData.teamSize == 4 then
-                if groupType == LFG_GROUP_TYPE_NONE then
-                    matchData.teamType = TEAM_TYPE_4_SOLO
-                elseif groupType == LFG_GROUP_TYPE_REGULAR then
-                    matchData.teamType = TEAM_TYPE_4_GROUP
-                else
-                    Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
-                end
-            else
-                Log('Problem with GetMatchGroupType, teamSize: %d, groupType: %d', matchData.teamSize, groupType)
-            end
-        end
+        -- teamType set function moved to MatchManager 1.1.0
 
         return matchData.teamType
     end
@@ -713,7 +720,7 @@ function addon:Initialize(naming, selections, filterByApi)
     if IMP_STATS_SHARED.TableLength(self.selections.characters) < 1 then
         self.selections.characters[GetCurrentCharacterId()] = true
     end
-    self:InitializePlayerCharactersFilter(GetControl(self.statsControl, 'CharactersFilter'), self.selections.characters)
+    self:InitializePlayerCharactersFilter(GetControl(self.filtersControl, 'CharactersFilter'), self.selections.characters)
 
     local manager = IMP_STATS_MATCHES_MANAGER
     if manager.states then
