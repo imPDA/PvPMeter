@@ -266,7 +266,7 @@ function addon.SetGaugeKDAMeter(kdaMeterControl, value)
 
     GetControl(kdaMeterControl, 'Bar'):StartFixedCooldown(value, CD_TYPE_RADIAL, CD_TIME_TYPE_TIME_REMAINING, false)  -- TODO
     GetControl(kdaMeterControl, 'Bar'):SetFillColor(r, g, b)
-    GetControl(kdaMeterControl, 'Winrate'):SetText(string.format('%d%%', value * 100))
+    GetControl(kdaMeterControl, 'Winrate'):SetText(('%.0f%%'):format(value * 100))
     GetControl(kdaMeterControl, 'Winrate'):SetColor(r, g, b)
 end
 

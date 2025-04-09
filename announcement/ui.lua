@@ -35,6 +35,7 @@ function IMP_STATS_Announcement_OnInitialized(control)
     control:GetNamedChild('Text'):SetText(TEXT)
 
     ZO_PostHookHandler(IMP_STATS_MATCHES, "OnEffectivelyShown", function()
+        if IMP_STATS_MATCHES_MANAGER and IMP_STATS_MATCHES_MANAGER.sv.newManager then return end
         control:SetHidden(false)
     end)
 

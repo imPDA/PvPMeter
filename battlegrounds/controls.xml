@@ -99,7 +99,7 @@
 									<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner" offsetY="42" />
 								</Control>
 
-								<Label name="$(parent)MatchesCount" inherits="IMP_STATS_StatName" text="Stats over last 150 matches">
+								<Label name="$(parent)MatchesCount" inherits="IMP_STATS_StatName" text="Stats over last - matches">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)TopLeftCorner2" />
 								</Label>
 								<!-- <Label name="$(parent)MatchesCountValue" inherits="IMP_STATS_StatValue">

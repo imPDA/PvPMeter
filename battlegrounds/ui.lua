@@ -80,12 +80,13 @@ function MatchesStats:Clear()
     self.totalHealingDone = 0
     self.totalDamageTaken = 0
 
-    self.lastProceededIndex = 0
+    -- self.lastProceededIndex = 0
 end
 
 function MatchesStats:AddMatch(index, data)
-    if self.lastProceededIndex and index <= self.lastProceededIndex then return end
-    self.lastProceededIndex = index
+      -- TODO: make actual use of it or remove
+    -- if self.lastProceededIndex and index <= self.lastProceededIndex then return end
+    -- self.lastProceededIndex = index
 
     self.totalMatches       = self.totalMatches     + 1
     self.totalKills         = self.totalKills       + data.kills
@@ -105,7 +106,7 @@ function MatchesStats:AddMatch(index, data)
 
     -- self.totalLeft = self.totalLeft + 1
 
-    self.lastProceededIndex = 0
+    -- self.lastProceededIndex = 0
 end
 --#endregion
 
@@ -174,6 +175,10 @@ function addon:UpdateStatsControl()
     local totalMatches = #self.matches  -- self.stats.totalMatches
 
     self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IMP_STATS_SHARED.FormatNumber(totalMatches))
+
+    local N = self.stats.totalMatches
+    if IMP_STATS_MATCHES_MANAGER.sv.last150 then N = math.min(N, 150) end
+    self.statsControl:GetNamedChild('MatchesCount'):SetText(zo_strformat("Stats over last <<1>> <<m:2>>", N, 'match^n'))
 
     local winrate = PossibleNan(self.stats.totalWon / self.stats.totalMatches)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
@@ -453,10 +458,13 @@ function addon:CalculateStats(task)
         self.stats:AddMatch(matchIndex, self:GetMatchSummary(matchIndex))
     end
 
-    local LAST_N = 150
+    local LAST_N = #self.dataRows
+    if IMP_STATS_MATCHES_MANAGER.sv.last150 then LAST_N = 150 end
 
     local stopIndex = #self.dataRows
     local startIndex = math.max(1, stopIndex - LAST_N + 1)
+
+    Log('Calculating stats, start: %d, stop: %s', startIndex, stopIndex)
 
     return task:Call(function() task:For(startIndex, stopIndex):Do(AddMatch) end)  -- ipairs(self.dataRows)
 end

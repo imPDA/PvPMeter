@@ -3,6 +3,7 @@ local addon = {}
 local LAM = LibAddonMenu2
 
 --#region COPY OLD DATA TO NEW ADDON
+--[[
 local dataMapping = {
     ['ImpPvPMeterSV'] = 'ImpressiveStatsSV',
     ['ImpPvPMeterCSV'] = 'ImpressiveStatsCSV',
@@ -24,6 +25,7 @@ local function CopyDataFromImpPvPMeter()
     end
     ReloadUI()
 end
+--]]
 --#endregion
 
 function addon:Initialize(settingsName, settingsDisplayName, sv)
@@ -31,6 +33,8 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
         type = 'panel',
         name = settingsDisplayName,
         author = '@impda',
+        website = 'https://www.esoui.com/downloads/info4032-ImpressiveStats.html',
+        version = '1.1.2',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
@@ -57,6 +61,7 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                         IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox:UpdateDisabled()
                     end,
                     requiresReload = true,
+                    disabled = function() return sv.battlegrounds.newManager end,
                 },
                 {
                     type = 'checkbox',
@@ -66,6 +71,28 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     requiresReload = true,
                     disabled = function() return not sv.battlegrounds.newManager end,
                     reference = 'IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox',
+                },
+                {
+                    type = 'checkbox',
+                    name = 'Calculate stats over last 150 matches',
+                    getFunc = function() return sv.battlegrounds.last150 end,
+                    setFunc = function(value)
+                        sv.battlegrounds.last150 = value
+                        IMP_STATS_MATCHES_UI:Update()
+                    end,
+                    -- requiresReload = true,
+                    -- disabled = function() return not sv.battlegrounds.newManager end,
+                },
+                {
+                    type = "button",
+                    name = "Delete matches data",
+                    func = function()
+                        ImpressiveStatsMatchesData = {}
+                        ReloadUI()
+                    end,
+                    width = "full",
+                    isDangerous = true,
+                    warning = "Тhis is |cee0000DESTRUCTIVE|r action and it will DELETE ALL DATA (and for both EU and NA servers) about BATTLEGROUND MATCHES recorded. There would be |cee0000NO WAY TO RECOVER|r it!\n\n|c00aa00Please consider saving it before, you can help to gather statistics by sending this file to me :)|r\n\nProceed only if you 100% sure about it!\n\nUI will be automatically reloaded.",
                 },
             },
         },
@@ -98,7 +125,18 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                     width = 'full',
                     requiresReload = true,
                     -- warning = 'Will need to reload the UI.',	--(optional)
-                  },
+                },
+                {
+                    type = "button",
+                    name = "Delete duels data",
+                    func = function()
+                        ImpressiveStatsDuelsData = {}
+                        ReloadUI()
+                    end,
+                    width = "full",
+                    isDangerous = true,
+                    warning = "Тhis is |cee0000DESTRUCTIVE|r action and it will DELETE ALL DATA (and for both EU and NA servers) about DUELS recorded. There would be |cee0000NO WAY TO RECOVER|r it!\n\nProceed only if you 100% sure about it!\n\nUI will be automatically reloaded.",
+                },
             },
         },
         {
@@ -122,6 +160,7 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                 },
             },
         },
+        --[[
         {
             type = 'button',
             name = 'Copy from ImpPvPMeter',
@@ -132,6 +171,7 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
             isDangerous	= true,
             disabled = function() return not IsDataFromImpPvPMeterAvailable() end,
         },
+        --]]
     }
 
     LAM:RegisterOptionControls(settingsName, optionsData)

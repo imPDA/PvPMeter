@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpressiveStats'
 addon.displayName = '|c7c42f2Imp|ceeeeee-ressive Stats|r'
-addon.version = '1.1.1'
+addon.version = '1.1.2'
 
 local Log = IMP_STATS_Logger('IMP_STATS_MAIN')
 
@@ -12,6 +12,7 @@ local DEFAULTS = {
 		newManager = false,
 		-- selectedCharacters = {},
 		showOnlyLastUpdateMatches = false,
+		last150 = false,
 	},
 	duels = {
 		enabled = true,
