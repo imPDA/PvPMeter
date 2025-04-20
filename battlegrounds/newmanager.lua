@@ -366,6 +366,41 @@ end
 
 MatchManager.GetMatches = IMP_STATS_SHARED.Get
 
+--[[
+function MatchManager:GetLastNMatches(task, filters, tbl, n)
+    local function PassFilters(data)
+        for _, filter in ipairs(filters) do
+            if not filter(data) then return end
+        end
+
+        return true
+    end
+
+    -- local function Filter(index, data)
+    --     if PassFilters(data) then table.insert(tbl, index) end
+    -- end
+
+    local stop = #self.savedMatches
+    local start = stop - n + 1
+
+    local function loadAndCheck(index)
+        if not self.matches[index] then
+            local packedMatchData = self.savedMatches[index]
+            if type(packedMatchData) == 'string' then
+                self.matches[index] = self.UnpackMatch(packedMatchData)
+            else
+                self.matches[index] = {}
+                ZO_DeepTableCopy(packedMatchData, self.matches[index])
+            end
+        end
+        local matchData = self.matches[index]
+        if PassFilters(matchData) then table.insert(tbl, index) end
+    end
+
+    return task:For(start, stop):Do(loadAndCheck)
+end
+--]]
+
 function MatchManager:GetDataRows(task)
     --[[
     for i = #self.matches+1, #self.savedMatches do
@@ -380,7 +415,8 @@ function MatchManager:GetDataRows(task)
     --]]
 
     ---[[
-    Log('GetDataRows requested, going to load %s matches (%s -> %s)', #self.savedMatches - #self.matches, #self.matches, #self.savedMatches)
+    local matchesToLoad = #self.savedMatches - #self.matches
+    Log('GetDataRows requested, going to load %s matches (%s -> %s)', matchesToLoad, #self.matches, #self.savedMatches)
 
     local function loadMatch(index)
         local matchData = self.savedMatches[index]
@@ -392,7 +428,18 @@ function MatchManager:GetDataRows(task)
         end
     end
 
-    task:For(#self.matches+1, #self.savedMatches):Do(loadMatch)
+    local function loadMatches()
+        task:For(#self.matches+1, #self.savedMatches):Do(loadMatch)
+    end
+
+    local start
+    task
+    :Call(function() start = GetGameTimeMilliseconds() end)
+    :Then(loadMatches)
+    :Then(function()
+        local diff = GetGameTimeMilliseconds() - start
+        Log('Loaded %d matches, %d ms, avg: %.2f ms', matchesToLoad, diff, diff / matchesToLoad)
+    end)
     --]]
 
     return self.matches
@@ -681,31 +728,53 @@ local PlayerSchema = Field.Table('player', {
     Field.Enum('classId', CLASSES_LOOKUP_TABLE, INVERSED)
 })
 
+local Players = Field.VLArray('players', 16, PlayerSchema)
+
+function Players:Unserialize(binaryBuffer)
+    local length = self.length:Unserialize(binaryBuffer)
+
+    if length == 0 then return {} end
+
+    local firstPlayer = self.subType:Unserialize(binaryBuffer)
+
+    for _ = 2, length do
+        self.subType:Skip(binaryBuffer)
+    end
+
+    return { firstPlayer }
+end
+
 local MatchSchema = Field.Table(nil, {
-    Field.Enum('api', APIS_LOOKUP_TABLE, INVERSED),
-    Field.Number('battlegroundId', 10),  -- U45 max id is 294
-    Field.Number('entryTimestamp', 32),
-    Field.Number('lfgActivityId', 12), -- U45 max id is 1041 (Vengeance)
-    Field.Optional(Field.Bool('locked')),
-    Field.Optional(Field.Bool('playedFromStart')),
-    Field.Optional(Field.Bool('grouped')),
+    --[[ 1]] Field.Enum('api', APIS_LOOKUP_TABLE, INVERSED),
+    --[[ 2]] Field.Number('battlegroundId', 10),  -- U45 max id is 294
+    --[[ 3]] Field.Number('entryTimestamp', 32),
+    --[[ 4]] Field.Number('lfgActivityId', 12), -- U45 max id is 1041 (Vengeance)
+    --[[ 5]] Field.Optional(Field.Bool('locked')),
+    --[[ 6]] Field.Optional(Field.Bool('playedFromStart')),
+    --[[ 7]] Field.Optional(Field.Bool('grouped')),
     -- Field.Number('playerCharacterId', 53),
-    Field.String('playerCharacterId', 16),
-    Field.Enum('playerClass', CLASSES_LOOKUP_TABLE, INVERSED),
-    Field.Enum('playerRace', RACES_LOOKUP_TABLE, INVERSED),
-    Field.Enum('result', BATTLEGROUND_RESULT_LOOKUP_TABLE, INVERSED),
-    Field.VLArray('rounds', 3, Field.Table(nil, {
-        Field.VLArray('players', 16, PlayerSchema),
+    --[[ 8]] Field.String('playerCharacterId', 16),
+    --[[ 9]] Field.Enum('playerClass', CLASSES_LOOKUP_TABLE, INVERSED),
+    --[[10]] Field.Enum('playerRace', RACES_LOOKUP_TABLE, INVERSED),
+    --[[11]] Field.Enum('result', BATTLEGROUND_RESULT_LOOKUP_TABLE, INVERSED),
+    --[[12]] Field.VLArray('rounds', 3, Field.Table(nil, {
+        Players,
         Field.Enum('result', BATTLEGROUND_ROUND_RESULT_LOOKUP_TABLE, INVERSED),
         Field.VLArray('scores', 3, Field.Number(nil, 10)),
     })),
-    Field.Enum('teamSize', TEAM_SIZE_LOOKUP_TABLE, INVERSED),
-    Field.Enum('teamType', TEAM_TYPE_LOOKUP_TABLE, INVERSED),
-    Field.Enum('type', MATCH_TYPE_LOOKUP_TABLE, INVERSED),
-    Field.Number('zoneId', 11),  -- TODO: check
+    --[[13]] Field.Enum('teamSize', TEAM_SIZE_LOOKUP_TABLE, INVERSED),
+    --[[14]] Field.Enum('teamType', TEAM_TYPE_LOOKUP_TABLE, INVERSED),
+    --[[15]] Field.Enum('type', MATCH_TYPE_LOOKUP_TABLE, INVERSED),
+    --[[16]] Field.Number('zoneId', 11),  -- TODO: check
 
-    Field.Optional(Field.String('superstar', 230)),
+    --[[17]] Field.Optional(Field.String('superstar', 230)),
 })
+
+-- IMP_STATS_MATCH_SCHEMA = MatchSchema
+
+-- local ReadMatchSchema = {}
+-- ZO_DeepTableCopy(MatchSchema, ReadMatchSchema)
+-- ReadMatchSchema.fields[12].subType.fields[1] = ReadPlayers
 
 local ENCODE_BASE = LDP.Base.Base64RCF4648
 
@@ -729,7 +798,9 @@ end
 -- ----------------------------------------------------------------------------
 
 local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
+    Log('WTF BRUHHH')
     Log('Data version: %d', svTable.version)
+    Log('WTF BRUHHH 2')
 
     if svTable.version == nil then
         svTable.version = 0
@@ -922,6 +993,7 @@ local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
                             else
                                 -- handleProblem(matchId, ('failedToPack: %s'):format(result))
                                 handleProblem(matchId, 'failedToPack')
+                                Log(result)
                             end
                         else
                             handleProblem(matchId, 'notATable')
@@ -931,6 +1003,46 @@ local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
             end
 
             svTable.version = 1108003
+            Log('Bumped to %d', svTable.version)
+        end
+    end
+    --]]
+
+    ---[[
+    do
+        local function addTeamType(match)
+            match.teamType = getTeamType(match.lfgActivityId, match.teamSize)
+        end
+
+        if svTable.version < 1108004 then
+            svProblemsTable[1108004] = {}
+            problems = svProblemsTable[1108004]
+
+            for key, data in pairs(svTable) do
+                if key ~= 'version' and type(key) == 'string' then
+                    Log('Updating %s matches', key)
+                    for matchId = 1, #data do
+                        if type(data[matchId]) == 'table' then
+                            addTeamType(data[matchId])
+                            local success, result = pcall(PackMatch, data[matchId])
+                            if success then
+                                data[matchId] = result
+                            else
+                                handleProblem(matchId, 'failedToPack')
+                                Log(result)
+                            end
+                        else
+                            local success, result = pcall(UnpackMatch, data[matchId])
+                            if not success then
+                                handleProblem(matchId, 'failed to unpack previously packed match')
+                                Log(result)
+                            end
+                        end
+                    end
+                end
+            end
+
+            svTable.version = 1108004
             Log('Bumped to %d', svTable.version)
         end
     end
