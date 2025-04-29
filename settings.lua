@@ -34,7 +34,7 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4032-ImpressiveStats.html',
-        version = '1.1.3',
+        version = '1.1.4',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)

@@ -118,9 +118,11 @@ end
 
 --#region IMP STATS DUELS UI
 function addon:UpdateStatsControl()
+    local duelsWithResult = self.stats.totalWon + self.stats.totalLost
+
     self.statsControl:GetNamedChild('TotalDuelsValue'):SetText(self.stats.totalDuels)
 
-    local winrate = IMP_STATS_SHARED.PossibleNan(self.stats.totalWon / self.stats.totalDuels)
+    local winrate = IMP_STATS_SHARED.PossibleNan(self.stats.totalWon / duelsWithResult)
     self.statsControl:GetNamedChild('WinrateValue'):SetText(
         string.format('%.1f %% (|c00FF00%d|r / |cFF0000%d|r)', winrate * 100, self.stats.totalWon, self.stats.totalLost)
     )
