@@ -52,12 +52,15 @@ function GameManager.Initialize(game)
 
     game.opponent = {
         name = oppName,
+        atStart = {},
+        atEnd = {},
     }
 
     game:UpdatePlayerRank()
     game:UpdatePlayerMMR()
 
     -- TODO: opp rank
+    game:UpdateOpponentRankAndMMR()
 end
 
 function GameManager:UpdatePlayerRank(skipRequest)
@@ -118,6 +121,47 @@ function GameManager:UpdatePlayerMMR(skipRequest)
         Log('[GameManager] Player\'s %s MMR updated', type)
         EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
     end
+end
+
+function GameManager:UpdateOpponentRankAndMMR()
+    local opponent = self.opponent
+    local inLadder, rank, displayName, characterName, score = GetOpponentData(opponent.name)
+
+    if inLadder then
+        if self.gameOver then
+            if opponent.atStart.mmr ~= score then
+                opponent.atEnd.mmr = score
+                opponent.atEnd.rank = rank
+            else
+                -- TODO: ensure it will not cause problems
+                zo_callLater(function() GameManager:UpdateOpponentRankAndMMR() end, 1500)
+            end
+        else
+            opponent.atStart.mmr = score
+            opponent.atStart.rank = rank
+        end
+    end
+end
+
+function GameManager:PredictMMRChange()
+    if
+    not self.player or
+    not self.player.atStart or
+    not self.player.atStart.mmr or
+    not self.opponent or
+    not self.opponent.atStart or
+    not self.opponent.atStart.mmr
+    then return end
+
+    local playerMMR = self.player.atStart.mmr
+    local opponentMMR = self.opponent.atStart.mmr
+
+    local difference = playerMMR - opponentMMR
+    local predict1 = 125.0 - 0.0896 * difference + 0.00002 * difference^2
+    local predict2 = 99.6 - 0.0766 * difference + 0.0000269 * difference^2
+    local predict3 = -89.7 - 0.0675 * difference - 0.0000332 * difference^2
+
+    return predict1, predict2, predict3
 end
 
 -- function GameManager:UpdateScore(name)
@@ -183,6 +227,8 @@ function GameManager:OnGameOver()
 
     self:UpdatePlayerRank()
     self:UpdatePlayerMMR()
+
+    self:UpdateOpponentRankAndMMR()
 end
 --#endregion GameManager
 
@@ -196,14 +242,18 @@ end
 function addon:UpdateOpponentPreview()
     local opponent = self.currentGame.opponent
 
+    GetControl(self.previewControl, 'OpponentName'):SetText(opponent.name)
+
     local gamesPlayedBefore, totalWinrate, FPWinrate, SPWinrate = IMP_STATS_TRIBUTE_STATS_MANAGER:GetStatsVS(opponent.name)
     local playedBeforeText = gamesPlayedBefore and ('Played %d games'):format(gamesPlayedBefore) or 'Not played before'
     local winrateValueText = gamesPlayedBefore and ('%.1f %%'):format(IMP_STATS_SHARED.PossibleNan(totalWinrate) * 100) or '-'
     GetControl(self.previewControl, 'PlayedBefore'):SetText(playedBeforeText)
     GetControl(self.previewControl, 'WinrateValue'):SetText(winrateValueText)
 
-    local inLadder, rank, displayName, characterName, mmr = GetOpponentData(opponent.name)
-    local opponentRankText = inLadder and ('Ladder #%d (%d MMR)'):format(rank, mmr) or 'Not in top-100'
+    -- local inLadder, rank, displayName, characterName, mmr = GetOpponentData(opponent.name)
+    local rank = opponent.atStart.rank
+    local mmr = opponent.atStart.mmr
+    local opponentRankText = rank and ('Ladder #%d (%d MMR)'):format(rank, mmr) or 'Not in top-100'
     GetControl(self.previewControl, 'OpponentRank'):SetText(opponentRankText)
 
     local note = IMP_STATS_NOTES_MANAGER:GetNote(opponent.name)
@@ -357,6 +407,23 @@ function IMP_STATS_InitializeTributeManager(settings, characterSettings)
     Log('Leaderboard: %s', tostring(settings.leaderboard))
     if settings.leaderboard then
         IMP_STATS_TributeLeaderboard_Initialize()
+    end
+
+    SLASH_COMMANDS['/impspredict'] = function()
+        local currentGame = IMP_STATS_TRIBUTE_MANAGER.currentGame
+        if not currentGame then
+            Log('No game to calculate prediction for')
+            return
+        end
+
+        local p1, p2, p3 = currentGame:PredictMMRChange()
+
+        if not p1 then
+            Log('No prediction to print')
+            return
+        end
+
+        df('[ToT Rank] Prediction: +%d or +%d / -%d', p1, p2, p3)
     end
 end
 

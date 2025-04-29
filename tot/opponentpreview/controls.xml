@@ -15,16 +15,17 @@
 			<Controls>
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
 
-				<!-- <Label name="$(parent)OpponentName" inherits="IMP_STATS_TributeOpponentPreview_Label" text="Opponent:">
+				<Label name="$(parent)OpponentName" inherits="IMP_STATS_TributeOpponentPreview_Label" text="@ID">
 					<Anchor point="TOPLEFT" />
 				</Label>
-				<Label name="$(parent)OpponentNameValue" inherits="IMP_STATS_TributeOpponentPreview_Label">
+
+				<!-- <Label name="$(parent)OpponentNameValue" inherits="IMP_STATS_TributeOpponentPreview_Label">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" offsetX="4" />
 				</Label> -->
 
 				<Label name="$(parent)OpponentRank" inherits="IMP_STATS_TributeOpponentPreview_Label" text="Not in top-100">
 					<!-- <Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="BOTTOMLEFT" /> -->
-					<Anchor point="TOPLEFT" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="BOTTOMLEFT" />
 				</Label>
 				<!-- <Label name="$(parent)OpponentMMRValue" inherits="IMP_STATS_TributeOpponentPreview_Label">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentMMR" relativePoint="TOPRIGHT" offsetX="4" />
