@@ -1,0 +1,55 @@
+1.2.0
+BATTLEGROUNDS
+- BREAKING CHANGE: Fix for saved variables. First load can take more time!
+- Added feature to save build in the end of match (turn it on in settings)
+
+TALES OF TRIBUTE
+- Added track of patrons picked by you and opponent
+
+1.1.3
+BATTLEGROUNDS
+- New manager is now mandatory and it requires new version of LibDataPacker (update separately)
+- 5-10x times faster loading of matches list due to optimizations
+- If you preferred to stick with old manager before, matches were not displayed properly in UI (but still recorded as usual). This was resolved, you now should be able to see all recorded matches (if not, pls report it)
+
+1.1.2 hotfixes and QoL improvements
+BATTLEGROUNDS
+- Announcement regarding new manager now hides as intended.
+- Calculation for the last 150 matches is now optional (configurable in settings). Note: 150-match calculation performs slightly better due to reduced computations.
+- Winrate on gauge meter now rounds according to standard math rules (0.5 rounds up).
+- Added ability to permanently delete battleground matches data via settings.
+
+DUELS
+- Added ability to permanently delete duels data via settings.
+
+COMMON
+- Removed the button to copy data gathered during beta test. Thanks again to all testers!
+
+1.1.1
+- LibDebugLogger was previously required (my oversight) and its absence could crash the addon. This has been fixed - you may now remove it if no other addons need it.
+
+BATTLEGROUNDS
+- BREAKING CHANGE: More reliable match manager for battlegrounds. All reported issues were addressed
+- New match saving system results in 10x smaller saved variables, improving loading times
+- Matches no longer load during loading screens, further reducing impact on loading times
+- Average stats now calculated only over last 150 matches to prevent stagnation (additional stats analysis tools coming soon)
+
+TALES OF TRIBUTE
+- Fixed opponent preview for ToT matches - you now correctly see current opponent's leaderboard position (Top-100 only, due to API limitations), MMR value, and correct winrate 
+- Small improvements for note system (stability)
+
+1.0.7
+- Notes for ToT
+- Separate leaderboard for ToT
+- Error with Warning sign fixed (appeared with U45)
+
+1.0.6
+- Hotfix for battlegrounds UI: After version 1.0.5, matches were not displaying properly. This is solely a UI-related issue, and all matches have been recorded correctly. You will be able to see them after applying the update.
+
+1.0.5
+- Code improvements
+- Rework of ToT UI
+- Compatibility with PerfectPixel
+
+1.0.1
+- Initial

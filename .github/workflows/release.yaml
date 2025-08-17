@@ -42,3 +42,13 @@ jobs:
         asset_path: ${{ steps.setup.outputs.archive_name }}
         asset_name: ${{ steps.setup.outputs.archive_name }}
         asset_content_type: application/zip
+    
+    - name: Upload to ESOUI
+      uses: m00nyONE/esoui-upload@v2
+      with:
+        api_key: ${{ secrets.ESOUI_API_KEY }}
+        addon_id: '4032'
+        version: ${{ github.ref_name }}
+        zip_file: /tmp/${{ steps.setup.outputs.archive_name }}
+        description_file: 'description.txt'
+        changelog_file: 'changelog.txt'

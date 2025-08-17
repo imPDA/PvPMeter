@@ -1,0 +1,66 @@
+[SIZE="5"][COLOR="Lime"]"Look at these Impressive Stats!"[/COLOR][/SIZE]
+
+This addon is inspired by PvP Meter (by marig63). Some features of the original addon stopped working after an in-game update long ago and were subsequently disabled by the current maintainer (amuridee). The goal of this addon is to replace the missing features and provide a more user-friendly and feature-rich interface.
+
+[SIZE="3"][COLOR="YellowGreen"]Dependencies[/COLOR][/SIZE]
+
+[spoiler][LIST]
+[*][URL="https://www.esoui.com/downloads/info2118-LibMainMenu-2.0.html"]LibMainMenu-2.0[/URL]
+[*][URL="https://www.esoui.com/downloads/info7-LibAddonMenu-2.0.html"]LibAddonMenu-2.0[/URL]
+[*][URL="https://www.esoui.com/downloads/info2528-LibCombat.html"]LibCombat[/URL]
+[*][URL="https://www.esoui.com/downloads/info2125-LibAsync.html"]LibAsync[/URL]
+[*][URL="https://www.esoui.com/downloads/info1146-LibCustomMenu.html"]LibCustomMenu[/URL]
+[*][URL="https://www.esoui.com/downloads/info4082-LibDataPacker.html"]LibDataPacker[/URL]
+[/LIST][/spoiler]
+
+[SIZE="3"][COLOR="YellowGreen"]Battlegrounds[/COLOR][/SIZE]
+[LIST]
+[*]A list of all matches with essential information
+[*]Three filters: team type (4-solo/group and 8-solo/group), mode (deathmatch, crazy king, etc.), and character (you can choose from one to all your characters)
+[*]A button to select/deselect all characters or select current character only
+[*]Simple statistics including win rate and KDA over last 150 matches or over all recorded matches, which take into account all applied filters
+[*][COLOR="orange"][NEW IN 1.2.0][/COLOR]Save of build at the end of match (gear, skills, skill lines, food, class, race), preview of saved build in separate window in any time
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Duels[/COLOR][/SIZE]
+[LIST]
+[*]A list of all duels with essential information
+[*]Two filters: character (same as for Battlegrounds) and a search field for opponents (by character name and @UserID)
+[*]Simple statistics ([I]currently being reworked[/I])
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Tales Of Tribute[/COLOR][/SIZE]
+[LIST]
+[*]A list of all games with essential information
+[*]A search field for opponents (by character name and @UserID)
+[*]Simple statistics
+[*][COLOR="gray"][STILL EXPERIMENTAL][/COLOR]Added a leaderboard on the left side of the screen for quick access, this eliminates the need to navigate through multiple menus (J -> Leaderboards -> ToT -> Ranked) for a faster and more convenient experience.
+[*][COLOR="orange"][NEW IN 1.1.1][/COLOR]Added a Rating Queue button below the leaderboard. Now you can play ToT without opening additional menus—just open Impessive Stats :)
+[*][COLOR="gray"][STILL EXPERIMENTAL][/COLOR]Note system for ToT: you can now add notes to any opponent by right-clicking (RMB) on a row in the list of plays, leaderboard, or by pressing the plus/note icon during a game match.
+[*]Opponent preview during matches, it displays their MMR value, leaderboard position and winrate in previous games with you
+[*][COLOR="orange"][NEW IN 1.2.0][/COLOR]Track of patrons picked by you and opponent
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Contacts[/COLOR][/SIZE]
+
+You can send me feedback via Discord (@impda) or on the [URL="https://www.esoui.com/forums/showthread.php?t=11156"]forum[/URL]. Any suggestions will be reviewed. I’m currently looking for a better UI designer, so if you can imagine a more visually appealing design, please reach out to me.
+
+[SIZE="3"][COLOR="YellowGreen"]Roadmap[/COLOR][/SIZE]
+[LIST]
+[*]Rework the UI for duels and Tales of Tribute tabs
+[*][COLOR="Green"][DONE][/COLOR]Add compatibility with PerfectPixel
+[*]Integrate with CMX (save and load duels)
+[*][COLOR="Green"][DONE][/COLOR]Implement saved variables compression
+[*]Time filter (ToT, to select current month leaderboard for example)
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]Known issues[/COLOR][/SIZE]
+[LIST]
+[*]Tales of Tribute rating is not updated sometimes, likely due to API restrictions. If you encounter this issue, please install Tribute Improved Leaderboard and check if it has the same problem at the same time. If so, send me feedback
+[*][COLOR="GREEN"][FIXED IN 1.1.1]If you encounter this error again, please report it.[/COLOR] [I]Three-round battlegrounds may throw an error, but the match will still be saved. If this happens, send me feedback with a log (requires LibDebugLogger to be installed)[/I]
+[*][COLOR="GREEN"][FIXED IN 1.1.1]If you encounter this error again, please report it.[/COLOR] [I]When backfilling into a team, match data may not be saved[/I]
+
+[/LIST]
+
+[SIZE="3"][COLOR="YellowGreen"]BIG thanks[/COLOR][/SIZE]
+to all testers for help: @DioxyTalon, @Xo39uHLeSa, [URL="https://www.twitch.tv/grozlok"]@Grozlok[/URL], @Atharti, [URL="https://www.twitch.tv/russianasgard"]@RussianAsgard[/URL], [URL="https://www.twitch.tv/decimus"]Decimus[/URL], [URL="https://www.twitch.tv/m_r_k0"]@Mr-k0[/URL], @Miloscpolski, @Sidewaves98, [URL="https://www.twitch.tv/etonesvart"]@svrthmr[/URL]!

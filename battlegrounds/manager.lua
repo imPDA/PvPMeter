@@ -1043,7 +1043,7 @@ local function UpdateSavedVariablesVersion(svTable, svProblemsTable)
     --]]
 
     do
-        local v = 1113000
+        local v = 1120000
         if svTable.version < v then
             svProblemsTable[v] = {}
             problems = svProblemsTable[v]
