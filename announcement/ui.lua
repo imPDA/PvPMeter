@@ -30,7 +30,7 @@ How to revert changes in case of issues:
 (This text will disappear once you turn on the new match manager.)
 ]]
 
-
+--[[
 function IMP_STATS_Announcement_OnInitialized(control)
     control:GetNamedChild('Text'):SetText(TEXT)
 
@@ -43,3 +43,4 @@ function IMP_STATS_Announcement_OnInitialized(control)
         control:SetHidden(true)
     end)
 end
+--]]

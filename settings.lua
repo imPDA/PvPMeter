@@ -34,7 +34,7 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4032-ImpressiveStats.html',
-        version = '1.1.5b1',
+        version = '1.2.0',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
@@ -54,23 +54,17 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                 },
                 -- {
                 --     type = 'checkbox',
-                --     name = '[EXPERIMENTAL]New manager',
-                --     getFunc = function() return sv.battlegrounds.newManager end,
-                --     setFunc = function(value)
-                --         sv.battlegrounds.newManager = value
-                --         IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox:UpdateDisabled()
-                --     end,
+                --     name = '[EXPERIMENTAL]Show only U45 matches',
+                --     getFunc = function() return sv.battlegrounds.showOnlyLastUpdateMatches end,
+                --     setFunc = function(value) sv.battlegrounds.showOnlyLastUpdateMatches = value end,
                 --     requiresReload = true,
-                --     disabled = function() return sv.battlegrounds.newManager end,
+                --     reference = 'IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox',
                 -- },
                 {
                     type = 'checkbox',
-                    name = '[EXPERIMENTAL]Show only U45 matches',
-                    getFunc = function() return sv.battlegrounds.showOnlyLastUpdateMatches end,
-                    setFunc = function(value) sv.battlegrounds.showOnlyLastUpdateMatches = value end,
-                    requiresReload = true,
-                    -- disabled = function() return not sv.battlegrounds.newManager end,
-                    reference = 'IMP_MATCHES_ShowOnlyLastUpdateMatchesCheckbox',
+                    name = 'Save build at the end of match',
+                    getFunc = function() return sv.battlegrounds.saveBuilds end,
+                    setFunc = function(value) sv.battlegrounds.saveBuilds = value end,
                 },
                 {
                     type = 'checkbox',
@@ -80,8 +74,6 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
                         sv.battlegrounds.last150 = value
                         IMP_STATS_MATCHES_UI:Update()
                     end,
-                    -- requiresReload = true,
-                    -- disabled = function() return not sv.battlegrounds.newManager end,
                 },
                 {
                     type = "button",

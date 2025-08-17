@@ -164,6 +164,13 @@ function GameManager:PredictMMRChange()
     return predict1, predict2, predict3
 end
 
+function GameManager:AddPatronPicks()
+    self.patrons = {}
+    for patronDraftId = 0, 3 do
+        self.patrons[patronDraftId] = GetDraftedPatronId(patronDraftId)
+    end
+end
+
 -- function GameManager:UpdateScore(name)
 --     local found, rank, displayName, characterName, score = GetOpponentData(name)
 --     Log('Updated rank: %d (#%d)', score, rank)
@@ -291,6 +298,10 @@ function addon:OnPatronDraft()
     self:ShowOpponentPreview()
 end
 
+function addon:OnGameStarted()
+    self.currentGame:AddPatronPicks()
+end
+
 function addon:OnGameOver()
     Log('Game over')
     if not self.currentGame then return end
@@ -312,6 +323,8 @@ function addon:OnGameState(state)
         self:OnIntro()
     elseif state == TRIBUTE_GAME_FLOW_STATE_PATRON_DRAFT then
         self:OnPatronDraft()
+    elseif state == TRIBUTE_GAME_FLOW_STATE_PLAYING then
+        self:OnGameStarted()
     elseif state == TRIBUTE_GAME_FLOW_STATE_GAME_OVER then
         self:OnGameOver()
     end

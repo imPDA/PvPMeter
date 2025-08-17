@@ -1,8 +1,8 @@
 ## Title: |c7c42f2Imp|ceeeeee-ressive Stats|r
-## AddOnVersion: 1113000
-## APIVersion: 101045
+## AddOnVersion: 1120000
+## APIVersion: 101047
 ## Author: |c7c42f2@impda|r [EU]
-## DependsOn: LibMainMenu-2.0 LibCombat LibAsync LibAddonMenu-2.0 LibCustomMenu LibDataPacker>=1002000
+## DependsOn: LibMainMenu-2.0>=40400 LibCombat>=82 LibAsync>=30002 LibAddonMenu-2.0>=39 LibCustomMenu>=730 LibDataPacker>=1003000
 ## OptionalDependsOn LibDebugLogger PerfectPixel ImpPvPMeter
 ## SavedVariables: ImpPvPMeterSV ImpPvPMeterCSV PvPMeterBattlegroundsData ImpPvPMeterMatchBackup PvPMeterDuelsData PvPMeterDuelsSV PvPMeter
 
@@ -17,12 +17,9 @@ shared.lua
 
 controls.xml
 
-integrations/superstar.lua
-
 battlegrounds/controls.xml
 battlegrounds/ui.lua
 battlegrounds/manager.lua
-battlegrounds/newmanager.lua
 
 duels/controls.xml
 duels/ui.lua

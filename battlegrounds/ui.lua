@@ -347,13 +347,13 @@ function addon:CreateScrollListDataType()
                 -- local tooltip = BuildTooltip()
                 -- rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
 
-                if particularMatch.superstar then
-                    AddCustomMenuItem('Open SuperStar', function()
-                        Log('Open SuperStart clicked')
-                        Log(ZO_LinkHandler_ParseLink(particularMatch.superstar))
-                        LINK_HANDLER:FireCallbacks(LINK_HANDLER.LINK_MOUSE_UP_EVENT, particularMatch.superstar, MOUSE_BUTTON_INDEX_LEFT, ZO_LinkHandler_ParseLink(particularMatch.superstar))
-                    end)
-                end
+                -- if particularMatch.superstar then
+                --     AddCustomMenuItem('Open SuperStar', function()
+                --         Log('Open SuperStar clicked')
+                --         Log(ZO_LinkHandler_ParseLink(particularMatch.superstar))
+                --         LINK_HANDLER:FireCallbacks(LINK_HANDLER.LINK_MOUSE_UP_EVENT, particularMatch.superstar, MOUSE_BUTTON_INDEX_LEFT, ZO_LinkHandler_ParseLink(particularMatch.superstar))
+                --     end)
+                -- end
 
                 ShowMenu()
             end
@@ -364,6 +364,8 @@ function addon:CreateScrollListDataType()
             ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip)
         end)
         rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
+
+        GetControl(rowControl, 'Build'):SetHidden(self.matches[data.matchIndex].superstar == nil )
     end
 
 	local control = self.listControl
@@ -667,10 +669,9 @@ function addon:Initialize(naming, selections, filterByApi)
             return
         end
 
-        -- if matchData.result == BATTLEGROUND_RESULT_INVALID then
-        --     df('Invalid result')
-        --     return
-        -- end
+        if matchData.result == BATTLEGROUND_RESULT_INVALID then
+            return
+        end
 
         return true
     end
@@ -706,7 +707,7 @@ function addon:Initialize(naming, selections, filterByApi)
 
         return chId and self.selections.characters[chId]
     end
-    self:AddFilter(CharactersFilter)
+    -- self:AddFilter(CharactersFilter)  -- TODO: revert b4 production
 
     if filterByApi then
         local currentApiVerision = GetAPIVersion()
@@ -743,6 +744,14 @@ function addon:Initialize(naming, selections, filterByApi)
     end
 end
 --#endregion
+
+function addon:LayoutBuildFor(row)
+    if not (row and row.dataEntry and row.dataEntry.data.matchIndex) then return end
+
+    local matchIndex = row.dataEntry.data.matchIndex
+
+    LibDataPacker_Build_LayoutShortBuild(self.matches[matchIndex].superstar)
+end
 
 do
     IMP_STATS_MATCHES_UI = addon

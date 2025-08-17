@@ -3,13 +3,35 @@
         <Label name="IMP_STATS_Tribute_Listing_Column1" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="40" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
 		<!-- <Label name="IMP_STATS_Tribute_Listing_Column3" virtual="true"><Dimensions x="220" y="32" /></Label> -->
-		<Label name="IMP_STATS_Tribute_Listing_Column4" virtual="true"><Dimensions x="400" y="32" /></Label>
+		<Label name="IMP_STATS_Tribute_Listing_Column4" virtual="true"><Dimensions x="234" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="50" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column9" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		<Label name="IMP_STATS_Tribute_Listing_Column10" horizontalAlignment="CENTER" virtual="true"><Dimensions x="32" y="32" /></Label>
+		<Control name="IMP_STATS_Tribute_Listing_Column11" virtual="true"><Dimensions x="146" y="32" /></Control>
+
+		<Texture name="IMP_STATS_Tribute_Patron" tier="HIGH"  mouseEnabled="true" pixelRoundingEnabled="false" virtual="true">
+			<Dimensions x="32" y="32" />
+		</Texture>
+
+		<Control name="IMP_STATS_Tribute_Patrons" hidden="true" virtual="true">
+			<Controls>
+				<Texture name="$(parent)_0" inherits="IMP_STATS_Tribute_Patron">
+					<Anchor point="LEFT" />
+				</Texture>
+				<Texture name="$(parent)_2" inherits="IMP_STATS_Tribute_Patron">
+					<Anchor point="LEFT" relativeTo="$(parent)_0" relativePoint="RIGHT" offsetX="6" />
+				</Texture>
+				<Texture name="$(parent)_3" inherits="IMP_STATS_Tribute_Patron">
+					<Anchor point="LEFT" relativeTo="$(parent)_2" relativePoint="RIGHT" offsetX="6" />
+				</Texture>
+				<Texture name="$(parent)_1" inherits="IMP_STATS_Tribute_Patron">
+					<Anchor point="LEFT" relativeTo="$(parent)_3" relativePoint="RIGHT" offsetX="6" />
+				</Texture>
+			</Controls>
+		</Control>
 		
 		<Label name="IMP_STATS_TributeGameSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
 			<Dimensions y="32" />
@@ -36,8 +58,11 @@
 				<Label name="$(parent)Pick" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" />
 				</Label>
+				<Control name="$(parent)Patrons" inherits="IMP_STATS_Tribute_Patrons IMP_STATS_Tribute_Listing_Column11">
+					<Anchor point="LEFT" relativeTo="$(parent)Pick" relativePoint="RIGHT" />
+				</Control>
 				<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column6">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)Pick" relativePoint="TOPRIGHT" />
+					<Anchor point="TOPLEFT" relativeTo="$(parent)Patrons" relativePoint="TOPRIGHT" />
 				</Label>
 				<Label name="$(parent)Result" inherits="IMP_STATS_Listing_Cell IMP_STATS_Tribute_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />
@@ -57,6 +82,8 @@
 		<TopLevelControl name="IMP_STATS_TRIBUTE" inherits="ZO_RightPanelFootPrint" hidden="true">
 			<!-- <AnchorFill /> -->
 			<Controls>
+				<Tooltip name="IMP_STATS_Tribute_Tooltip" inherits="ZO_BaseTooltip" tier="HIGH" />
+
 				<!-- <Backdrop name="$(parent)BG" inherits="ZO_DefaultBackdrop" edgeColor="FFFF00" centerColor="000000" /> -->
 
 				<Texture name="$(parent)Warning" textureFile="EsoUI/Art/Miscellaneous/eso_icon_warning.dds" color="FFFF00" level="1" hidden="true">
@@ -166,8 +193,11 @@
 								<Label name="$(parent)PickOrder" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column5" text="Pick">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentName" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column6" text="Score">
+								<Label name="$(parent)Patrons" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column11" horizontalAlignment="CENTER" text="Patrons">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PickOrder" relativePoint="TOPRIGHT" />
+								</Label>
+								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column6" text="Score">
+									<Anchor point="TOPLEFT" relativeTo="$(parent)Patrons" relativePoint="TOPRIGHT" />
 								</Label>
 								<Label name="$(parent)Result" inherits="IMP_STATS_Listing_Header IMP_STATS_Tribute_Listing_Column10" text="W/L">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Score" relativePoint="TOPRIGHT" />

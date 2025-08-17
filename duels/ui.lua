@@ -87,8 +87,6 @@ local function GetHumanUnderstandableResult(result, wasLocalPlayersResult)
         end
     end
 
-    -- df('%s %s -> %s', result, tostring(wasLocalPlayersResult), hrr)
-
     return hrr
 end
 --#endregion HUMAN UNDERSTANDABLE RESULT
@@ -187,7 +185,6 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'DamageShielded'):SetText(IMP_STATS_SHARED.FormatNumber(data.damageShielded or 0))
 
         -- rowControl:SetHandler('OnMouseUp', function()
-        --     d('click')
         --     ZO_ScrollList_MouseClick(scrollList, rowControl)
         -- end)
 

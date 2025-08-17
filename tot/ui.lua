@@ -1,3 +1,40 @@
+local PATRON_ABBRIVIATIONS = {
+    [1] = "Saint Pelin",  -- Saint Pelin
+    [2] = "Treasury",  -- Treasury
+    [3] = "Grandmaster Delmene Hlaalu",  -- Grandmaster Delmene Hlaalu
+    [4] = "Duke of Crows",  -- Duke of Crows
+    [5] = "Psijic Loremaster Celarus",  -- Psijic Loremaster Celarus
+    [7] = "Ansei Frandar Hunding",  -- Ansei Frandar Hunding
+    [8] = "Red Eagle, King of the Reach",  -- Red Eagle, King of the Reach
+    [9] = "Sorcerer-King Orgnum",  -- Sorcerer-King Orgnum
+    [10] = "Rajhin, the Purring Liar",  -- Rajhin, the Purring Liar
+    [11] = "Grand Master Fillia",  -- Grand Master Fillia
+    [12] = "Grand Master Linyia",  -- Grand Master Linyia
+    [13] = "Grand Master Murzaga",  -- Grand Master Murzaga
+    [14] = "Grand Master Nhorhim",  -- Grand Master Nhorhim
+    [15] = "The Author",  -- The Author
+    [16] = "Ansei Frandar Hunding",  -- Ansei Frandar Hunding
+    [17] = "Duke of Crows",  -- Duke of Crows
+    [18] = "Grandmaster Delmene Hlaalu",  -- Grandmaster Delmene Hlaalu
+    [19] = "Psijic Loremaster Celarus",  -- Psijic Loremaster Celarus
+    [20] = "Rajhin, the Purring Liar",  -- Rajhin, the Purring Liar
+    [21] = "Red Eagle, King of the Reach",  -- Red Eagle, King of the Reach
+    [22] = "Saint Pelin",  -- Saint Pelin
+    [23] = "Sorcerer-King Orgnum",  -- Sorcerer-King Orgnum
+    [24] = "The Druid King",  -- The Druid King
+    [25] = "Druid Braigh",  -- Druid Braigh
+    [26] = "The Druid King",  -- The Druid King
+    [27] = "Almalexia",  -- Almalexia
+    [28] = "Armiger Bolm, The Paramount",  -- Armiger Bolm, The Paramount
+    [29] = "Almalexia",  -- Almalexia
+    [30] = "Hermaeus Mora",  -- Hermaeus Mora
+    [31] = "Metrand Vyrix",  -- Metrand Vyrix
+    [32] = "Hermaeus Mora",  -- Hermaeus Mora
+    [33] = "Saint Alessia",  -- Saint Alessia
+    [34] = "Master Caledonia",  -- Master Caledonia
+    [35] = "Saint Alessia",  -- Saint Alessia
+}
+
 local addon = {}
 
 addon.name = 'IMP_STATS_TRIBUTE_UI'
@@ -91,6 +128,27 @@ function addon:CreateScrollListDataType()
 
         GetControl(rowControl, 'OpponentName'):SetText(game.opponent.name)
 
+        local patronsControl = GetControl(rowControl, 'Patrons')
+        local patrons = game.patrons
+        if patrons and #patrons > 0 then
+            for i = 0, 3 do
+                local patronIcon = patronsControl:GetNamedChild('_' .. tostring(i))
+                patronIcon:SetTexture(GetTributePatronSmallIcon(patrons[i]))
+                patronIcon:SetHandler('OnMouseEnter', function()
+                    InitializeTooltip(IMP_STATS_Tribute_Tooltip, patronIcon, BOTTOM)
+                    IMP_STATS_Tribute_Tooltip:AddLine(GetTributePatronName(patrons[i]), "", ZO_TOOLTIP_DEFAULT_COLOR:UnpackRGB())
+                    ZO_PropagateHandler(rowControl, 'OnMouseEnter', rowControl)
+                end)
+                patronIcon:SetHandler('OnMouseExit', function()
+                    ClearTooltip(IMP_STATS_Tribute_Tooltip)
+                    ZO_PropagateHandler(rowControl, 'OnMouseExit', rowControl)
+                end)
+            end
+            patronsControl:SetHidden(false)
+        else
+            patronsControl:SetHidden(true)
+        end
+
         local fp = (game.fp == nil and '?') or (game.fp and '1P' or '2P')
         GetControl(rowControl, 'Pick'):SetText(fp)
         GetControl(rowControl, 'Score'):SetText(string.format('%d/%d', game.player.score or 0, game.opponent.score or 0))
@@ -139,24 +197,48 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'TopPercent'):SetText(string.format('%.1f%%', (game.player.atEnd.topP or 0) * 100))
 
         -- rowControl:SetHandler('OnMouseUp', function()
-        --     d('click')
         --     ZO_ScrollList_MouseClick(scrollList, rowControl)
         -- end)
 
-        local tooltip = ''
+        local tooltip = {}
 
         if game.timestamp then
-            local formattedTime = os.date('%d.%m.%Y %H:%M', game.timestamp)
-            tooltip = tooltip .. formattedTime
+            tooltip[#tooltip+1] = os.date('%d.%m.%Y %H:%M', game.timestamp)
         end
 
         local note = IMP_STATS_NOTES_MANAGER:GetNote(game.opponent.name)
         if note then
-            tooltip = tooltip .. '\n\nNote:\n'
-            tooltip = tooltip .. note
+            tooltip[#tooltip+1] = ''
+            tooltip[#tooltip+1] = 'Note:'
+            tooltip[#tooltip+1] = note
         end
 
-        rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
+        if patrons and #patrons > 0 then
+            local drafts = {
+                [1] = {
+                    patrons[TRIBUTE_PATRON_DRAFT_ID_FIRST_PLAYER_FIRST_PICK],
+                    patrons[TRIBUTE_PATRON_DRAFT_ID_FIRST_PLAYER_SECOND_PICK],
+                },
+                [2] = {
+                    patrons[TRIBUTE_PATRON_DRAFT_ID_SECOND_PLAYER_FIRST_PICK],
+                    patrons[TRIBUTE_PATRON_DRAFT_ID_SECOND_PLAYER_SECOND_PICK],
+                }
+            }
+            tooltip[#tooltip+1] = ''
+            tooltip[#tooltip+1] = 'Your pick:'
+            local q = game.fp and 1 or 2
+            for n = 1, 2 do
+                tooltip[#tooltip+1] = ('|t20:20:%s|t %s'):format(GetTributePatronSmallIcon(drafts[q][n]), GetTributePatronName(drafts[q][n]))
+            end
+            tooltip[#tooltip+1] = ''
+            tooltip[#tooltip+1] = 'Opponent pick:'
+            q = game.fp and 2 or 1
+            for n = 1, 2 do
+                tooltip[#tooltip+1] = ('|t20:20:%s|t %s'):format(GetTributePatronSmallIcon(drafts[q][n]), GetTributePatronName(drafts[q][n]))
+            end
+        end
+
+        rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, table.concat(tooltip, '\n')) end)
         rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
     end
 

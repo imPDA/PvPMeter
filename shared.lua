@@ -52,15 +52,11 @@ function addon.Blend(A, B, value)
     Ah = Ah % 360
     Bh = Bh % 360
 
-    -- df('A - h:%f s:%f v:%f', Ah, As, Av)
-
     local Ch = Ah + (Bh - Ah) * value
     -- local Cs = As + (Bs - As) * value
     -- local Cv = Av + (Bv - Av) * value
 
     local r, g, b = HSV2RGB(Ch, 1, 1)
-
-    -- df('r:%.2f, g:%.2f, b:%.2f', r, g, b)
 
     return r, g, b
     --[[

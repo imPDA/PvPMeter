@@ -1,18 +1,18 @@
 <GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
         <Label name="IMP_STATS_Matches_Listing_Column1" virtual="true"><Dimensions x="30" y="32" /></Label>
-		<Label name="IMP_STATS_Matches_Listing_Column2" virtual="true"><Dimensions x="50" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column2" virtual="true"><Dimensions x="56" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column4" virtual="true"><Dimensions x="180" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column3" virtual="true"><Dimensions x="50" y="32" /></Label>
-		<Label name="IMP_STATS_Matches_Listing_Column11" horizontalAlignment="CENTER" virtual="true"><Dimensions x="90" y="32" /></Label>
-		<Label name="IMP_STATS_Matches_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IMP_STATS_Matches_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
-		<Label name="IMP_STATS_Matches_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column11" horizontalAlignment="CENTER" virtual="true"><Dimensions x="80" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="60" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="60" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="60" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column8" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column9" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column10" horizontalAlignment="RIGHT" virtual="true"><Dimensions x="90" y="32" /></Label>
 
-		<Label name="IMP_STATS_MatchSummaryRow" inherits="ZO_SelectableLabel" virtual="true">
+		<Label name="IMP_STATS_MatchSummaryRow" tier="MEDIUM" inherits="ZO_SelectableLabel" virtual="true">
 			<Dimensions y="32" />
 			<Controls>
 				<!-- TODO: texture order -->
@@ -65,6 +65,26 @@
 				<Label name="$(parent)DamageTaken" inherits="IMP_STATS_Listing_Cell IMP_STATS_Matches_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)HealingDone" relativePoint="TOPRIGHT" />
 				</Label>
+				<Button name="$(parent)Build" tier="HIGH" mouseOverBlendMode="ADD" mouseEnabled="true" enabled="true">  <!-- inherits="ZO_ButtonBehaviorClickSound" -->
+                    <Dimensions x="32" y="32" />
+                    <Anchor point="LEFT" relativeTo="$(parent)DamageTaken" relativePoint="RIGHT" offsetX="12" />
+					<TextureCoords left="0.10" right="0.9" top="0.10" bottom="0.90"/>
+
+                    <Textures normal="esoui/art/tradinghouse/tradinghouse_apparel_chest_up.dds"
+                              pressed="esoui/art/tradinghouse/tradinghouse_apparel_chest_down.dds"
+                              mouseOver="esoui/art/tradinghouse/tradinghouse_apparel_chest_over.dds"
+                              disabled="esoui/art/tradinghouse/tradinghouse_apparel_chest_disabled.dds" />
+
+                    <!-- <OnMouseEnter>
+                    </OnMouseEnter> -->
+					
+                    <!-- <OnMouseExit>
+                    </OnMouseExit> -->
+                    
+                    <OnClicked>
+						IMP_STATS_MATCHES_UI:LayoutBuildFor(self:GetParent())
+                    </OnClicked>
+                </Button>
 			</Controls>
 		</Label>
 
