@@ -174,7 +174,7 @@ end
 function addon:UpdateStatsControl()
     local totalMatches = #self.matches  -- self.stats.totalMatches
 
-    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(IMP_STATS_SHARED.FormatNumber(totalMatches))
+    self.statsControl:GetNamedChild('TotalMatchesValue'):SetText(totalMatches)
 
     local N = self.stats.totalMatches
     if IMP_STATS_MATCHES_MANAGER.sv.last150 then N = math.min(N, 150) end
@@ -198,9 +198,9 @@ function addon:UpdateStatsControl()
     -- TODO: left
 
     local KDAStatsControl = self.statsControl:GetNamedChild('KDAStats')
-    KDAStatsControl:GetNamedChild('KSum'):SetText(self.stats.totalKills)
-    KDAStatsControl:GetNamedChild('DSum'):SetText(self.stats.totalDeaths)
-    KDAStatsControl:GetNamedChild('ASum'):SetText(self.stats.totalAssists)
+    KDAStatsControl:GetNamedChild('KSum'):SetText(IMP_STATS_SHARED.FormatNumber(self.stats.totalKills))
+    KDAStatsControl:GetNamedChild('DSum'):SetText(IMP_STATS_SHARED.FormatNumber(self.stats.totalDeaths))
+    KDAStatsControl:GetNamedChild('ASum'):SetText(IMP_STATS_SHARED.FormatNumber(self.stats.totalAssists))
 
     KDAStatsControl:GetNamedChild('KAvg'):SetText(string.format('%.1f', PossibleNan(self.stats.totalKills / self.stats.totalMatches)))
     KDAStatsControl:GetNamedChild('DAvg'):SetText(string.format('%.1f', PossibleNan(self.stats.totalDeaths / self.stats.totalMatches)))
@@ -669,9 +669,9 @@ function addon:Initialize(naming, selections, filterByApi)
             return
         end
 
-        if matchData.result == BATTLEGROUND_RESULT_INVALID then
-            return
-        end
+        -- if matchData.result == BATTLEGROUND_RESULT_INVALID then
+        --     return
+        -- end
 
         return true
     end

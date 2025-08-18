@@ -17,15 +17,30 @@ jobs:
     - name: Set up environment
       id: setup
       run: |
+        addon_name="ImpressiveStats"
+
         SOURCE_DIR="."
-        DEST_DIR="ImpressiveStats"
-        ARCHIVE_NAME="ImpressiveStats${{ github.ref_name }}.zip"
+        DEST_DIR="/tmp/${addon_name}"
 
-        # mkdir -p $DEST_DIR
-        rsync -av --exclude='.git/' --exclude='.github/' --exclude='README.md' --exclude='.gitignore' --exclude='.vscode' $SOURCE_DIR/ $DEST_DIR/
-        zip -r $ARCHIVE_NAME $DEST_DIR
+        ARCHIVE_NAME="${addon_name}${GITHUB_REF_NAME}.zip"
+         
+        exclude_patterns=()
+        if [ -f ".build-ignore" ]; then
+            while IFS= read -r pattern || [[ -n "$pattern" ]]; do
+                [[ -z "${pattern}" || "$pattern" =~ ^[[:space:]]*$ ]] && continue
+                exclude_patterns+=(--exclude="$pattern")
+            done < ".build-ignore"
+        fi
 
-        echo "archive_name=$ARCHIVE_NAME" >> $GITHUB_OUTPUT
+        mkdir -p "$DEST_DIR"
+        rsync -av "${exclude_patterns[@]}" "$SOURCE_DIR/" "$DEST_DIR/"
+
+        echo "Exclude patterns: ${exclude_patterns[@]}"
+        ls -la "$SOURCE_DIR/"
+
+        (cd /tmp && zip -r "$ARCHIVE_NAME" "$(basename "$DEST_DIR")")
+
+        echo "archive_name=$ARCHIVE_NAME" >> "$GITHUB_OUTPUT"
 
     - name: Create Release Draft
       id: create_release
@@ -39,7 +54,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ${{ steps.setup.outputs.archive_name }}
+        asset_path: /tmp/${{ steps.setup.outputs.archive_name }}
         asset_name: ${{ steps.setup.outputs.archive_name }}
         asset_content_type: application/zip
     

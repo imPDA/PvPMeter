@@ -1,10 +1,10 @@
 <GuiXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sir.insidi.at/or/schema/esoui.xsd">
     <Controls>
-        <Label name="IMP_STATS_Matches_Listing_Column1" virtual="true"><Dimensions x="30" y="32" /></Label>
+        <Label name="IMP_STATS_Matches_Listing_Column1" virtual="true"><Dimensions x="40" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column2" virtual="true"><Dimensions x="56" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column4" virtual="true"><Dimensions x="180" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column3" virtual="true"><Dimensions x="50" y="32" /></Label>
-		<Label name="IMP_STATS_Matches_Listing_Column11" horizontalAlignment="CENTER" virtual="true"><Dimensions x="80" y="32" /></Label>
+		<Label name="IMP_STATS_Matches_Listing_Column11" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column5" horizontalAlignment="CENTER" virtual="true"><Dimensions x="60" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="60" y="32" /></Label>
 		<Label name="IMP_STATS_Matches_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="60" y="32" /></Label>
