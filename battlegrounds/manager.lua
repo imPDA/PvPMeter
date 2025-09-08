@@ -1106,5 +1106,5 @@ function IMP_STATS_InitializeNewMatchManager(settings, characterSettings)
 
     IMP_STATS_MATCHES_MANAGER.sv = settings
 
-    IMP_STATS_MATCHES_UI:Initialize(settings.namingMode, characterSettings, settings.showOnlyLastUpdateMatches)
+    IMP_STATS_MATCHES_UI:Initialize(settings.namingMode, characterSettings, settings.showOnlyLastUpdateMatches, settings.debugging)
 end

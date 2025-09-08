@@ -1,3 +1,9 @@
+1.2.1
+BATTLEGROUNDS
+- Fix for character filter
+- Tooltip now shows match type (e.x. "4x4 - Solo, solo" means it was regular 4x4 match)
+- Tooltip now shows round scores
+
 1.2.0
 BATTLEGROUNDS
 - BREAKING CHANGE: Fix for saved variables. First load can take more time!

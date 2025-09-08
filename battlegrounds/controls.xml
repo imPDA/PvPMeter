@@ -276,7 +276,7 @@
 								<Label name="$(parent)Class" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column3" text="Class">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />
 								</Label>
-								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column11" text="Score">
+								<Label name="$(parent)Score" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column11" text="M.Score">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)Class" relativePoint="TOPRIGHT" />
 								</Label>
 								<Label name="$(parent)Kills" inherits="IMP_STATS_Listing_Header IMP_STATS_Matches_Listing_Column5" text="Kills">

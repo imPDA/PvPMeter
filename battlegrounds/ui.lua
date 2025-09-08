@@ -17,23 +17,14 @@ local TEAM_TYPE_8_SOLO = 2
 local TEAM_TYPE_4_GROUP = 3
 local TEAM_TYPE_8_GROUP = 4
 
-addon.filters = {
-    -- teamTypes = {
-    --     TEAM_TYPE_4_SOLO,
-    --     TEAM_TYPE_8_SOLO,
-    --     TEAM_TYPE_4_GROUP,
-    --     TEAM_TYPE_8_GROUP,
-    -- },
-    -- modes = {
-    --     BATTLEGROUND_GAME_TYPE_CAPTURE_THE_FLAG,
-    --     BATTLEGROUND_GAME_TYPE_CRAZY_KING,
-    --     BATTLEGROUND_GAME_TYPE_DEATHMATCH,
-    --     BATTLEGROUND_GAME_TYPE_DOMINATION,
-    --     BATTLEGROUND_GAME_TYPE_KING_OF_THE_HILL,
-    --     BATTLEGROUND_GAME_TYPE_MURDERBALL,
-    -- },
-    -- selectedCharacters = {}
+local TEAM_TYPES = {
+    [TEAM_TYPE_4_SOLO] = '4x4 - Solo',
+    [TEAM_TYPE_8_SOLO] = '8x8 - Solo',
+    [TEAM_TYPE_4_GROUP] = '4x4 - Group',
+    [TEAM_TYPE_8_GROUP] = '8x8 - Group',
 }
+
+addon.filters = {}
 
 addon.selections = {
     teamTypes = {
@@ -113,7 +104,7 @@ end
 --#region IMP STATS MATCHES ADDON
 local SORTABLE_HEADERS = {
     ['Index'] = 'index',
-    ['Score'] = 'score',
+    ['Score'] = 'medalScore',
     ['Kills'] = 'kills',
     ['Deaths'] = 'deaths',
     ['Assists'] = 'assists',
@@ -272,24 +263,81 @@ function addon:CreateScrollListDataType()
         [BATTLEGROUND_RESULT_TIE] = {55/255, 55/255, 55/255, 1},
     }
 
+    local function BuildTooltip(rowControl)
+        local tooltip = ''
+
+        local data = rowControl.dataEntry.data
+        local summary = self:GetMatchSummary(data.matchIndex)
+
+        if summary.entryTimestamp then
+            local formattedTime = os.date('%d.%m.%Y %H:%M', summary.entryTimestamp)
+            tooltip = tooltip .. formattedTime
+        else
+            tooltip = tooltip .. '-'
+        end
+        tooltip = tooltip .. '\n'
+        tooltip = tooltip .. zo_strformat('<<1>> (<<2>>)', summary.displayName, summary.characterName)
+        tooltip = tooltip .. '\n'
+        tooltip = tooltip .. GetRaceName(0, summary.playerRace) .. ' / ' .. GetClassName(0, summary.playerClass)
+        tooltip = tooltip .. '\n'
+        tooltip = tooltip .. (self.matches[data.matchIndex].playedFromStart == true and 'Played from beginning' or self.matches[data.matchIndex].playedFromStart == false and 'Played NOT from beginning' or '(?) Played from beginning')
+        tooltip = tooltip .. '\n'
+        tooltip = tooltip .. TEAM_TYPES[self.matches[data.matchIndex].teamType] .. ', ' .. (self.matches[data.matchIndex].grouped == true and 'Grouped' or self.matches[data.matchIndex].grouped == false and 'Solo' or '(?) Solo/Grouped')
+
+        tooltip = tooltip .. '\n'
+        -- tooltip = tooltip .. '\nScores:'
+        local localPlayerTeam = self.matches[data.matchIndex].rounds[1].players[1].battlegroundTeam
+        local otherTeam = localPlayerTeam == 1 and 2 or 1
+        for roundIndex, roundData in ipairs(self.matches[data.matchIndex].rounds) do
+            if roundData.result ~= BATTLEGROUND_ROUND_RESULT_INVALID then
+                local localPlayerTeamScore = roundData.scores[localPlayerTeam]
+                local otherTeamScore = roundData.scores[otherTeam]
+                local color = localPlayerTeamScore >= otherTeamScore and '00FF00' or 'FF0000'
+                tooltip = tooltip .. ('\n|c%sRound %d:|r %d - %d'):format(color, roundIndex, localPlayerTeamScore, otherTeamScore)
+            end
+        end
+
+        return tooltip
+    end
+
+    local function ShowTooltip(rowControl)
+        ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, BuildTooltip(rowControl))
+    end
+
+    local function ShowRMBMenu(control, button)
+        if button ~= MOUSE_BUTTON_INDEX_RIGHT then return end
+
+        local data = control.dataEntry.data
+        local particularMatch = self.matches[data.matchIndex]
+        local text = particularMatch.playedFromStart and 'Mark as played NOT from beginning' or 'Mark as played from beginning'
+
+        ClearMenu()
+
+        AddCustomMenuItem(text, function()
+            particularMatch.playedFromStart = not particularMatch.playedFromStart
+            GetControl(control, 'Warning'):SetHidden(particularMatch.playedFromStart)
+        end)
+
+        ShowMenu()
+    end
+
     local function LayoutRow(rowControl, data, scrollList)
         local summary = self:GetMatchSummary(data.matchIndex)
 
-        GetControl(rowControl, 'Index'):SetText(data.index)
-        -- if not self.matches[data.matchIndex].playedFromStart then
+        GetControl(rowControl, 'Index'):SetText(data.matchIndex)
         GetControl(rowControl, 'Warning'):SetHidden(self.matches[data.matchIndex].playedFromStart)
-        -- end
 
         if COLOR_OF_RESULT[summary.result] then
             GetControl(rowControl, 'BG'):SetHidden(false)
             GetControl(rowControl, 'BG'):SetColor(unpack(COLOR_OF_RESULT[summary.result]))
         end
+
         GetControl(rowControl, 'Mode'):SetText(GAME_TYPE_ABBREVIATION[summary.mode])
         GetControl(rowControl, 'Map'):SetText(summary.zone)
         -- GetControl(rowControl, 'Team'):SetText(data.team)
         local classIcon = summary.playerClass and ZO_GetClassIcon(summary.playerClass) or 'EsoUI/Art/Icons/icon_missing.dds'
         GetControl(rowControl, 'Class'):GetNamedChild('ClassIcon'):SetTexture(classIcon)
-        GetControl(rowControl, 'Score'):SetText(summary.score)
+        GetControl(rowControl, 'Score'):SetText(summary.medalScore)
 
         GetControl(rowControl, 'Kills'):SetText(summary.kills)
         GetControl(rowControl, 'Deaths'):SetText(summary.deaths)
@@ -300,70 +348,15 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'DamageTaken'):SetText(IMP_STATS_SHARED.FormatNumber(summary.damageTaken))
 
         -- TODO is it ok to have selectCallback with EnableSelection or I need to merge them?
-        rowControl:SetHandler('OnMouseUp', function(control, button)
-            Log('click: ' .. button)
-            ZO_ScrollList_MouseClick(scrollList, rowControl)
-        end)
+        -- rowControl:SetHandler('OnMouseUp', function(control, button)
+        --     Log('click: ' .. button)
+        --     ZO_ScrollList_MouseClick(scrollList, rowControl)
+        -- end)
 
-        local function BuildTooltip()
-            local tooltip = ''
+        -- rowControl:SetHandler('OnMouseDown', ShowRMBMenu)
 
-            if summary.entryTimestamp then
-                local formattedTime = os.date('%d.%m.%Y %H:%M', summary.entryTimestamp)
-                tooltip = tooltip .. formattedTime
-            else
-                tooltip = tooltip .. '-'
-            end
-            tooltip = tooltip .. '\n'
-            tooltip = tooltip .. zo_strformat('<<1>> (<<2>>)', summary.displayName, summary.characterName)
-            tooltip = tooltip .. '\n'
-            tooltip = tooltip .. GetRaceName(0, summary.playerRace) .. ' / ' .. GetClassName(0, summary.playerClass)
-            tooltip = tooltip .. '\n'
-            tooltip = tooltip .. (self.matches[data.matchIndex].playedFromStart == true and 'Played from beginning' or self.matches[data.matchIndex].playedFromStart == false and 'Played NOT from beginning' or '(?) Played from beginning')
-            tooltip = tooltip .. '\n'
-            tooltip = tooltip .. (self.matches[data.matchIndex].grouped == true and 'Grouped' or self.matches[data.matchIndex].grouped == false and 'Solo' or '(?) Solo/Grouped')
-            return tooltip
-        end
-
-        -- TODO IMPORTANT: I dont like idea to add custom hadler to every row
-        -- it would be better to make some unified callback ?possible
-        rowControl:SetHandler('OnMouseDown', function(control, button)
-            if button == MOUSE_BUTTON_INDEX_RIGHT then
-                ClearMenu()
-                local particularMatch = self.matches[control.dataEntry.data.matchIndex]  -- data.matchIndex
-                if particularMatch.playedFromStart == true then
-                    AddCustomMenuItem('Mark as played NOT from beginning', function()
-                        particularMatch.playedFromStart = false
-                        -- TODO: DRY
-                        GetControl(control, 'Warning'):SetHidden(self.matches[data.matchIndex].playedFromStart)
-                    end)
-                else
-                    AddCustomMenuItem('Mark as played from beginning', function()
-                        particularMatch.playedFromStart = true
-                        -- TODO: DRY
-                        GetControl(control, 'Warning'):SetHidden(self.matches[data.matchIndex].playedFromStart)
-                    end)
-                end
-                -- local tooltip = BuildTooltip()
-                -- rowControl:SetHandler('OnMouseEnter', function() ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip) end)
-
-                -- if particularMatch.superstar then
-                --     AddCustomMenuItem('Open SuperStar', function()
-                --         Log('Open SuperStar clicked')
-                --         Log(ZO_LinkHandler_ParseLink(particularMatch.superstar))
-                --         LINK_HANDLER:FireCallbacks(LINK_HANDLER.LINK_MOUSE_UP_EVENT, particularMatch.superstar, MOUSE_BUTTON_INDEX_LEFT, ZO_LinkHandler_ParseLink(particularMatch.superstar))
-                --     end)
-                -- end
-
-                ShowMenu()
-            end
-        end)
-
-        rowControl:SetHandler('OnMouseEnter', function()
-            local tooltip = BuildTooltip()
-            ZO_Tooltips_ShowTextTooltip(rowControl, LEFT, tooltip)
-        end)
-        rowControl:SetHandler('OnMouseExit', function() ZO_Tooltips_HideTextTooltip() end)
+        rowControl:SetHandler('OnMouseEnter', ShowTooltip)
+        rowControl:SetHandler('OnMouseExit', ZO_Tooltips_HideTextTooltip)
 
         GetControl(rowControl, 'Build'):SetHidden(self.matches[data.matchIndex].superstar == nil )
     end
@@ -379,9 +372,6 @@ function addon:CreateScrollListDataType()
 
 	ZO_ScrollList_AddDataType(control, typeId, templateName, height, setupFunction, hideCallback, dataTypeSelectSound, resetControlCallback)
 
-    -- local selectTemplate = 'ZO_ThinListHighlight'
-	-- local selectCallback = nil
-	-- ZO_ScrollList_EnableSelection(control, selectTemplate, selectCallback)
     Log('Scroll list data type created')
 end
 
@@ -393,7 +383,7 @@ local function CreateMatchSummary(matchIndex, matchData)
         playerRace = matchData.playerRace,
         playerClass =  matchData.playerClass,
         zone = GetZoneNameById(matchData.zoneId),
-        score = 0,
+        medalScore = 0,
         kills = 0,
         deaths = 0,
         assists = 0,
@@ -404,7 +394,6 @@ local function CreateMatchSummary(matchIndex, matchData)
     }
 
     for roundIndex, roundData in ipairs(matchData.rounds) do
-        -- if roundData then
         local roundPlayerData = roundData.players[1]  -- player 1 = always local player
 
         -- should I check first player is actually local player?
@@ -415,12 +404,11 @@ local function CreateMatchSummary(matchIndex, matchData)
             matchSummary.damageDone     = matchSummary.damageDone   + roundPlayerData.damageDone
             matchSummary.healingDone    = matchSummary.healingDone  + roundPlayerData.healingDone
             matchSummary.damageTaken    = matchSummary.damageTaken  + roundPlayerData.damageTaken
-            matchSummary.score      = matchSummary.score            + roundPlayerData.medalScore
+            matchSummary.medalScore     = matchSummary.medalScore   + roundPlayerData.medalScore
 
             matchSummary.displayName = roundPlayerData.displayName
             matchSummary.characterName = roundPlayerData.characterName
         end
-        -- end
     end
 
     return matchSummary
@@ -638,7 +626,7 @@ end
 
 addon.InitializePlayerCharactersFilter = IMP_STATS_SHARED.InitializePlayerCharactersFilter
 
-function addon:Initialize(naming, selections, filterByApi)
+function addon:Initialize(naming, selections, filterByApi, debugging)
     self.matches = IMP_STATS_MATCHES_MANAGER.matches
     self.matchSummaries = {}
     self.stats = MatchesStats:New()
@@ -707,7 +695,9 @@ function addon:Initialize(naming, selections, filterByApi)
 
         return chId and self.selections.characters[chId]
     end
-    -- self:AddFilter(CharactersFilter)  -- TODO: revert b4 production
+    if not debugging then
+        self:AddFilter(CharactersFilter)
+    end
 
     if filterByApi then
         local currentApiVerision = GetAPIVersion()
