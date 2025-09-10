@@ -53,8 +53,13 @@ function Duel:AddOpponentData(opponentData)
     self.opponent = opponentData
 end
 
-function Duel:AddPlayerData(playerData)
-    self.player = playerData
+function Duel:AddPlayerData(playerData, saveBuild)
+    self.player = ZO_ShallowTableCopy(playerData)
+
+    if saveBuild then
+        Log('Adding build')
+        self.player.build = LibDataPacker.Extra.Build.GetPackedLocalPlayerShortBuild()
+    end
 end
 --#endregion
 
@@ -92,9 +97,9 @@ function addon:OnDuelStarted()
 end
 
 function addon:OnDuelFinished(duelResult, wasLocalPlayersResult, opponentCharacterName, opponentDisplayName, opponentAlliance, opponentGender, opponentClassId, opponentRaceId)
-    Log('Duel finished')
+    Log('Duel finished, saving build enabled: %s', tostring(self.sv.saveBuilds))
 
-    self.currentDuel:AddPlayerData(self.playerData)
+    self.currentDuel:AddPlayerData(self.playerData, self.sv.saveBuilds)
 
     self.currentDuel:AddOpponentData({
         characterName = opponentCharacterName,
@@ -151,7 +156,9 @@ function IMP_STATS_InitializeDuelsManager(settings, characterSettings)
     IMP_STATS_Duels_MANAGER.duels = ImpressiveStatsDuelsData[server]
     Log('There are %d duels saved', #addon.duels)
 
+    IMP_STATS_Duels_MANAGER.sv = settings
+
     EVENT_MANAGER:RegisterForEvent(IMP_STATS_Duels_MANAGER.name, EVENT_PLAYER_ACTIVATED, OnPlayerActivated)
 
-    IMP_STATS_Duels_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters)
+    IMP_STATS_Duels_UI:Initialize(settings.namingMode, characterSettings.selectedCharacters, settings.debugging)
 end

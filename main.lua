@@ -1,7 +1,7 @@
 local addon = {}
 addon.name = 'ImpressiveStats'
 addon.displayName = '|c7c42f2Imp|ceeeeee-ressive Stats|r'
-addon.version = '1.2.1'
+addon.version = '1.3.0'
 
 local Log = IMP_STATS_Logger('IMP_STATS_MAIN')
 
@@ -18,6 +18,7 @@ local DEFAULTS = {
 		enabled = true,
 		namingMode = 1,
 		-- selectedCharacters = {},
+		saveBuilds = false,
 	},
 	tot = {
 		enabled = true,

@@ -4,10 +4,10 @@
 		<Label name="IMP_STATS_Duels_Listing_Column9" virtual="true"><Dimensions x="50" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column2" virtual="true"><Dimensions x="32" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column11" virtual="true"><Dimensions x="36" y="32" /></Label>
-		<Label name="IMP_STATS_Duels_Listing_Column3" virtual="true"><Dimensions x="190" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column3" virtual="true"><Dimensions x="170" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column4" virtual="true"><Dimensions x="32" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column12" virtual="true"><Dimensions x="36" y="32" /></Label>
-		<Label name="IMP_STATS_Duels_Listing_Column5" virtual="true"><Dimensions x="190" y="32" /></Label>
+		<Label name="IMP_STATS_Duels_Listing_Column5" virtual="true"><Dimensions x="170" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column6" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column7" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
 		<Label name="IMP_STATS_Duels_Listing_Column8" horizontalAlignment="CENTER" virtual="true"><Dimensions x="70" y="32" /></Label>
@@ -72,19 +72,7 @@
 				<Label name="$(parent)OpponentCharacterName" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column5">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentRace" relativePoint="TOPRIGHT" />
 				</Label>
-				
-				<!-- <Label name="$(parent)Map" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column4">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)Class" relativePoint="TOPRIGHT" />
-				</Label>
-				<Label name="$(parent)Kills" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column5">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)Map" relativePoint="TOPRIGHT" />
-				</Label>
-				<Label name="$(parent)Deaths" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column6">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)Kills" relativePoint="TOPRIGHT" />
-				</Label>
-				<Label name="$(parent)Assists" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column7">
-					<Anchor point="TOPLEFT" relativeTo="$(parent)Deaths" relativePoint="TOPRIGHT" />
-				</Label> -->
+
 				<Label name="$(parent)DamageDone" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column6">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentCharacterName" relativePoint="TOPRIGHT" />
 				</Label>
@@ -94,9 +82,30 @@
 				<Label name="$(parent)HealingTaken" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column7">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)DamageTaken" relativePoint="TOPRIGHT" />
 				</Label>
-				<Label name="$(parent)DamageShielded" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column10">
+				<Label name="$(parent)DamageShielded" inherits="IMP_STATS_Listing_Cell IMP_STATS_Duels_Listing_Column10">
 					<Anchor point="TOPLEFT" relativeTo="$(parent)HealingTaken" relativePoint="TOPRIGHT" />
 				</Label>
+
+				<Button name="$(parent)Build" tier="HIGH" mouseOverBlendMode="ADD" mouseEnabled="true" enabled="true">  <!-- inherits="ZO_ButtonBehaviorClickSound" -->
+                    <Dimensions x="32" y="32" />
+                    <Anchor point="LEFT" relativeTo="$(parent)DamageShielded" relativePoint="RIGHT" offsetX="12" />
+					<TextureCoords left="0.10" right="0.9" top="0.10" bottom="0.90"/>
+
+                    <Textures normal="esoui/art/tradinghouse/tradinghouse_apparel_chest_up.dds"
+                              pressed="esoui/art/tradinghouse/tradinghouse_apparel_chest_down.dds"
+                              mouseOver="esoui/art/tradinghouse/tradinghouse_apparel_chest_over.dds"
+                              disabled="esoui/art/tradinghouse/tradinghouse_apparel_chest_disabled.dds" />
+
+                    <!-- <OnMouseEnter>
+                    </OnMouseEnter> -->
+					
+                    <!-- <OnMouseExit>
+                    </OnMouseExit> -->
+                    
+                    <OnClicked>
+						IMP_STATS_Duels_UI:LayoutBuildFor(self:GetParent())
+                    </OnClicked>
+                </Button>
 			</Controls>
 		</Label>
 
@@ -109,16 +118,6 @@
 					<Anchor point="BOTTOMLEFT" relativeTo="$(parent)" relativePoint="TOPLEFT" offsetX="150" />
 					<Dimensions x="48" y="48"/>
 				</Texture>
-
-				<!-- <Control name="$(parent)FilterTeamSize" inherits="ZO_MultiselectComboBox">
-					<Dimensions x="222" y="32" />
-					<Anchor point="TOPRIGHT" offsetX="-16" offsetY="8" />
-				</Control>
-
-				<Control name="$(parent)FilterGameType" inherits="ZO_MultiselectComboBox">
-					<Dimensions x="222" y="32" />
-					<Anchor point="TOPLEFT" relativeTo="$(parent)FilterTeamSize" relativePoint="BOTTOMLEFT" offsetY="4" />
-				</Control> -->
 
 				<!-- Move it to stat block -->
 	
@@ -228,16 +227,6 @@
 								<Label name="$(parent)PlayerCharacterName" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column3" text="Player Name">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerRace" relativePoint="TOPRIGHT" />
 								</Label>
-								<!-- <Control name="$(parent)Class" inherits="IMP_STATS_Duels_Listing_Column3">
-									<Anchor point="TOPLEFT" relativeTo="$(parent)Type" relativePoint="TOPRIGHT" />
-									<Controls>
-										<Texture name="$(parent)ClassIcon" textureFile="EsoUI/Art/Icons/icon_missing.dds">
-											<Anchor point="TOPLEFT" />
-											<Dimensions x="32" y="32" />
-										</Texture>
-									</Controls>
-								</Control> -->
-								<!-- <Label name="$(parent)C3" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column3"><Anchor point="TOPLEFT" relativeTo="$(parent)ClassIcon" relativePoint="TOPRIGHT" /></Label> -->
 								<Label name="$(parent)OpponentClass" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column4" text="">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)PlayerCharacterName" relativePoint="TOPRIGHT" />
 								</Label>
@@ -247,12 +236,6 @@
 								<Label name="$(parent)OpponentCharacterName" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column5" text="Opponent Name">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentRace" relativePoint="TOPRIGHT" />
 								</Label>
-								<!-- <Label name="$(parent)Deaths" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column6" text="Deaths">
-									<Anchor point="TOPLEFT" relativeTo="$(parent)Kills" relativePoint="TOPRIGHT" />
-								</Label>
-								<Label name="$(parent)Assists" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column7" text="Assists">
-									<Anchor point="TOPLEFT" relativeTo="$(parent)Deaths" relativePoint="TOPRIGHT" />
-								</Label> -->
 								<Label name="$(parent)DamageDone" inherits="IMP_STATS_Listing_Header IMP_STATS_Duels_Listing_Column6" text="Done">
 									<Anchor point="TOPLEFT" relativeTo="$(parent)OpponentCharacterName" relativePoint="TOPRIGHT" />
 								</Label>

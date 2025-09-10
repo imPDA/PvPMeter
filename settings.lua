@@ -34,7 +34,7 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
         name = settingsDisplayName,
         author = '@impda',
         website = 'https://www.esoui.com/downloads/info4032-ImpressiveStats.html',
-        version = '1.2.1',
+        version = '1.3.0',
     }
 
     local panel = LAM:RegisterAddonPanel(settingsName, panelData)
@@ -120,6 +120,12 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
             -- warning = 'Will need to reload the UI.',	--(optional)
         },
         {
+            type = 'checkbox',
+            name = 'Save build at the end of duel',
+            getFunc = function() return sv.duels.saveBuilds end,
+            setFunc = function(value) sv.duels.saveBuilds = value end,
+        },
+        {
             type = "button",
             name = "Delete duels data",
             func = function()
@@ -131,6 +137,16 @@ function addon:Initialize(settingsName, settingsDisplayName, sv)
             warning = "Тhis is |cee0000DESTRUCTIVE|r action and it will DELETE ALL DATA (and for both EU and NA servers) about DUELS recorded. There would be |cee0000NO WAY TO RECOVER|r it!\n\nProceed only if you 100% sure about it!\n\nUI will be automatically reloaded.",
         },
     }
+
+    if sv.duels.debugging ~= nil then
+        duelsModule[#duelsModule+1] = {
+            type = 'checkbox',
+            name = 'Debug mode',
+            getFunc = function() return sv.duels.debugging end,
+            setFunc = function(value) sv.duels.debugging = value end,
+            requiresReload = true,
+        }
+    end
 
     local tributeModule = {
         {

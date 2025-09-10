@@ -184,6 +184,8 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'HealingTaken'):SetText(IMP_STATS_SHARED.FormatNumber(data.healingTaken or 0))
         GetControl(rowControl, 'DamageShielded'):SetText(IMP_STATS_SHARED.FormatNumber(data.damageShielded or 0))
 
+        GetControl(rowControl, 'Build'):SetHidden(data.build == nil)
+
         -- rowControl:SetHandler('OnMouseUp', function()
         --     ZO_ScrollList_MouseClick(scrollList, rowControl)
         -- end)
@@ -300,6 +302,8 @@ function addon:Update()
             damageShielded = duelData.damageShilded,
             startTimestamp = duelData.timestamp,
             duration = duelData.duration,
+            trueIndex = duelIndex,  -- TODO: some workaround. As stated above, I should follow BG style in the future
+            build = duelData.player.build,
         })
 
         self.stats:AddDuel(duelIndex, duelData)
@@ -347,7 +351,7 @@ end
 
 addon.InitializePlayerCharactersFilter = IMP_STATS_SHARED.InitializePlayerCharactersFilter
 
-function addon:Initialize(naming, selectedCharacters)
+function addon:Initialize(naming, selectedCharacters, debugging)
     self.duels = IMP_STATS_Duels_MANAGER.duels
     self.stats = DuelsStats:New()
 
@@ -401,7 +405,9 @@ function addon:Initialize(naming, selectedCharacters)
     local function PlayerCharactersFilter(duelData)
         return self.selections.characters[duelData.player.characterId]
     end
-    self:AddFilter(PlayerCharactersFilter)
+    if not debugging then
+        self:AddFilter(PlayerCharactersFilter)
+    end
 
     self.selections.characters = selectedCharacters
     if IMP_STATS_SHARED.TableLength(self.selections.characters) < 1 then
@@ -412,6 +418,14 @@ function addon:Initialize(naming, selectedCharacters)
     Log('UI initialized')
 end
 --#endregion
+
+function addon:LayoutBuildFor(row)
+    if not (row and row.dataEntry and row.dataEntry.data.trueIndex) then return end
+
+    local trueIndex = row.dataEntry.data.trueIndex
+
+    LibDataPacker_Build_LayoutShortBuild(self.duels[trueIndex].build)
+end
 
 do
     IMP_STATS_Duels_UI = addon
