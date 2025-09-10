@@ -347,13 +347,11 @@ function addon:CreateScrollListDataType()
         GetControl(rowControl, 'HealingDone'):SetText(IMP_STATS_SHARED.FormatNumber(summary.healingDone))
         GetControl(rowControl, 'DamageTaken'):SetText(IMP_STATS_SHARED.FormatNumber(summary.damageTaken))
 
-        -- TODO is it ok to have selectCallback with EnableSelection or I need to merge them?
-        -- rowControl:SetHandler('OnMouseUp', function(control, button)
-        --     Log('click: ' .. button)
-        --     ZO_ScrollList_MouseClick(scrollList, rowControl)
-        -- end)
-
-        -- rowControl:SetHandler('OnMouseDown', ShowRMBMenu)
+        rowControl:SetHandler('OnMouseDown', function(control, button)
+            -- Log('click: ' .. button)
+            ZO_ScrollList_MouseClick(scrollList, rowControl)
+            -- rowControl:SetHandler('OnMouseDown', ShowRMBMenu)
+        end)
 
         rowControl:SetHandler('OnMouseEnter', ShowTooltip)
         rowControl:SetHandler('OnMouseExit', ZO_Tooltips_HideTextTooltip)
