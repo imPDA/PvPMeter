@@ -17,30 +17,41 @@ local function GetOpponentData(opponentName)
     return false
 end
 
---#region IGameManager
+--#region Game
 local PENDING = 1
 local READY = 2
 
-local GameManager = {}
+local mt = {
+    __call = function(cls)
+        local tbl = setmetatable({}, cls)
 
-function GameManager:New(o)
-    o = o or {}
+        tbl:__init()
 
-    setmetatable(o, self)
-    self.__index = self
+        return tbl
+    end
+}
 
-    self.Initialize(o)
+local Game = setmetatable({}, mt)
+Game.__index = Game
 
-    return o
-end
+-- function Game:New(o)
+--     o = o or {}
 
-function GameManager.Initialize(game)
-    game.timestamp = GetTimeStamp()
-    game.gameOver = false
+--     setmetatable(o, self)
+--     self.__index = self
+
+--     self.Initialize(o)
+
+--     return o
+-- end
+
+function Game:__init()
+    self.timestamp = GetTimeStamp()
+    self.gameOver = false
 
     local name, playerType = GetTributePlayerInfo(TRIBUTE_PLAYER_PERSPECTIVE_SELF)
 
-    game.player = {
+    self.player = {
         name = name,
         atStart = {},
         atEnd = {},
@@ -50,22 +61,22 @@ function GameManager.Initialize(game)
 
     -- TODO: oppPlayerType
 
-    game.opponent = {
+    self.opponent = {
         name = oppName,
         atStart = {},
         atEnd = {},
     }
 
-    game:UpdatePlayerRank()
-    game:UpdatePlayerMMR()
+    self:UpdatePlayerRank()
+    self:UpdatePlayerMMR()
 
     -- TODO: opp rank
-    game:UpdateOpponentRankAndMMR()
+    self:UpdateOpponentRankAndMMR()
 end
 
-function GameManager:UpdatePlayerRank(skipRequest)
+function Game:UpdatePlayerRank(skipRequest)
     local type = self.gameOver and 'final' or 'starting'
-    -- Log('[GameManager] Updating player\'s %s rank', type)
+    -- Log('[Game] Updating player\'s %s rank', type)
     local tbl = self.gameOver and self.player.atEnd or self.player.atStart
 
     if not tbl.rankStatus then
@@ -76,10 +87,10 @@ function GameManager:UpdatePlayerRank(skipRequest)
             Log('MMR status: %d', tbl.mmrStatus)
             if not tbl.mmrStatus == READY then self:UpdatePlayerMMR() end
         end)
-        Log('[GameManager] Waiting for player\'s %s rank update', type)
+        Log('[Game] Waiting for player\'s %s rank update', type)
     end
 
-    if not skipRequest then Log('[GameManager] Sending request for rank') end
+    if not skipRequest then Log('[Game] Sending request for rank') end
 
     if skipRequest or RequestTributeLeaderboardRank() == LEADERBOARD_DATA_READY then
         local playerLeaderboardRank, totalLeaderboardPlayers = GetTributeLeaderboardRankInfo()
@@ -89,28 +100,28 @@ function GameManager:UpdatePlayerRank(skipRequest)
         tbl.topP = math.abs(topPercent)
 
         tbl.rankStatus = READY
-        Log('[GameManager] Player\'s %s rank updated', type)
+        Log('[Game] Player\'s %s rank updated', type)
         EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_RANK_RECEIVED)
     end
 end
 
-function GameManager:UpdatePlayerMMR(skipRequest)
+function Game:UpdatePlayerMMR(skipRequest)
     local type = self.gameOver and 'final' or 'starting'
-    -- Log('[GameManager] Updating player\'s %s MMR', type)
+    -- Log('[Game] Updating player\'s %s MMR', type)
     local tbl = self.gameOver and self.player.atEnd or self.player.atStart
 
     if not tbl.mmrStatus then
         tbl.mmrStatus = PENDING
         EVENT_MANAGER:RegisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED, function()
             self:UpdatePlayerMMR(true)
-            Log('[GameManager] Rank status: %d', tbl.rankStatus)
+            Log('[Game] Rank status: %d', tbl.rankStatus)
             -- if tbl.rankStatus ~= READY then self:UpdatePlayerRank() end
             self:UpdatePlayerRank()
         end)
-        Log('[GameManager] Waiting for player\'s %s MMR updates', type)
+        Log('[Game] Waiting for player\'s %s MMR updates', type)
     end
 
-    if not skipRequest then Log('[GameManager] Sending request for MMR') end
+    if not skipRequest then Log('[Game] Sending request for MMR') end
 
     if skipRequest or QueryTributeLeaderboardData(TRIBUTE_LEADERBOARD_TYPE_RANKED) == LEADERBOARD_DATA_READY then
         local _, score = GetTributeLeaderboardLocalPlayerInfo(TRIBUTE_LEADERBOARD_TYPE_RANKED)
@@ -118,12 +129,12 @@ function GameManager:UpdatePlayerMMR(skipRequest)
         tbl.mmr = math.abs(score)
 
         tbl.mmrStatus = READY
-        Log('[GameManager] Player\'s %s MMR updated', type)
+        Log('[Game] Player\'s %s MMR updated', type)
         EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
     end
 end
 
-function GameManager:UpdateOpponentRankAndMMR()
+function Game:UpdateOpponentRankAndMMR()
     local opponent = self.opponent
     local inLadder, rank, displayName, characterName, score = GetOpponentData(opponent.name)
 
@@ -134,7 +145,7 @@ function GameManager:UpdateOpponentRankAndMMR()
                 opponent.atEnd.rank = rank
             else
                 -- TODO: ensure it will not cause problems
-                zo_callLater(function() GameManager:UpdateOpponentRankAndMMR() end, 1500)
+                zo_callLater(function() self:UpdateOpponentRankAndMMR() end, 1500)
             end
         else
             opponent.atStart.mmr = score
@@ -143,7 +154,7 @@ function GameManager:UpdateOpponentRankAndMMR()
     end
 end
 
-function GameManager:PredictMMRChange()
+function Game:PredictMMRChange()
     if
     not self.player or
     not self.player.atStart or
@@ -164,14 +175,14 @@ function GameManager:PredictMMRChange()
     return predict1, predict2, predict3
 end
 
-function GameManager:AddPatronPicks()
+function Game:AddPatronPicks()
     self.patrons = {}
     for patronDraftId = 0, 3 do
         self.patrons[patronDraftId] = GetDraftedPatronId(patronDraftId)
     end
 end
 
--- function GameManager:UpdateScore(name)
+-- function Game:UpdateScore(name)
 --     local found, rank, displayName, characterName, score = GetOpponentData(name)
 --     Log('Updated rank: %d (#%d)', score, rank)
 --     EVENT_MANAGER:UnregisterForEvent(addon.name, EVENT_TRIBUTE_LEADERBOARD_DATA_RECEIVED)
@@ -201,13 +212,13 @@ function IMP_TOTGame:InitializeOpponent()
 end
 ]]
 
-function GameManager:AddFirstPick()
+function Game:AddFirstPick()
     self.fp = GetActiveTributePlayerPerspective() == TRIBUTE_PLAYER_PERSPECTIVE_SELF
     Log('Fist pick: %s', tostring(self.fp))
 end
 
-function GameManager:WriteGameResults()
-    Log('[GameManager] Getting results')
+function Game:WriteGameResults()
+    Log('[Game] Getting results')
     --A
     local winner, victoryType = GetTributeResultsWinnerInfo()
 
@@ -227,7 +238,7 @@ function GameManager:WriteGameResults()
     self.opponent.score = opponentScore
 end
 
-function GameManager:OnGameOver()
+function Game:OnGameOver()
     self.gameOver = true
 
     self:WriteGameResults()
@@ -237,7 +248,7 @@ function GameManager:OnGameOver()
 
     self:UpdateOpponentRankAndMMR()
 end
---#endregion GameManager
+--#endregion Game
 
 --#region ADDON
 function addon:SaveCurrentGame()
@@ -285,7 +296,7 @@ function addon:OnIntro()
         -- return
     end
 
-    self.currentGame = GameManager:New()
+    self.currentGame = Game()
 
     -- self.currentGame:AddPlayerData()
     -- self.currentGame:AddOpponentData()
